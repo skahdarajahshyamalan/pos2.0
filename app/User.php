@@ -193,7 +193,7 @@ class User extends Authenticatable
             $query->onlyPermittedLocations();
         }
 
-        $all_users = $query->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"))->get();
+        $all_users = $query->select('uid', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"))->get();
         $users = $all_users->pluck('full_name', 'uid');
 
         //Prepend none
@@ -220,7 +220,7 @@ class User extends Authenticatable
     {
         $all_cmmsn_agnts = User::where('business_uid', $business_uid)
                         ->where('is_cmmsn_agnt', 1)
-                        ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
+                        ->select('uid', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
         $users = $all_cmmsn_agnts->pluck('full_name', 'uid');
 
@@ -243,7 +243,7 @@ class User extends Authenticatable
     public static function allUsersDropdown($business_uid, $prepend_none = true, $prepend_all = false)
     {
         $all_users = User::where('business_uid', $business_uid)
-                        ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
+                        ->select('uid', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
         $users = $all_users->pluck('full_name', 'uid');
 
