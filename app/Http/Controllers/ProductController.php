@@ -75,14 +75,14 @@ class ProductController extends Controller
             $permitted_locations = auth()->user()->permitted_locations();
 
             $query = Product::with(['media'])
-                ->leftJoin('brands', 'products.brand_uid', '=', 'brands.id')
-                ->join('units', 'products.unit_uid', '=', 'units.id')
-                ->leftJoin('categories as c1', 'products.category_uid', '=', 'c1.id')
-                ->leftJoin('categories as c2', 'products.sub_category_id', '=', 'c2.id')
-                ->leftJoin('tax_rates', 'products.tax', '=', 'tax_rates.id')
-                ->join('variations as v', 'v.product_uid', '=', 'products.id')
+                ->leftJoin('brands', 'products.brand_uid', '=', 'brands.uid')
+                ->join('units', 'products.unit_uid', '=', 'units.uid')
+                ->leftJoin('categories as c1', 'products.category_uid', '=', 'c1.uid')
+                ->leftJoin('categories as c2', 'products.sub_category_id', '=', 'c2.uid')
+                ->leftJoin('tax_rates', 'products.tax', '=', 'tax_rates.uid')
+                ->join('variations as v', 'v.product_uid', '=', 'products.uid')
                 ->leftJoin('variation_location_details as vld', function ($join) use ($permitted_locations) {
-                    $join->on('vld.variation_uid', '=', 'v.id');
+                    $join->on('vld.variation_uid', '=', 'v.uid');
                     if ($permitted_locations != 'all') {
                         $join->whereIn('vld.location_uid', $permitted_locations);
                     }
@@ -110,7 +110,7 @@ class ProductController extends Controller
             }
 
             $products = $query->select(
-                'products.id',
+                'products.uid',
                 'products.name as product',
                 'products.type',
                 'c1.name as category',
@@ -142,7 +142,7 @@ class ProductController extends Controller
                 $products->addSelect('woocommerce_disable_sync');
             }
 
-            $products->groupBy('products.id');
+            $products->groupBy('products.uid');
 
             $type = request()->get('type', null);
             if (! empty($type)) {
@@ -455,7 +455,7 @@ class ProductController extends Controller
 
             $product_details = $request->only($form_fields);
             $product_details['business_uid'] = $business_uid;
-            $product_details['created_by_uid'] = $request->session()->get('user.id');
+            $product_details['created_by_uid'] = $request->session()->get('user.uid');
 
             $product_details['enable_stock'] = (! empty($request->input('enable_stock')) && $request->input('enable_stock') == 1) ? 1 : 0;
             $product_details['not_for_selling'] = (! empty($request->input('not_for_selling')) && $request->input('not_for_selling') == 1) ? 1 : 0;
@@ -926,7 +926,7 @@ class ProductController extends Controller
                     'transactions as T',
                     'purchase_lines.transaction_uid',
                     '=',
-                    'T.id'
+                    'T.uid'
                 )
                                     ->whereIn('T.type', ['purchase'])
                                     ->where('T.business_uid', $business_uid)
@@ -941,7 +941,7 @@ class ProductController extends Controller
                         'transactions as T',
                         'purchase_lines.transaction_uid',
                         '=',
-                        'T.id'
+                        'T.uid'
                      )
                                     ->where('T.type', 'opening_stock')
                                     ->where('T.business_uid', $business_uid)
@@ -957,7 +957,7 @@ class ProductController extends Controller
                             'transactions as T',
                             'purchase_lines.transaction_uid',
                             '=',
-                            'T.id'
+                            'T.uid'
                         )
                                     ->where('T.business_uid', $business_uid)
                                     ->where('purchase_lines.product_uid', $id)
@@ -981,7 +981,7 @@ class ProductController extends Controller
                         'transactions as T',
                         'transaction_sell_lines.transaction_uid',
                         '=',
-                        'T.id'
+                        'T.uid'
                     )
                         ->where('T.business_uid', $business_uid)
                         ->where('transaction_sell_lines.product_uid', $id)
@@ -1339,7 +1339,7 @@ class ProductController extends Controller
 
             $business_uid = request()->session()->get('user.business_uid');
 
-            $products = Product::join('variations', 'products.id', '=', 'variations.product_uid')
+            $products = Product::join('variations', 'products.uid', '=', 'variations.product_uid')
                 ->where('products.business_uid', $business_uid)
                 ->where('products.type', '!=', 'modifier');
 
@@ -1357,14 +1357,14 @@ class ProductController extends Controller
             //     $products->where('VLD.qty_available', '>', 0);
             // }
 
-            $products = $products->groupBy('products.id')
+            $products = $products->groupBy('products.uid')
                 ->select(
-                    'products.id as product_uid',
+                    'products.uid as product_uid',
                     'products.name',
                     'products.type',
                     'products.enable_stock',
                     'products.sku',
-                    'products.id as id',
+                    'products.uid as id',
                     DB::raw('CONCAT(products.name, " - ", products.sku) as text')
                 )
                     ->orderBy('products.name')
@@ -1397,7 +1397,7 @@ class ProductController extends Controller
         //check in variation table if $count = 0
         if ($count == 0) {
             $query2 = Variation::where('sub_sku', $sku)
-                            ->join('products', 'variations.product_uid', '=', 'products.id')
+                            ->join('products', 'variations.product_uid', '=', 'products.uid')
                             ->where('business_uid', $business_uid);
 
             if (! empty($product_uid)) {
@@ -1405,7 +1405,7 @@ class ProductController extends Controller
             }
 
             if (! empty($request->input('variation_uid'))) {
-                $query2->where('variations.id', '!=', $request->input('variation_uid'));
+                $query2->where('variations.uid', '!=', $request->input('variation_uid'));
             }
             $count = $query2->count();
         }
@@ -1473,11 +1473,11 @@ class ProductController extends Controller
 
         foreach ($all_skus as $key => $value) {
             $query = Variation::where('sub_sku', $value['sku'])
-                            ->join('products', 'variations.product_uid', '=', 'products.id')
+                            ->join('products', 'variations.product_uid', '=', 'products.uid')
                             ->where('business_uid', $business_uid);
 
             if (! empty($value['variation_uid'])) {
-                $query->where('variations.id', '!=', $value['variation_uid']);
+                $query->where('variations.uid', '!=', $value['variation_uid']);
             }
             $variation = $query->first();
 
@@ -1571,7 +1571,7 @@ class ProductController extends Controller
 
             $product_details['type'] = empty($product_details['type']) ? 'single' : $product_details['type'];
             $product_details['business_uid'] = $business_uid;
-            $product_details['created_by_uid'] = $request->session()->get('user.id');
+            $product_details['created_by_uid'] = $request->session()->get('user.uid');
             if (! empty($request->input('enable_stock')) && $request->input('enable_stock') == 1) {
                 $product_details['enable_stock'] = 1;
                 //TODO: Save total qty
@@ -1622,7 +1622,7 @@ class ProductController extends Controller
             );
 
             if ($product->enable_stock == 1 && ! empty($request->input('opening_stock'))) {
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
 
                 $transaction_date = $request->session()->get('financial_year.start');
                 $transaction_date = \Carbon::createFromFormat('Y-m-d', $transaction_date)->toDateTimeString();

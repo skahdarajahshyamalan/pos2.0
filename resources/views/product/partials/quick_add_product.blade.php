@@ -294,7 +294,7 @@
                         location_check = false;
                       }
                       if (location_check) {
-                        get_purchase_entry_row( data.product.id, 0 );
+                        get_purchase_entry_row( data.product.uid, 0 );
                       }
                       
                     }

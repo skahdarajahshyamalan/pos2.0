@@ -121,9 +121,9 @@ class BusinessLocation extends Model
         if (empty($this->featured_products)) {
             return [];
         }
-        $query = Variation::whereIn('variations.id', $this->featured_products)
+        $query = Variation::whereIn('variations.uid', $this->featured_products)
                                     ->join('product_locations as pl', 'pl.product_uid', '=', 'variations.product_uid')
-                                    ->join('products as p', 'p.id', '=', 'variations.product_uid')
+                                    ->join('products as p', 'p.uid', '=', 'variations.product_uid')
                                     ->where('p.not_for_selling', 0)
                                     ->with(['product_variation', 'product', 'media'])
                                     ->select('variations.*');

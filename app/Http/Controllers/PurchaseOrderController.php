@@ -83,19 +83,19 @@ class PurchaseOrderController extends Controller
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $purchase_orders = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+            $purchase_orders = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
                     ->join(
                         'business_locations AS BS',
                         'transactions.location_uid',
                         '=',
-                        'BS.id'
+                        'BS.uid'
                     )
-                    ->leftJoin('purchase_lines as pl', 'transactions.id', '=', 'pl.transaction_uid')
-                    ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.id')
+                    ->leftJoin('purchase_lines as pl', 'transactions.uid', '=', 'pl.transaction_uid')
+                    ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.uid')
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_order')
                     ->select(
-                        'transactions.id',
+                        'transactions.uid',
                         'transactions.document',
                         'transactions.transaction_date',
                         'transactions.ref_no',
@@ -110,7 +110,7 @@ class PurchaseOrderController extends Controller
                         DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by"),
                         DB::raw('SUM(pl.quantity - pl.po_quantity_purchased) as po_qty_remaining')
                     )
-                    ->groupBy('transactions.id');
+                    ->groupBy('transactions.uid');
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
@@ -118,7 +118,7 @@ class PurchaseOrderController extends Controller
             }
 
             if (! empty(request()->supplier_id)) {
-                $purchase_orders->where('contacts.id', request()->supplier_id);
+                $purchase_orders->where('contacts.uid', request()->supplier_id);
             }
             if (! empty(request()->location_uid)) {
                 $purchase_orders->where('transactions.location_uid', request()->location_uid);
@@ -141,7 +141,7 @@ class PurchaseOrderController extends Controller
             }
 
             if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-                $purchase_orders->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $purchase_orders->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
 
             if (! empty(request()->input('shipping_status'))) {
@@ -341,7 +341,7 @@ class PurchaseOrderController extends Controller
                 'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
             $enable_product_editing = $request->session()->get('business.enable_editing_product_from_purchase');
 
             $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
@@ -463,7 +463,7 @@ class PurchaseOrderController extends Controller
                                     'tax'
                                 );
         if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.uid'));
         }
 
         $purchase = $query->firstOrFail();
@@ -534,7 +534,7 @@ class PurchaseOrderController extends Controller
                     );
 
         if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.uid'));
         }
 
         $purchase = $query->first();

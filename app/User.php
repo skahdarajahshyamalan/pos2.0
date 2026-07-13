@@ -119,7 +119,7 @@ class User extends Authenticatable
                 $business_uid = auth()->user()->business_uid;
             }
             if (empty($business_uid) && session()->has('business')) {
-                $business_uid = session('business.id');
+                $business_uid = session('business.uid');
             }
 
             $permitted_locations = [];
@@ -328,5 +328,13 @@ class User extends Authenticatable
         }
 
         return $img_src;
+    }
+
+    /**
+     * Overriding notifications relationship to use custom morph key 'notifiable_uid'.
+     */
+    public function notifications()
+    {
+        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable', 'notifiable_type', 'notifiable_uid');
     }
 }

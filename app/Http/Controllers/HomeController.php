@@ -326,11 +326,11 @@ class HomeController extends Controller
                 'contacts as c',
                 'transactions.contact_id',
                 '=',
-                'c.id'
+                'c.uid'
             )
                     ->leftJoin(
                         'transaction_payments as tp',
-                        'transactions.id',
+                        'transactions.uid',
                         '=',
                         'tp.transaction_uid'
                     )
@@ -350,14 +350,14 @@ class HomeController extends Controller
             }
 
             $dues = $query->select(
-                'transactions.id as id',
+                'transactions.uid as id',
                 'c.name as supplier',
                 'c.supplier_business_name',
                 'ref_no',
                 'final_total',
                 DB::raw('SUM(tp.amount) as total_paid')
             )
-                        ->groupBy('transactions.id');
+                        ->groupBy('transactions.uid');
 
             return Datatables::of($dues)
                 ->addColumn('due', function ($row) {
@@ -401,11 +401,11 @@ class HomeController extends Controller
                 'contacts as c',
                 'transactions.contact_id',
                 '=',
-                'c.id'
+                'c.uid'
             )
                     ->leftJoin(
                         'transaction_payments as tp',
-                        'transactions.id',
+                        'transactions.uid',
                         '=',
                         'tp.transaction_uid'
                     )
@@ -427,14 +427,14 @@ class HomeController extends Controller
             }
 
             $dues = $query->select(
-                'transactions.id as id',
+                'transactions.uid as id',
                 'c.name as customer',
                 'c.supplier_business_name',
                 'transactions.invoice_no',
                 'final_total',
                 DB::raw('SUM(tp.amount) as total_paid')
             )
-                        ->groupBy('transactions.id');
+                        ->groupBy('transactions.uid');
 
             return Datatables::of($dues)
                 ->addColumn('due', function ($row) {

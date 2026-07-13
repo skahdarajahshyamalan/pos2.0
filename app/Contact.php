@@ -58,7 +58,7 @@ class Contact extends Authenticatable
         $query->whereIn('contacts.type', ['supplier', 'both']);
 
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -82,7 +82,7 @@ class Contact extends Authenticatable
         $query->whereIn('contacts.type', ['customer', 'both']);
 
         if (auth()->check() && ! auth()->user()->can('customer.view') && auth()->user()->can('customer.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -98,7 +98,7 @@ class Contact extends Authenticatable
      */
     public function scopeOnlyOwnContact($query)
     {
-        $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
+        $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
         $query->where(function ($q) {
             $user_uid = auth()->user()->id;
             $q->where('contacts.created_by_uid', $user_uid)
@@ -137,17 +137,17 @@ class Contact extends Authenticatable
         if ($append_id) {
             $query->select(
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(name, ' - ', COALESCE(supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
-                'contacts.id'
+                'contacts.uid'
                     );
         } else {
             $query->select(
-                'contacts.id',
+                'contacts.uid',
                 DB::raw("IF (supplier_business_name IS not null, CONCAT(name, ' (', supplier_business_name, ')'), name) as supplier")
             );
         }
 
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -155,7 +155,7 @@ class Contact extends Authenticatable
             });
         }
 
-        $contacts = $query->pluck('supplier', 'contacts.id');
+        $contacts = $query->pluck('supplier', 'contacts.uid');
 
         //Prepend none
         if ($prepend_none) {
@@ -181,11 +181,11 @@ class Contact extends Authenticatable
         if ($append_id) {
             $all_contacts->select(
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(contacts.name, ' - ', COALESCE(contacts.supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
-                'contacts.id'
+                'contacts.uid'
                     );
         } else {
             $all_contacts->select(
-                'contacts.id',
+                'contacts.uid',
                 DB::raw("CONCAT(contacts.name, ' (', contacts.supplier_business_name, ')') as supplier")
                 );
         }
@@ -220,10 +220,10 @@ class Contact extends Authenticatable
         if ($append_id) {
             $all_contacts->select(
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', CONCAT( COALESCE(contacts.supplier_business_name, ''), ' - ', contacts.name), CONCAT(COALESCE(contacts.supplier_business_name, ''), ' - ', name, ' (', contacts.contact_id, ')')) AS customer"),
-                'contacts.id'
+                'contacts.uid'
                 );
         } else {
-            $all_contacts->select('contacts.id', DB::raw('contacts.name as customer'));
+            $all_contacts->select('contacts.uid', DB::raw('contacts.name as customer'));
         }
 
         if (auth()->check() && ! auth()->user()->can('customer.view') && auth()->user()->can('customer.view_own')) {

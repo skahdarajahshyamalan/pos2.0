@@ -86,7 +86,7 @@ class PrinterController extends Controller
             $input = $request->only(['name', 'connection_type', 'capability_profile', 'ip_address', 'port', 'path', 'char_per_line']);
 
             $input['business_uid'] = $business_uid;
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             if ($input['connection_type'] == 'network') {
                 $input['path'] = '';

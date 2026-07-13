@@ -61,23 +61,23 @@ class SellReturnController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
 
                 ->join(
                     'business_locations AS bl',
                     'transactions.location_uid',
                     '=',
-                    'bl.id'
+                    'bl.uid'
                 )
                 ->join(
                     'transactions as T1',
                     'transactions.return_parent_id',
                     '=',
-                    'T1.id'
+                    'T1.uid'
                 )
                 ->leftJoin(
                     'transaction_payments AS TP',
-                    'transactions.id',
+                    'transactions.uid',
                     '=',
                     'TP.transaction_uid'
                 )
@@ -85,7 +85,7 @@ class SellReturnController extends Controller
                 ->where('transactions.type', 'sell_return')
                 ->where('transactions.status', 'final')
                 ->select(
-                    'transactions.id',
+                    'transactions.uid',
                     'transactions.transaction_date',
                     'transactions.invoice_no',
                     'contacts.name',
@@ -94,7 +94,7 @@ class SellReturnController extends Controller
                     'transactions.payment_status',
                     'bl.name as business_location',
                     'T1.invoice_no as parent_sale',
-                    'T1.id as parent_sale_id',
+                    'T1.uid as parent_sale_id',
                     DB::raw('SUM(TP.amount) as amount_paid')
                 );
 
@@ -104,7 +104,7 @@ class SellReturnController extends Controller
             }
 
             if (!auth()->user()->can('access_sell_return') && auth()->user()->can('access_own_sell_return')) {
-                $sells->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $sells->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
 
             //Add condition for created_by_uid,used in sales representative sales report
@@ -125,7 +125,7 @@ class SellReturnController extends Controller
 
             if (!empty(request()->customer_id)) {
                 $customer_id = request()->customer_id;
-                $sells->where('contacts.id', $customer_id);
+                $sells->where('contacts.uid', $customer_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -134,7 +134,7 @@ class SellReturnController extends Controller
                     ->whereDate('transactions.transaction_date', '<=', $end);
             }
 
-            $sells->groupBy('transactions.id');
+            $sells->groupBy('transactions.uid');
 
            //for zatca module Retrieve the 'is_zatca' parameter from the request; default to 0 if not provided and only comes 1 from zatca module
             $is_zatca = !empty(request()->input('is_zatca')) ? request()->input('is_zatca') : 0;
@@ -384,7 +384,7 @@ class SellReturnController extends Controller
                     return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\SellReturnController::class, 'index']));
                 }
 
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
 
                 DB::beginTransaction();
 
@@ -449,7 +449,7 @@ class SellReturnController extends Controller
             );
 
         if (!auth()->user()->can('access_sell_return') && auth()->user()->can('access_own_sell_return')) {
-            $sells->where('created_by_uid', request()->session()->get('user.id'));
+            $sells->where('created_by_uid', request()->session()->get('user.uid'));
         }
         $sell = $query->first();
 
@@ -516,7 +516,7 @@ class SellReturnController extends Controller
                     ->with(['sell_lines', 'payment_lines']);
 
                 if (!auth()->user()->can('access_sell_return') && auth()->user()->can('access_own_sell_return')) {
-                    $sells->where('created_by_uid', request()->session()->get('user.id'));
+                    $sells->where('created_by_uid', request()->session()->get('user.uid'));
                 }
                 $sell_return = $query->first();
 

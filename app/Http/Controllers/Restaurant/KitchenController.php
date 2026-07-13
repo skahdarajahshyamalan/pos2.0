@@ -61,7 +61,7 @@ class KitchenController extends Controller
         // }
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $sl = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
+            $sl = TransactionSellLine::leftJoin('transactions as t', 't.uid', '=', 'transaction_sell_lines.transaction_uid')
                         ->where('t.business_uid', $business_uid)
                         ->where('transaction_uid', $id)
                         ->where(function ($q) {
@@ -98,7 +98,7 @@ class KitchenController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
         $orders_for = $request->orders_for;
         $filter = [];
-        $service_staff_id = request()->session()->get('user.id');
+        $service_staff_id = request()->session()->get('user.uid');
 
         if (! $this->restUtil->is_service_staff($service_staff_id) && ! empty($request->input('service_staff_id'))) {
             $service_staff_id = $request->input('service_staff_id');
@@ -130,7 +130,7 @@ class KitchenController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
         $orders_for = $request->orders_for;
         $filter = [];
-        $service_staff_id = request()->session()->get('user.id');
+        $service_staff_id = request()->session()->get('user.uid');
 
         if (! $this->restUtil->is_service_staff($service_staff_id) && ! empty($request->input('service_staff_id'))) {
             $service_staff_id = $request->input('service_staff_id');

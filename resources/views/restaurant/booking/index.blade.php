@@ -389,10 +389,10 @@
                         success: function(result) {
                             if (result.success == true) {
                                 $('select#booking_customer_id').append(
-                                    $('<option>', { value: result.data.id, text: result.data.name })
+                                    $('<option>', { value: result.data.uid, text: result.data.name })
                                 );
                                 $('select#booking_customer_id')
-                                    .val(result.data.id)
+                                    .val(result.data.uid)
                                     .trigger('change');
                                     $('div.contact_modal').modal('hide');
                                 toastr.success(result.msg);

@@ -47,24 +47,24 @@ class AccountController extends Controller
         $business_uid = session()->get('user.business_uid');
         if (request()->ajax()) {
             $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
-                    $join->on('AT.account_id', '=', 'accounts.id')
+                    $join->on('AT.account_id', '=', 'accounts.uid')
                         ->whereNull('AT.deleted_at');
                 })
             ->leftjoin(
                 'account_types as ats',
                 'accounts.account_type_id',
                 '=',
-                'ats.id'
+                'ats.uid'
             )
             ->leftjoin(
                 'account_types as pat',
                 'ats.parent_account_type_id',
                 '=',
-                'pat.id'
+                'pat.uid'
             )
-            ->leftJoin('users AS u', 'accounts.created_by_uid', '=', 'u.id')
+            ->leftJoin('users AS u', 'accounts.created_by_uid', '=', 'u.uid')
                                 ->where('accounts.business_uid', $business_uid)
-                                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'accounts.account_type_id',
+                                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.uid', 'accounts.account_type_id',
                                     'ats.name as account_type_name',
                                     'pat.name as parent_account_type_name',
                                     'accounts.account_details',
@@ -95,13 +95,13 @@ class AccountController extends Controller
             }
 
             if (! $this->moduleUtil->is_admin(auth()->user(), $business_uid) && $permitted_locations != 'all') {
-                $accounts->whereIn('accounts.id', $account_ids);
+                $accounts->whereIn('accounts.uid', $account_ids);
             }
 
             $is_closed = request()->input('account_status') == 'closed' ? 1 : 0;
             $accounts->where('is_closed', $is_closed)
                 // ->whereNull('AT.deleted_at')
-                ->groupBy('accounts.id');
+                ->groupBy('accounts.uid');
 
             return DataTables::of($accounts)
                             ->addColumn(
@@ -171,7 +171,7 @@ class AccountController extends Controller
             'transactions as T',
             'transaction_payments.transaction_uid',
             '=',
-            'T.id'
+            'T.uid'
         )
                                     ->whereNull('transaction_payments.parent_id')
                                     ->where('method', '!=', 'advance')
@@ -230,7 +230,7 @@ class AccountController extends Controller
             try {
                 $input = $request->only(['name', 'account_number', 'note', 'account_type_id', 'account_details']);
                 $business_uid = $request->session()->get('user.business_uid');
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
                 $input['business_uid'] = $business_uid;
                 $input['created_by_uid'] = $user_uid;
 
@@ -288,10 +288,10 @@ class AccountController extends Controller
                 'accounts as A',
                 'account_transactions.account_id',
                 '=',
-                'A.id'
+                'A.uid'
             )
                     ->where('A.business_uid', $business_uid)
-                    ->where('A.id', $id)
+                    ->where('A.uid', $id)
                     ->select([
                         DB::raw('SUM(IF(account_transactions.type="credit", account_transactions.amount, -1 * account_transactions.amount)) as prev_bal'), ])
                     ->where('account_transactions.operation_date', '<', $start_date)
@@ -305,32 +305,32 @@ class AccountController extends Controller
                 'accounts as A',
                 'account_transactions.account_id',
                 '=',
-                'A.id'
+                'A.uid'
             )
-            ->leftJoin('transaction_payments AS tp', 'account_transactions.transaction_payment_id', '=', 'tp.id')
-            ->leftJoin('contacts AS c', 'tp.payment_for', '=', 'c.id')
-            ->leftJoin('users AS u', 'account_transactions.created_by_uid', '=', 'u.id')
+            ->leftJoin('transaction_payments AS tp', 'account_transactions.transaction_payment_id', '=', 'tp.uid')
+            ->leftJoin('contacts AS c', 'tp.payment_for', '=', 'c.uid')
+            ->leftJoin('users AS u', 'account_transactions.created_by_uid', '=', 'u.uid')
             ->leftjoin(
                     'transaction_payments as child_payments',
-                    'tp.id',
+                    'tp.uid',
                     '=',
                     'child_payments.parent_id'
                 )
             ->leftjoin(
                 'transactions as child_sells',
-                'child_sells.id',
+                'child_sells.uid',
                 '=',
                 'child_payments.transaction_uid'
             )
             ->with(['transaction', 'transaction.contact', 'transfer_transaction', 'transaction.transaction_for'])
                             ->where('A.business_uid', $business_uid)
-                            ->where('A.id', $id)
+                            ->where('A.uid', $id)
                             ->with(['transaction', 'transaction.contact', 'transfer_transaction', 'media', 'transfer_transaction.media'])
                             ->select(['account_transactions.type', 'account_transactions.amount', 'operation_date',
                                 'account_transactions.sub_type', 'transfer_transaction_id',
-                                'A.id as account_id',
+                                'A.uid as account_id',
                                 'account_transactions.transaction_uid',
-                                'account_transactions.id',
+                                'account_transactions.uid',
                                 'account_transactions.note',
                                 'tp.is_advance',
                                 'tp.is_return',
@@ -353,8 +353,8 @@ class AccountController extends Controller
                                 DB::raw('SUM(child_payments.amount) total_recovered'),
                                 DB::raw('GROUP_CONCAT(child_sells.invoice_no) as child_sells'),
                             ])
-                             ->groupBy('account_transactions.id')
-                             //->orderBy('account_transactions.id', 'asc')
+                             ->groupBy('account_transactions.uid')
+                             //->orderBy('account_transactions.uid', 'asc')
                              ->orderBy('account_transactions.operation_date', 'asc');
             if (! empty(request()->input('type'))) {
                 $accounts->where('account_transactions.type', request()->input('type'));
@@ -678,7 +678,7 @@ class AccountController extends Controller
                     'account_id' => $from,
                     'type' => 'debit',
                     'sub_type' => 'fund_transfer',
-                    'created_by_uid' => session()->get('user.id'),
+                    'created_by_uid' => session()->get('user.uid'),
                     'note' => $note,
                     'transfer_account_id' => $to,
                     'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
@@ -692,7 +692,7 @@ class AccountController extends Controller
                     'account_id' => $to,
                     'type' => 'credit',
                     'sub_type' => 'fund_transfer',
-                    'created_by_uid' => session()->get('user.id'),
+                    'created_by_uid' => session()->get('user.uid'),
                     'note' => $note,
                     'transfer_account_id' => $from,
                     'transfer_transaction_id' => $debit->id,
@@ -781,7 +781,7 @@ class AccountController extends Controller
                     'type' => 'credit',
                     'sub_type' => 'deposit',
                     'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
-                    'created_by_uid' => session()->get('user.id'),
+                    'created_by_uid' => session()->get('user.uid'),
                     'note' => $note,
                 ];
                 $credit = AccountTransaction::createAccountTransaction($credit_data);
@@ -833,11 +833,11 @@ class AccountController extends Controller
             'account_transactions as AT',
             'AT.account_id',
             '=',
-            'accounts.id'
+            'accounts.uid'
         )
             ->whereNull('AT.deleted_at')
             ->where('accounts.business_uid', $business_uid)
-            ->where('accounts.id', $id)
+            ->where('accounts.uid', $id)
             ->select('accounts.*', DB::raw("SUM( IF(AT.type='credit', amount, -1 * amount) ) as balance"))
             ->first();
 
@@ -862,34 +862,34 @@ class AccountController extends Controller
                 'accounts as A',
                 'account_transactions.account_id',
                 '=',
-                'A.id'
+                'A.uid'
                 )
                 ->leftjoin(
                     'transaction_payments as TP',
                     'account_transactions.transaction_payment_id',
                     '=',
-                    'TP.id'
+                    'TP.uid'
                 )
                 ->leftjoin(
                     'transaction_payments as child_payments',
-                    'TP.id',
+                    'TP.uid',
                     '=',
                     'child_payments.parent_id'
                 )
                 ->leftjoin(
                     'transactions as child_sells',
-                    'child_sells.id',
+                    'child_sells.uid',
                     '=',
                     'child_payments.transaction_uid'
                 )
-                ->leftJoin('users AS u', 'account_transactions.created_by_uid', '=', 'u.id')
-                ->leftJoin('contacts AS c', 'TP.payment_for', '=', 'c.id')
+                ->leftJoin('users AS u', 'account_transactions.created_by_uid', '=', 'u.uid')
+                ->leftJoin('contacts AS c', 'TP.payment_for', '=', 'c.uid')
                 ->where('A.business_uid', $business_uid)
                 ->with(['transaction', 'transaction.contact', 'transfer_transaction', 'transaction.transaction_for'])
                 ->select(['account_transactions.type', 'account_transactions.amount', 'operation_date',
                     'account_transactions.sub_type', 'transfer_transaction_id',
                     'account_transactions.transaction_uid',
-                    'account_transactions.id',
+                    'account_transactions.uid',
                     'A.name as account_name',
                     'TP.payment_ref_no as payment_ref_no',
                     'TP.is_return',
@@ -913,7 +913,7 @@ class AccountController extends Controller
                     DB::raw('SUM(child_payments.amount) total_recovered'),
                     DB::raw("GROUP_CONCAT(child_sells.invoice_no SEPARATOR ', ') as child_sells"),
                 ])
-                 ->groupBy('account_transactions.id')
+                 ->groupBy('account_transactions.uid')
                  ->orderBy('account_transactions.operation_date', 'asc');
             if (! empty(request()->input('type'))) {
                 $accounts->where('account_transactions.type', request()->input('type'));
@@ -941,7 +941,7 @@ class AccountController extends Controller
             }
 
             if ($permitted_locations != 'all') {
-                $accounts->whereIn('A.id', $account_ids);
+                $accounts->whereIn('A.uid', $account_ids);
             }
 
             $location_uid = request()->input('location_uid');
@@ -956,12 +956,12 @@ class AccountController extends Controller
                         }
                     }
 
-                    $accounts->whereIn('A.id', $account_ids);
+                    $accounts->whereIn('A.uid', $account_ids);
                 }
             }
 
             if (! empty(request()->input('account_id'))) {
-                $accounts->where('A.id', request()->input('account_id'));
+                $accounts->where('A.uid', request()->input('account_id'));
             }
 
             $start_date = request()->input('start_date');
@@ -973,7 +973,7 @@ class AccountController extends Controller
 
             if (request()->has('only_payment_recovered')) {
                 //payment date is today and transaction date is less than today
-                $accounts->leftJoin('transactions AS t', 'TP.transaction_uid', '=', 't.id')
+                $accounts->leftJoin('transactions AS t', 'TP.transaction_uid', '=', 't.uid')
                     ->whereDate('operation_date', '=', \Carbon::now()->format('Y-m-d'))
                     ->where(function ($q) {
                         $q->whereDate('t.transaction_date', '<',
@@ -1046,7 +1046,7 @@ class AccountController extends Controller
                                         'accounts as A',
                                         'account_transactions.account_id',
                                         '=',
-                                        'A.id'
+                                        'A.uid'
                                     )
                                     ->where('A.business_uid', $business_uid)
                                     ->where('operation_date', '<=', $row->operation_date)
@@ -1057,11 +1057,11 @@ class AccountController extends Controller
                         $query->where('type', request()->input('type'));
                     }
                     if ($permitted_locations != 'all' || ! empty(request()->input('location_uid'))) {
-                        $query->whereIn('A.id', $account_ids);
+                        $query->whereIn('A.uid', $account_ids);
                     }
 
                     if (! empty(request()->input('account_id'))) {
-                        $query->where('A.id', request()->input('account_id'));
+                        $query->where('A.uid', request()->input('account_id'));
                     }
 
                     $balance = $query->first()->balance;

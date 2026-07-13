@@ -72,7 +72,7 @@ class PurchaseController extends Controller
             }
 
             if (! empty(request()->supplier_id)) {
-                $purchases->where('contacts.id', request()->supplier_id);
+                $purchases->where('contacts.uid', request()->supplier_id);
             }
             if (! empty(request()->location_uid)) {
                 $purchases->where('transactions.location_uid', request()->location_uid);
@@ -98,7 +98,7 @@ class PurchaseController extends Controller
             }
 
             if (! auth()->user()->can('purchase.view') && auth()->user()->can('view_own_purchase')) {
-                $purchases->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $purchases->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
 
             return Datatables::of($purchases)
@@ -321,7 +321,7 @@ class PurchaseController extends Controller
                 'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
             $enable_product_editing = $request->session()->get('business.enable_editing_product_from_purchase');
 
             //Update business exchange rate.
@@ -885,7 +885,7 @@ class PurchaseController extends Controller
             }
 
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
             $query = Contact::where('business_uid', $business_uid)
                             ->active();
@@ -896,7 +896,7 @@ class PurchaseController extends Controller
                                 ->orWhere('contacts.contact_id', 'like', '%'.$term.'%');
             })
                         ->select(
-                            'contacts.id',
+                            'contacts.uid',
                             DB::raw('IF(name="", supplier_business_name, name) as text'),
                             'supplier_business_name as business_name',
                             'contacts.mobile',
@@ -945,7 +945,7 @@ class PurchaseController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
             $q = Product::leftJoin(
                 'variations',
-                'products.id',
+                'products.uid',
                 '=',
                 'variations.product_uid'
             )
@@ -958,11 +958,11 @@ class PurchaseController extends Controller
                 ->where('business_uid', $business_uid)
                 ->whereNull('variations.deleted_at')
                 ->select(
-                    'products.id as product_uid',
+                    'products.uid as product_uid',
                     'products.name',
                     'products.type',
                     // 'products.sku as sku',
-                    'variations.id as variation_uid',
+                    'variations.uid as variation_uid',
                     'variations.name as variation',
                     'variations.sub_sku as sub_sku'
                 )
@@ -1093,7 +1093,7 @@ class PurchaseController extends Controller
     private function getLastPurchaseLine($variation_uid, $location_uid, $supplier_id = null)
     {
         $query = PurchaseLine::join('transactions as t', 'purchase_lines.transaction_uid',
-                        '=', 't.id')
+                        '=', 't.uid')
                         ->where('t.location_uid', $location_uid)
                         ->where('t.type', 'purchase')
                         ->where('t.status', 'received')
@@ -1131,7 +1131,7 @@ class PurchaseController extends Controller
 
                 if (! empty($value[0])) {
                     $variation = Variation::where('sub_sku', trim($value[0]))
-                                        ->join('products', 'products.id', '=', 'variations.product_uid')
+                                        ->join('products', 'products.uid', '=', 'variations.product_uid')
                                         ->where('products.business_uid', $business_uid) 
                                         ->with([
                                             'product_variation',

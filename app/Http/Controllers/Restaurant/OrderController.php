@@ -43,7 +43,7 @@ class OrderController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
         $business_uid = request()->session()->get('user.business_uid');
-        $user_uid = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.uid');
 
         $is_service_staff = false;
         $orders = [];
@@ -79,9 +79,9 @@ class OrderController extends Controller
         // }
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
-            $query = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
+            $query = TransactionSellLine::leftJoin('transactions as t', 't.uid', '=', 'transaction_sell_lines.transaction_uid')
                         ->where('t.business_uid', $business_uid)
                         ->where('transaction_uid', $id);
 
@@ -114,7 +114,7 @@ class OrderController extends Controller
     {
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
             $query = TransactionSellLine::where('id', $id);
 
@@ -149,7 +149,7 @@ class OrderController extends Controller
     {
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $waiter_id = request()->session()->get('user.id');
+            $waiter_id = request()->session()->get('user.uid');
             $line_id = $request->input('line_id');
             if (! empty($request->input('service_staff_id'))) {
                 $waiter_id = $request->input('service_staff_id');

@@ -48,29 +48,29 @@ class PurchaseReturnController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
-            $purchases_returns = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+            $purchases_returns = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
                     ->join(
                         'business_locations AS BS',
                         'transactions.location_uid',
                         '=',
-                        'BS.id'
+                        'BS.uid'
                     )
                     ->leftJoin(
                         'transactions AS T',
                         'transactions.return_parent_id',
                         '=',
-                        'T.id'
+                        'T.uid'
                     )
                     ->leftJoin(
                         'transaction_payments AS TP',
-                        'transactions.id',
+                        'transactions.uid',
                         '=',
                         'TP.transaction_uid'
                     )
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_return')
                     ->select(
-                        'transactions.id',
+                        'transactions.uid',
                         'transactions.transaction_date',
                         'transactions.ref_no',
                         'contacts.name',
@@ -83,7 +83,7 @@ class PurchaseReturnController extends Controller
                         'T.ref_no as parent_purchase',
                         DB::raw('SUM(TP.amount) as amount_paid')
                     )
-                    ->groupBy('transactions.id');
+                    ->groupBy('transactions.uid');
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
@@ -96,7 +96,7 @@ class PurchaseReturnController extends Controller
 
             if (! empty(request()->supplier_id)) {
                 $supplier_id = request()->supplier_id;
-                $purchases_returns->where('contacts.id', $supplier_id);
+                $purchases_returns->where('contacts.uid', $supplier_id);
             }
             if (! empty(request()->start_date) && ! empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -305,7 +305,7 @@ class PurchaseReturnController extends Controller
                 $return_transaction_data['status'] = 'final';
                 $return_transaction_data['contact_id'] = $purchase->contact_id;
                 $return_transaction_data['transaction_date'] = \Carbon::now();
-                $return_transaction_data['created_by_uid'] = request()->session()->get('user.id');
+                $return_transaction_data['created_by_uid'] = request()->session()->get('user.uid');
                 $return_transaction_data['return_parent_id'] = $purchase->id;
 
                 $return_transaction = Transaction::create($return_transaction_data);

@@ -45,10 +45,10 @@ class DiscountController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $discounts = Discount::where('discounts.business_uid', $business_uid)
-                        ->leftjoin('brands as b', 'discounts.brand_uid', '=', 'b.id')
-                        ->leftjoin('categories as c', 'discounts.category_uid', '=', 'c.id')
-                        ->leftjoin('business_locations as l', 'discounts.location_uid', '=', 'l.id')
-                        ->select(['discounts.id', 'discounts.name', 'starts_at', 'ends_at',
+                        ->leftjoin('brands as b', 'discounts.brand_uid', '=', 'b.uid')
+                        ->leftjoin('categories as c', 'discounts.category_uid', '=', 'c.uid')
+                        ->leftjoin('business_locations as l', 'discounts.location_uid', '=', 'l.uid')
+                        ->select(['discounts.uid', 'discounts.name', 'starts_at', 'ends_at',
                             'priority', 'b.name as brand', 'c.name as category', 'l.name as location', 'discounts.is_active', 'discounts.discount_amount', 'discount_type', ])
                         ->with(['variations', 'variations.product', 'variations.product_variation']);
 

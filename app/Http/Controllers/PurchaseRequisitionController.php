@@ -66,13 +66,13 @@ class PurchaseRequisitionController extends Controller
                         'business_locations AS BS',
                         'transactions.location_uid',
                         '=',
-                        'BS.id'
+                        'BS.uid'
                     )
-                    ->join('users as u', 'transactions.created_by_uid', '=', 'u.id')
+                    ->join('users as u', 'transactions.created_by_uid', '=', 'u.uid')
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_requisition')
                     ->select(
-                        'transactions.id',
+                        'transactions.uid',
                         'transactions.delivery_date',
                         'transactions.ref_no',
                         'transactions.status',
@@ -80,7 +80,7 @@ class PurchaseRequisitionController extends Controller
                         'transactions.transaction_date',
                         DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by")
                     )
-                    ->groupBy('transactions.id');
+                    ->groupBy('transactions.uid');
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
@@ -110,7 +110,7 @@ class PurchaseRequisitionController extends Controller
             }
 
             if (! auth()->user()->can('purchase_requisition.view_all') && auth()->user()->can('purchase_requisition.view_own')) {
-                $purchase_requisitions->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $purchase_requisitions->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
 
             if (! empty(request()->from_dashboard)) {
@@ -372,28 +372,28 @@ class PurchaseRequisitionController extends Controller
                 'product_variations as pv',
                 'variation_location_details.product_variation_id',
                 '=',
-                'pv.id'
+                'pv.uid'
             )
                     ->join(
                         'variations as v',
                         'variation_location_details.variation_uid',
                         '=',
-                        'v.id'
+                        'v.uid'
                     )
                     ->join(
                         'products as p',
                         'variation_location_details.product_uid',
                         '=',
-                        'p.id'
+                        'p.uid'
                     )
                     ->leftjoin(
                         'business_locations as l',
                         'variation_location_details.location_uid',
                         '=',
-                        'l.id'
+                        'l.uid'
                     )
-                    ->leftjoin('units as u', 'p.unit_uid', '=', 'u.id')
-                    ->leftjoin('units as su', 'p.secondary_unit_id', '=', 'su.id')
+                    ->leftjoin('units as u', 'p.unit_uid', '=', 'u.uid')
+                    ->leftjoin('units as su', 'p.secondary_unit_id', '=', 'su.uid')
                     ->where('p.business_uid', $business_uid)
                     ->where('p.enable_stock', 1)
                     ->where('p.is_inactive', 0)
@@ -429,14 +429,14 @@ class PurchaseRequisitionController extends Controller
                 'l.name as location',
                 'variation_location_details.qty_available as stock',
                 'u.short_name as unit',
-                'v.id as variation_uid',
-                'p.id as product_uid',
+                'v.uid as variation_uid',
+                'p.uid as product_uid',
                 'u.allow_decimal',
                 'su.short_name as second_unit',
                 'su.allow_decimal as su_allow_decimal'
 
             )
-            ->groupBy('v.id')
+            ->groupBy('v.uid')
             ->get();
 
             return view('purchase_requisition.product_list')->with(compact('products'));

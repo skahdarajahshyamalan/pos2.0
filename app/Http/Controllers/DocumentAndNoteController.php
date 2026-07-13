@@ -36,7 +36,7 @@ class DocumentAndNoteController extends Controller
     {
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
             //model id like project_id, user_uid
             $notable_id = request()->get('notable_id');
             //model name like App\User
@@ -217,7 +217,7 @@ class DocumentAndNoteController extends Controller
 
             $input = $request->only('heading', 'description', 'is_private');
             $input['business_uid'] = request()->session()->get('user.business_uid');
-            $input['created_by_uid'] = request()->session()->get('user.id');
+            $input['created_by_uid'] = request()->session()->get('user.uid');
 
             DB::beginTransaction();
 

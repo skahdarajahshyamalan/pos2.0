@@ -100,7 +100,7 @@ class ImportProductsController extends Controller
                 $imported_data = array_splice($parsed_array[0], 1);
 
                 $business_uid = $request->session()->get('user.business_uid');
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
                 $default_profit_percent = $request->session()->get('business.default_profit_percent');
 
                 $formated_data = [];
@@ -769,7 +769,7 @@ class ImportProductsController extends Controller
      */
     private function addOpeningStock($opening_stock, $product, $business_uid)
     {
-        $user_uid = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.uid');
 
         $variation = Variation::where('product_uid', $product->id)
             ->first();
@@ -831,7 +831,7 @@ class ImportProductsController extends Controller
 
     private function addOpeningStockForVariable($variations, $product, $business_uid)
     {
-        $user_uid = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.uid');
 
         $transaction_date = request()->session()->get('financial_year.start');
         $transaction_date = \Carbon::createFromFormat('Y-m-d', $transaction_date)->toDateTimeString();

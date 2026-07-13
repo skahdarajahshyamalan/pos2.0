@@ -131,7 +131,7 @@ class ContactController extends Controller
         }
 
         if (! empty(request()->input('assigned_to'))) {
-            $contact->join('user_contact_access AS uc', 'contacts.id', 'uc.contact_id')
+            $contact->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_id')
                 ->where('uc.user_uid', request()->input('assigned_to'));
         }
 
@@ -312,7 +312,7 @@ class ContactController extends Controller
         }
 
         if (! empty(request()->input('assigned_to'))) {
-            $query->join('user_contact_access AS uc', 'contacts.id', 'uc.contact_id')
+            $query->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_id')
                 ->where('uc.user_uid', request()->input('assigned_to'));
         }
 
@@ -626,7 +626,7 @@ class ContactController extends Controller
             }
 
             $input['business_uid'] = $business_uid;
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
             $input['opening_balance'] = $this->commonUtil->num_uf($request->input('opening_balance'));
@@ -910,10 +910,10 @@ class ContactController extends Controller
             $term = request()->input('q', '');
 
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
             $contacts = Contact::where('contacts.business_uid', $business_uid)
-                            ->leftjoin('customer_groups as cg', 'cg.id', '=', 'contacts.customer_group_id')
+                            ->leftjoin('customer_groups as cg', 'cg.uid', '=', 'contacts.customer_group_id')
                             ->active();
 
             if (! request()->has('all_contact')) {
@@ -930,7 +930,7 @@ class ContactController extends Controller
             }
 
             $contacts->select(
-                'contacts.id',
+                'contacts.uid',
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT(contacts.name, ' (', contacts.contact_id, ')')) AS text"),
                 'mobile',
                 'address_line_1',
@@ -1050,7 +1050,7 @@ class ContactController extends Controller
                 $imported_data = array_splice($parsed_array[0], 1);
 
                 $business_uid = $request->session()->get('user.business_uid');
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
 
                 $formated_data = [];
 
@@ -1405,7 +1405,7 @@ class ContactController extends Controller
             $emails_array = array_map('trim', explode(',', $data['to_email']));
 
             $contact_id = $request->input('contact_id');
-            $business_uid = request()->session()->get('business.id');
+            $business_uid = request()->session()->get('business.uid');
 
             $start_date = request()->input('start_date');
             $end_date = request()->input('end_date');
@@ -1479,11 +1479,11 @@ class ContactController extends Controller
     {
         //TODO: current stock not calculating stock transferred from other location
         $pl_query_string = $this->commonUtil->get_pl_quantity_sum_string();
-        $query = PurchaseLine::join('transactions as t', 't.id', '=', 'purchase_lines.transaction_uid')
-                        ->join('products as p', 'p.id', '=', 'purchase_lines.product_uid')
-                        ->join('variations as v', 'v.id', '=', 'purchase_lines.variation_uid')
-                        ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
-                        ->join('units as u', 'p.unit_uid', '=', 'u.id')
+        $query = PurchaseLine::join('transactions as t', 't.uid', '=', 'purchase_lines.transaction_uid')
+                        ->join('products as p', 'p.uid', '=', 'purchase_lines.product_uid')
+                        ->join('variations as v', 'v.uid', '=', 'purchase_lines.variation_uid')
+                        ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.uid')
+                        ->join('units as u', 'p.unit_uid', '=', 'u.uid')
                         ->whereIn('t.type', ['purchase', 'purchase_return'])
                         ->where('t.contact_id', $supplier_id)
                         ->select(
@@ -1496,15 +1496,15 @@ class ContactController extends Controller
                             DB::raw('SUM(quantity) as purchase_quantity'),
                             DB::raw('SUM(quantity_returned) as total_quantity_returned'),
                             DB::raw("SUM((SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transaction_sell_lines_purchase_lines as TSLPL 
-                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.id
-                              JOIN transactions AS sell ON sell.id=TSL.transaction_uid
+                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.uid
+                              JOIN transactions AS sell ON sell.uid=TSL.transaction_uid
                               WHERE sell.status='final' AND sell.type='sell'
-                              AND TSLPL.purchase_line_id=purchase_lines.id)) as total_quantity_sold"),
+                              AND TSLPL.purchase_line_id=purchase_lines.uid)) as total_quantity_sold"),
                             DB::raw("SUM((SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transaction_sell_lines_purchase_lines as TSLPL 
-                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.id
-                              JOIN transactions AS sell ON sell.id=TSL.transaction_uid
+                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.uid
+                              JOIN transactions AS sell ON sell.uid=TSL.transaction_uid
                               WHERE sell.status='final' AND sell.type='sell_transfer'
-                              AND TSLPL.purchase_line_id=purchase_lines.id)) as total_quantity_transfered"),
+                              AND TSLPL.purchase_line_id=purchase_lines.uid)) as total_quantity_transfered"),
                             DB::raw("SUM( COALESCE(quantity - ($pl_query_string), 0) * purchase_price_inc_tax) as stock_price"),
                             DB::raw("SUM( COALESCE(quantity - ($pl_query_string), 0)) as current_stock")
                         )->groupBy('purchase_lines.variation_uid');
@@ -1618,14 +1618,14 @@ class ContactController extends Controller
     {
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $payments = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.id')
-            ->leftjoin('transaction_payments as parent_payment', 'transaction_payments.parent_id', '=', 'parent_payment.id')
+            $payments = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.uid')
+            ->leftjoin('transaction_payments as parent_payment', 'transaction_payments.parent_id', '=', 'parent_payment.uid')
             ->where('transaction_payments.business_uid', $business_uid)
             ->whereNull('transaction_payments.parent_id')
             ->with(['child_payments', 'child_payments.transaction'])
             ->where('transaction_payments.payment_for', $contact_id)
                 ->select(
-                    'transaction_payments.id',
+                    'transaction_payments.uid',
                     'transaction_payments.amount',
                     'transaction_payments.is_return',
                     'transaction_payments.method',
@@ -1637,14 +1637,14 @@ class ContactController extends Controller
                     't.ref_no',
                     't.type as transaction_type',
                     't.return_parent_id',
-                    't.id as transaction_uid',
+                    't.uid as transaction_uid',
                     'transaction_payments.cheque_number',
                     'transaction_payments.card_transaction_number',
                     'transaction_payments.bank_account_number',
-                    'transaction_payments.id as DT_RowId',
+                    'transaction_payments.uid as DT_RowId',
                     'parent_payment.payment_ref_no as parent_payment_ref_no'
                 )
-                ->groupBy('transaction_payments.id')
+                ->groupBy('transaction_payments.uid')
                 ->orderByDesc('transaction_payments.paid_on')
                 ->paginate();
 

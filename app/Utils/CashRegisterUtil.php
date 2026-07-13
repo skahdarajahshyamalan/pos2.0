@@ -263,17 +263,17 @@ class CashRegisterUtil extends Util
             'cash_register_transactions as ct',
             'ct.cash_register_id',
             '=',
-            'cash_registers.id'
+            'cash_registers.uid'
         )
         ->join(
             'users as u',
-            'u.id',
+            'u.uid',
             '=',
             'cash_registers.user_uid'
         )
         ->leftJoin(
             'business_locations as bl',
-            'bl.id',
+            'bl.uid',
             '=',
             'cash_registers.location_uid'
         );
@@ -282,7 +282,7 @@ class CashRegisterUtil extends Util
             $query->where('user_uid', $user_uid)
                 ->where('cash_registers.status', 'open');
         } else {
-            $query->where('cash_registers.id', $register_id);
+            $query->where('cash_registers.uid', $register_id);
         }
 
         $register_details = $query->select(
@@ -444,11 +444,11 @@ class CashRegisterUtil extends Util
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
-                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_uid')
-                ->join('products AS P', 'TSL.product_uid', '=', 'P.id')
+                ->join('transaction_sell_lines AS TSL', 'transactions.uid', '=', 'TSL.transaction_uid')
+                ->join('products AS P', 'TSL.product_uid', '=', 'P.uid')
                 ->where('TSL.children_type', '!=', 'combo')
-                ->leftjoin('brands AS B', 'P.brand_uid', '=', 'B.id')
-                ->groupBy('B.id')
+                ->leftjoin('brands AS B', 'P.brand_uid', '=', 'B.uid')
+                ->groupBy('B.uid')
                 ->select(
                     'B.name as brand_name',
                     DB::raw('SUM(TSL.quantity) as total_quantity'),
@@ -462,12 +462,12 @@ class CashRegisterUtil extends Util
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
-                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_uid')
-                ->join('variations AS v', 'TSL.variation_uid', '=', 'v.id')
-                ->join('product_variations AS pv', 'v.product_variation_id', '=', 'pv.id')
-                ->join('products AS p', 'v.product_uid', '=', 'p.id')
+                ->join('transaction_sell_lines AS TSL', 'transactions.uid', '=', 'TSL.transaction_uid')
+                ->join('variations AS v', 'TSL.variation_uid', '=', 'v.uid')
+                ->join('product_variations AS pv', 'v.product_variation_id', '=', 'pv.uid')
+                ->join('products AS p', 'v.product_uid', '=', 'p.uid')
                 ->where('TSL.children_type', '!=', 'combo')
-                ->groupBy('v.id')
+                ->groupBy('v.uid')
                 ->select(
                     'p.name as product_name',
                     'p.type as product_type',
@@ -487,8 +487,8 @@ class CashRegisterUtil extends Util
                 ->where('transactions.is_direct_sale', 0)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
-                ->leftjoin('types_of_services AS tos', 'tos.id', '=', 'transactions.types_of_service_id')
-                ->groupBy('tos.id')
+                ->leftjoin('types_of_services AS tos', 'tos.uid', '=', 'transactions.types_of_service_id')
+                ->groupBy('tos.uid')
                 ->select(
                     'tos.name as types_of_service_name',
                     DB::raw('SUM(final_total) as total_sales')

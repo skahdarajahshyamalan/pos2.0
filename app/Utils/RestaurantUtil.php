@@ -21,18 +21,18 @@ class RestaurantUtil extends Util
      */
     public function getAllOrders($business_uid, $filter = [])
     {
-        $query = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+        $query = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
                 ->leftjoin(
                     'business_locations AS bl',
                     'transactions.location_uid',
                     '=',
-                    'bl.id'
+                    'bl.uid'
                 )
                 ->leftjoin(
                     'res_tables AS rt',
                     'transactions.res_table_id',
                     '=',
-                    'rt.id'
+                    'rt.uid'
                 )
                 ->where('transactions.business_uid', $business_uid)
                 ->where('transactions.type', 'sell')
@@ -139,24 +139,24 @@ class RestaurantUtil extends Util
     public function getLineOrders($business_uid, $filter = [])
     {
         $query = TransactionSellLine::with(['modifiers', 'modifiers.product', 'modifiers.variations'])
-                ->leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
-                ->leftJoin('contacts as c', 't.contact_id', '=', 'c.id')
-                ->leftJoin('variations as v', 'transaction_sell_lines.variation_uid', '=', 'v.id')
-                ->leftJoin('products as p', 'v.product_uid', '=', 'p.id')
-                ->leftJoin('units as u', 'p.unit_uid', '=', 'u.id')
-                ->leftJoin('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
-                ->leftJoin('users as line_service_staff', 'transaction_sell_lines.res_service_staff_id', '=', 'line_service_staff.id')
+                ->leftJoin('transactions as t', 't.uid', '=', 'transaction_sell_lines.transaction_uid')
+                ->leftJoin('contacts as c', 't.contact_id', '=', 'c.uid')
+                ->leftJoin('variations as v', 'transaction_sell_lines.variation_uid', '=', 'v.uid')
+                ->leftJoin('products as p', 'v.product_uid', '=', 'p.uid')
+                ->leftJoin('units as u', 'p.unit_uid', '=', 'u.uid')
+                ->leftJoin('product_variations as pv', 'v.product_variation_id', '=', 'pv.uid')
+                ->leftJoin('users as line_service_staff', 'transaction_sell_lines.res_service_staff_id', '=', 'line_service_staff.uid')
                 ->leftjoin(
                     'business_locations AS bl',
                     't.location_uid',
                     '=',
-                    'bl.id'
+                    'bl.uid'
                 )
                 ->leftjoin(
                     'res_tables AS rt',
                     't.res_table_id',
                     '=',
-                    'rt.id'
+                    'rt.uid'
                 )
                 ->where('t.business_uid', $business_uid)
                 ->where('t.type', 'sell')
@@ -174,7 +174,7 @@ class RestaurantUtil extends Util
         }
 
         if (! empty($filter['line_id'])) {
-            $query->where('transaction_sell_lines.id', $filter['line_id']);
+            $query->where('transaction_sell_lines.uid', $filter['line_id']);
         }
 
         $permitted_locations = auth()->user()->permitted_locations();
@@ -187,7 +187,7 @@ class RestaurantUtil extends Util
             'p.type as product_type',
             'v.name as variation_name',
             'pv.name as product_variation_name',
-            't.id as transaction_uid',
+            't.uid as transaction_uid',
             'c.name as customer_name',
             'bl.name as business_location',
             'rt.name as table_name',
@@ -197,7 +197,7 @@ class RestaurantUtil extends Util
             'transaction_sell_lines.sell_line_note',
             'transaction_sell_lines.res_line_order_status',
             'u.short_name as unit',
-            'transaction_sell_lines.id',
+            'transaction_sell_lines.uid',
             DB::raw("CONCAT(COALESCE(line_service_staff.surname, ''),' ',COALESCE(line_service_staff.first_name, ''),' ',COALESCE(line_service_staff.last_name,'')) as service_staff_name")
         )
                 ->orderBy('created_at', 'desc')

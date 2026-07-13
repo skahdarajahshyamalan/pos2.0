@@ -65,24 +65,24 @@ class StockTransferController extends Controller
                 'business_locations AS l1',
                 'transactions.location_uid',
                 '=',
-                'l1.id'
+                'l1.uid'
             )
-                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.id')
+                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.uid')
                     ->join(
                         'business_locations AS l2',
                         't2.location_uid',
                         '=',
-                        'l2.id'
+                        'l2.uid'
                     )
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'sell_transfer');
 
                     if (! auth()->user()->can('stock_transfer.view') && auth()->user()->can('stock_transfer.view_own')) {
-                        $stock_transfers->where('t2.created_by_uid', request()->session()->get('user.id'));
+                        $stock_transfers->where('t2.created_by_uid', request()->session()->get('user.uid'));
                     }
 
                     $stock_transfers->select(
-                        'transactions.id',
+                        'transactions.uid',
                         'transactions.transaction_date',
                         'transactions.ref_no',
                         'l1.name as location_from',
@@ -90,7 +90,7 @@ class StockTransferController extends Controller
                         'transactions.final_total',
                         'transactions.shipping_charges',
                         'transactions.additional_notes',
-                        'transactions.id as DT_RowId',
+                        'transactions.uid as DT_RowId',
                         'transactions.status'
                     );
 
@@ -214,7 +214,7 @@ class StockTransferController extends Controller
 
             $input_data = $request->only(['location_uid', 'ref_no', 'transaction_date', 'additional_notes', 'shipping_charges', 'final_total']);
             $status = $request->input('status');
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $input_data['total_before_tax'] = $input_data['final_total'];
 

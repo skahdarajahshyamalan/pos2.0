@@ -69,7 +69,7 @@ class GroupTaxController extends Controller
         try {
             $input['name'] = $request->input('name');
             $input['business_uid'] = $request->session()->get('user.business_uid');
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
             $sub_tax_ids = $request->input('taxes');
 
             $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();

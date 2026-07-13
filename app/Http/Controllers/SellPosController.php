@@ -379,7 +379,7 @@ class SellPosController extends Controller
                     return $this->moduleUtil->quotaExpiredResponse('invoices', $business_uid, action([\App\Http\Controllers\SellPosController::class, 'index']));
                 }
 
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
 
                 $discount = ['discount_type' => $input['discount_type'],
                     'discount_amount' => $input['discount_amount'],
@@ -872,31 +872,31 @@ class SellPosController extends Controller
             'products AS p',
             'transaction_sell_lines.product_uid',
             '=',
-            'p.id'
+            'p.uid'
         )
             ->join(
                 'variations AS variations',
                 'transaction_sell_lines.variation_uid',
                 '=',
-                'variations.id'
+                'variations.uid'
             )
             ->join(
                 'product_variations AS pv',
                 'variations.product_variation_id',
                 '=',
-                'pv.id'
+                'pv.uid'
             )
             ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
-                $join->on('variations.id', '=', 'vld.variation_uid')
+                $join->on('variations.uid', '=', 'vld.variation_uid')
                     ->where('vld.location_uid', '=', $location_uid);
             })
-            ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
-            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
+            ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
+            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
             ->where('transaction_sell_lines.transaction_uid', $id)
             ->with(['warranties'])
             ->select(
                 DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                'p.id as product_uid',
+                'p.uid as product_uid',
                 'p.enable_stock',
                 'p.image as product_image',
                 'p.name as product_actual_name',
@@ -907,7 +907,7 @@ class SellPosController extends Controller
                 'variations.sub_sku',
                 'p.barcode_type',
                 'p.enable_sr_no',
-                'variations.id as variation_uid',
+                'variations.uid as variation_uid',
                 'units.short_name as unit',
                 'units.allow_decimal as unit_allow_decimal',
                 'u.short_name as second_unit',
@@ -917,8 +917,8 @@ class SellPosController extends Controller
                 'transaction_sell_lines.unit_price as default_sell_price',
                 'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
                 'transaction_sell_lines.unit_price_inc_tax as sell_price_inc_tax',
-                'transaction_sell_lines.id as transaction_sell_lines_id',
-                'transaction_sell_lines.id',
+                'transaction_sell_lines.uid as transaction_sell_lines_id',
+                'transaction_sell_lines.uid',
                 'transaction_sell_lines.quantity as quantity_ordered',
                 'transaction_sell_lines.sell_line_note as sell_line_note',
                 'transaction_sell_lines.parent_sell_line_id',
@@ -926,7 +926,7 @@ class SellPosController extends Controller
                 'transaction_sell_lines.line_discount_type',
                 'transaction_sell_lines.line_discount_amount',
                 'transaction_sell_lines.res_service_staff_id',
-                'units.id as unit_uid',
+                'units.uid as unit_uid',
                 'transaction_sell_lines.sub_unit_id',
 
                 //qty_available not added when negative to avoid max quanity getting decreased in edit and showing error in max quantity validation
@@ -1208,7 +1208,7 @@ class SellPosController extends Controller
                 }
 
                 $business_uid = $request->session()->get('user.business_uid');
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
                 $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
 
                 $discount = ['discount_type' => $input['discount_type'],
@@ -1692,7 +1692,7 @@ class SellPosController extends Controller
     public function getRecentTransactions(Request $request)
     {
         $business_uid = $request->session()->get('user.business_uid');
-        $user_uid = $request->session()->get('user.id');
+        $user_uid = $request->session()->get('user.uid');
         $transaction_status = $request->get('status');
 
         $register = $this->cashRegisterUtil->getCurrentCashRegister($user_uid);
@@ -1705,7 +1705,7 @@ class SellPosController extends Controller
         if ($transaction_status == 'final') {
             //Commented as credit sales not showing
             // if (!empty($register->id)) {
-            //     $query->leftjoin('cash_register_transactions as crt', 'transactions.id', '=', 'crt.transaction_uid')
+            //     $query->leftjoin('cash_register_transactions as crt', 'transactions.uid', '=', 'crt.transaction_uid')
             //     ->where('crt.cash_register_id', $register->id);
             // }
         }
@@ -1731,7 +1731,7 @@ class SellPosController extends Controller
         $limit = config('constants.pos_recent_transactions_display_limit', 10);
         
         $transactions = $query->orderBy('transactions.created_at', 'desc')
-            ->groupBy('transactions.id')
+            ->groupBy('transactions.uid')
             ->select('transactions.*')
             ->with(['contact', 'table'])
             ->limit($limit)
@@ -1811,13 +1811,13 @@ class SellPosController extends Controller
             $business = $request->session()->get('business');
             $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
 
-            $products = Variation::join('products as p', 'variations.product_uid', '=', 'p.id')
-                ->join('product_locations as pl', 'pl.product_uid', '=', 'p.id')
-                ->join('units as u', 'p.unit_uid', '=', 'u.id')
+            $products = Variation::join('products as p', 'variations.product_uid', '=', 'p.uid')
+                ->join('product_locations as pl', 'pl.product_uid', '=', 'p.uid')
+                ->join('units as u', 'p.unit_uid', '=', 'u.uid')
                 ->leftjoin(
                     'variation_location_details AS VLD',
                     function ($join) use ($location_uid) {
-                        $join->on('variations.id', '=', 'VLD.variation_uid');
+                        $join->on('variations.uid', '=', 'VLD.variation_uid');
 
                         //Include Location
                         if (!empty($location_uid)) {
@@ -1877,12 +1877,12 @@ class SellPosController extends Controller
             }
 
             $products = $products->select(
-                'p.id as product_uid',
+                'p.uid as product_uid',
                 'p.name',
                 'p.type',
                 'p.enable_stock',
                 'p.image as product_image',
-                'variations.id',
+                'variations.uid',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.default_sell_price as selling_price',
@@ -2107,20 +2107,20 @@ class SellPosController extends Controller
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
 
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_uid')
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+                ->leftJoin('transaction_payments as tp', 'transactions.uid', '=', 'tp.transaction_uid')
                 ->join(
                     'business_locations AS bl',
                     'transactions.location_uid',
                     '=',
-                    'bl.id'
+                    'bl.uid'
                 )
                 ->where('transactions.business_uid', $business_uid)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_recurring', 1)
                 ->select(
-                    'transactions.id',
+                    'transactions.uid',
                     'transactions.transaction_date',
                     'transactions.is_direct_sale',
                     'transactions.invoice_no',
@@ -2938,31 +2938,31 @@ class SellPosController extends Controller
             'products AS p',
             'transaction_sell_lines.product_uid',
             '=',
-            'p.id'
+            'p.uid'
         )
             ->join(
                 'variations AS variations',
                 'transaction_sell_lines.variation_uid',
                 '=',
-                'variations.id'
+                'variations.uid'
             )
             ->join(
                 'product_variations AS pv',
                 'variations.product_variation_id',
                 '=',
-                'pv.id'
+                'pv.uid'
             )
             ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
-                $join->on('variations.id', '=', 'vld.variation_uid')
+                $join->on('variations.uid', '=', 'vld.variation_uid')
                     ->where('vld.location_uid', '=', $location_uid);
             })
-            ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
-            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
+            ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
+            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
             ->where('transaction_sell_lines.transaction_uid', $transaction->id)
             ->select(
                 DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
                 'variations.sub_sku',
-                'transaction_sell_lines.id',
+                'transaction_sell_lines.uid',
                 'transaction_sell_lines.res_service_staff_id',
             )
             ->get();

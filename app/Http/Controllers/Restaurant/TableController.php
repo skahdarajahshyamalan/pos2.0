@@ -26,9 +26,9 @@ class TableController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $tables = ResTable::where('res_tables.business_uid', $business_uid)
-                        ->join('business_locations AS BL', 'res_tables.location_uid', '=', 'BL.id')
+                        ->join('business_locations AS BL', 'res_tables.location_uid', '=', 'BL.uid')
                         ->select(['res_tables.name as name', 'BL.name as location',
-                            'res_tables.description', 'res_tables.id', ]);
+                            'res_tables.description', 'res_tables.uid', ]);
 
             return Datatables::of($tables)
                 ->addColumn(
@@ -83,7 +83,7 @@ class TableController extends Controller
             $input = $request->only(['name', 'description', 'location_uid']);
             $business_uid = $request->session()->get('user.business_uid');
             $input['business_uid'] = $business_uid;
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             $table = ResTable::create($input);
             $output = ['success' => true,

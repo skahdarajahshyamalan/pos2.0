@@ -40,7 +40,7 @@ class ManageUserController extends Controller
 
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
             $users = User::where('business_uid', $business_uid)
                         ->user()

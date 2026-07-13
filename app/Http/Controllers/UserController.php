@@ -42,7 +42,7 @@ class UserController extends Controller
      */
     public function getProfile()
     {
-        $user_uid = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.uid');
         $user = User::where('id', $user_uid)->with(['media'])->first();
         $config_languages = config('constants.langs');
         $languages = [];
@@ -67,7 +67,7 @@ class UserController extends Controller
         }
 
         try {
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
             $input = $request->only(['surname', 'first_name', 'last_name', 'email', 'language', 'marital_status',
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
                 'social_media_2', 'permanent_address', 'current_address',
@@ -120,7 +120,7 @@ class UserController extends Controller
         }
 
         try {
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
             $user = User::where('id', $user_uid)->first();
 
             if (Hash::check($request->input('current_password'), $user->password)) {

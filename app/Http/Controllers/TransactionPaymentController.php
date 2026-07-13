@@ -110,7 +110,7 @@ class TransactionPaymentController extends Controller
                 //Generate reference number
                 $inputs['payment_ref_no'] = $this->transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
 
-                $inputs['business_uid'] = $request->session()->get('business.id');
+                $inputs['business_uid'] = $request->session()->get('business.uid');
                 $inputs['document'] = $this->transactionUtil->uploadFile($request, 'document', 'documents');
 
                 //Pay from advance balance
@@ -447,46 +447,46 @@ class TransactionPaymentController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $due_payment_type = request()->input('type');
-            $query = Contact::where('contacts.id', $contact_id)
-                            ->leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id');
+            $query = Contact::where('contacts.uid', $contact_id)
+                            ->leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_id');
             if ($due_payment_type == 'purchase') {
                 $query->select(
                     DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
-                    DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as total_paid"),
+                    DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.id as contact_id'
+                    'contacts.uid as contact_id'
                     );
             } elseif ($due_payment_type == 'purchase_return') {
                 $query->select(
                     DB::raw("SUM(IF(t.type = 'purchase_return', final_total, 0)) as total_purchase_return"),
-                    DB::raw("SUM(IF(t.type = 'purchase_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as total_return_paid"),
+                    DB::raw("SUM(IF(t.type = 'purchase_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_return_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.id as contact_id'
+                    'contacts.uid as contact_id'
                     );
             } elseif ($due_payment_type == 'sell') {
                 $query->select(
                     DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
-                    DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as total_paid"),
+                    DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.id as contact_id'
+                    'contacts.uid as contact_id'
                 );
             } elseif ($due_payment_type == 'sell_return') {
                 $query->select(
                     DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
-                    DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as total_return_paid"),
+                    DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_return_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.id as contact_id'
+                    'contacts.uid as contact_id'
                     );
             }
 
             //Query for opening balance details
             $query->addSelect(
                 DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
-                DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as opening_balance_paid")
+                DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as opening_balance_paid")
             );
             $contact_details = $query->first();
 
@@ -548,7 +548,7 @@ class TransactionPaymentController extends Controller
         try {
             DB::beginTransaction();
 
-            $business_uid = request()->session()->get('business.id');
+            $business_uid = request()->session()->get('business.uid');
             $tp = $this->transactionUtil->payContact($request);
 
             // Record advance/due payment in the open cash register when called from POS.
@@ -619,7 +619,7 @@ class TransactionPaymentController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_uid = request()->session()->get('business.id');
+            $business_uid = request()->session()->get('business.uid');
             $single_payment_line = TransactionPayment::findOrFail($payment_id);
 
             $transaction = null;
@@ -662,7 +662,7 @@ class TransactionPaymentController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_uid = request()->session()->get('business.id');
+            $business_uid = request()->session()->get('business.uid');
 
             $child_payments = TransactionPayment::where('business_uid', $business_uid)
                                                     ->where('parent_id', $payment_id)
@@ -694,9 +694,9 @@ class TransactionPaymentController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_uid = request()->session()->get('business.id');
+        $business_uid = request()->session()->get('business.uid');
         if (request()->ajax()) {
-            $query = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.id')
+            $query = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.uid')
                 ->where('t.business_uid', $business_uid)
                 ->where('t.type', 'opening_balance')
                 ->where('t.contact_id', $contact_id)
@@ -707,12 +707,12 @@ class TransactionPaymentController extends Controller
                     'paid_on',
                     'transaction_payments.payment_ref_no',
                     'transaction_payments.document',
-                    'transaction_payments.id',
+                    'transaction_payments.uid',
                     'cheque_number',
                     'card_transaction_number',
                     'bank_account_number'
                 )
-                ->groupBy('transaction_payments.id');
+                ->groupBy('transaction_payments.uid');
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {

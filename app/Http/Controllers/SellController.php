@@ -139,10 +139,10 @@ class SellController extends Controller
                 // Apply same filters (count-safe)
                 $this->applySellListFilters($count_query, $business_uid, $sale_type, true);
                 // IMPORTANT: do NOT groupBy here; just count distinct ids
-                return $count_query->distinct('transactions.id')->count('transactions.id');
+                return $count_query->distinct('transactions.uid')->count('transactions.uid');
             });
 
-            $sells->groupBy('transactions.id');
+            $sells->groupBy('transactions.uid');
 
             if (! empty(request()->suspended)) {
                 $transaction_sub_type = request()->get('transaction_sub_type');
@@ -742,7 +742,7 @@ class SellController extends Controller
                     }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
 
         if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.uid'));
         }
 
         $sell = $query->firstOrFail();
@@ -874,31 +874,31 @@ class SellController extends Controller
                             'products AS p',
                             'transaction_sell_lines.product_uid',
                             '=',
-                            'p.id'
+                            'p.uid'
                         )
                         ->join(
                             'variations AS variations',
                             'transaction_sell_lines.variation_uid',
                             '=',
-                            'variations.id'
+                            'variations.uid'
                         )
                         ->join(
                             'product_variations AS pv',
                             'variations.product_variation_id',
                             '=',
-                            'pv.id'
+                            'pv.uid'
                         )
                         ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
-                            $join->on('variations.id', '=', 'vld.variation_uid')
+                            $join->on('variations.uid', '=', 'vld.variation_uid')
                                 ->where('vld.location_uid', '=', $location_uid);
                         })
-                        ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
-                        ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
+                        ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
+                        ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
                         ->where('transaction_sell_lines.transaction_uid', $id)
                         ->with(['warranties', 'so_line'])
                         ->select(
                             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                            'p.id as product_uid',
+                            'p.uid as product_uid',
                             'p.image as product_image',
                             'p.enable_stock',
                             'p.name as product_actual_name',
@@ -909,7 +909,7 @@ class SellController extends Controller
                             'variations.sub_sku',
                             'p.barcode_type',
                             'p.enable_sr_no',
-                            'variations.id as variation_uid',
+                            'variations.uid as variation_uid',
                             'units.short_name as unit',
                             'units.allow_decimal as unit_allow_decimal',
                             'u.short_name as second_unit',
@@ -919,8 +919,8 @@ class SellController extends Controller
                             'transaction_sell_lines.unit_price as default_sell_price',
                             'transaction_sell_lines.unit_price_inc_tax as sell_price_inc_tax',
                             'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
-                            'transaction_sell_lines.id as transaction_sell_lines_id',
-                            'transaction_sell_lines.id',
+                            'transaction_sell_lines.uid as transaction_sell_lines_id',
+                            'transaction_sell_lines.uid',
                             'transaction_sell_lines.quantity as quantity_ordered',
                             'transaction_sell_lines.sell_line_note as sell_line_note',
                             'transaction_sell_lines.parent_sell_line_id',
@@ -928,7 +928,7 @@ class SellController extends Controller
                             'transaction_sell_lines.line_discount_type',
                             'transaction_sell_lines.line_discount_amount',
                             'transaction_sell_lines.res_service_staff_id',
-                            'units.id as unit_uid',
+                            'units.uid as unit_uid',
                             'transaction_sell_lines.sub_unit_id',
                             'transaction_sell_lines.so_line_id',
                             DB::raw('vld.qty_available + transaction_sell_lines.quantity AS qty_available')
@@ -1192,23 +1192,23 @@ class SellController extends Controller
 
             $is_woocommerce = $this->moduleUtil->isModuleInstalled('Woocommerce');
 
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.id')
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+                ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.uid')
                 ->join(
                     'business_locations AS bl',
                     'transactions.location_uid',
                     '=',
-                    'bl.id'
+                    'bl.uid'
                 )
                 ->leftJoin('transaction_sell_lines as tsl', function ($join) {
-                    $join->on('transactions.id', '=', 'tsl.transaction_uid')
+                    $join->on('transactions.uid', '=', 'tsl.transaction_uid')
                         ->whereNull('tsl.parent_sell_line_id');
                 })
                 ->where('transactions.business_uid', $business_uid)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'draft')
                 ->select(
-                    'transactions.id',
+                    'transactions.uid',
                     'transaction_date',
                     'invoice_no',
                     'contacts.name',
@@ -1217,7 +1217,7 @@ class SellController extends Controller
                     'bl.name as business_location',
                     'is_direct_sale',
                     'sub_status',
-                    DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
+                    DB::raw('COUNT( DISTINCT tsl.uid) as total_items'),
                     DB::raw('SUM(tsl.quantity) as total_quantity'),
                     DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as added_by"),
                     'transactions.is_export'
@@ -1227,11 +1227,11 @@ class SellController extends Controller
                 $sells->where('transactions.sub_status', 'quotation');
 
                 if (! auth()->user()->can('quotation.view_all') && auth()->user()->can('quotation.view_own')) {
-                    $sells->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                    $sells->where('transactions.created_by_uid', request()->session()->get('user.uid'));
                 }
             } else {
                 if (! auth()->user()->can('draft.view_all') && auth()->user()->can('draft.view_own')) {
-                    $sells->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                    $sells->where('transactions.created_by_uid', request()->session()->get('user.uid'));
                 }
             }
 
@@ -1263,14 +1263,14 @@ class SellController extends Controller
 
             if (! empty(request()->customer_id)) {
                 $customer_id = request()->customer_id;
-                $sells->where('contacts.id', $customer_id);
+                $sells->where('contacts.uid', $customer_id);
             }
 
             if ($is_woocommerce) {
                 $sells->addSelect('transactions.woocommerce_order_id');
             }
 
-            $sells->groupBy('transactions.id');
+            $sells->groupBy('transactions.uid');
 
             return Datatables::of($sells)
                  ->addColumn(
@@ -1413,7 +1413,7 @@ class SellController extends Controller
 
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
 
             $transaction = Transaction::where('business_uid', $business_uid)
                             ->where('type', 'sell')
@@ -1661,11 +1661,11 @@ class SellController extends Controller
         if (! auth()->user()->can('direct_sell.view')) {
             $query->where(function ($q) {
                 if (auth()->user()->hasAnyPermission(['view_own_sell_only', 'access_own_shipping'])) {
-                    $q->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                    $q->where('transactions.created_by_uid', request()->session()->get('user.uid'));
                 }
 
                 if (auth()->user()->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
-                    $q->orWhere('transactions.commission_agent', request()->session()->get('user.id'));
+                    $q->orWhere('transactions.commission_agent', request()->session()->get('user.uid'));
                 }
             });
         }
@@ -1740,7 +1740,7 @@ class SellController extends Controller
 
         // Customer filter
         if (! empty(request()->customer_id)) {
-            $query->where('contacts.id', request()->customer_id);
+            $query->where('contacts.uid', request()->customer_id);
         }
 
         // Date range
@@ -1842,7 +1842,7 @@ class SellController extends Controller
         // Sales order view restrictions
         if ($sale_type == 'sales_order') {
             if (! auth()->user()->can('so.view_all') && auth()->user()->can('so.view_own')) {
-                $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $query->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
         }
 

@@ -53,18 +53,18 @@ class Account extends Model
         }
 
         if ($permitted_locations != 'all') {
-            $query->whereIn('accounts.id', $account_ids);
+            $query->whereIn('accounts.uid', $account_ids);
         }
 
         $can_access_account = auth()->user()->can('account.access');
         if ($can_access_account && $show_balance) {
             // $query->leftjoin('account_transactions as AT', function ($join) {
-            //     $join->on('AT.account_id', '=', 'accounts.id');
+            //     $join->on('AT.account_id', '=', 'accounts.uid');
             //     $join->whereNull('AT.deleted_at');
             // })
             $query->select('accounts.name',
-                    'accounts.id',
-                    DB::raw("(SELECT SUM( IF(account_transactions.type='credit', amount, -1*amount) ) as balance from account_transactions where account_transactions.account_id = accounts.id AND deleted_at is NULL) as balance")
+                    'accounts.uid',
+                    DB::raw("(SELECT SUM( IF(account_transactions.type='credit', amount, -1*amount) ) as balance from account_transactions where account_transactions.account_id = accounts.uid AND deleted_at is NULL) as balance")
                 );
         }
 

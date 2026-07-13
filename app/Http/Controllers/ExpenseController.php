@@ -51,28 +51,28 @@ class ExpenseController extends Controller
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
 
-            $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_uid', '=', 'ec.id')
-                        ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.id')
+            $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_uid', '=', 'ec.uid')
+                        ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.uid')
                         ->join(
                             'business_locations AS bl',
                             'transactions.location_uid',
                             '=',
-                            'bl.id'
+                            'bl.uid'
                         )
-                        ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.id')
-                        ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.id')
-                        ->leftJoin('users AS usr', 'transactions.created_by_uid', '=', 'usr.id')
-                        ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.id')
+                        ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.uid')
+                        ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.uid')
+                        ->leftJoin('users AS usr', 'transactions.created_by_uid', '=', 'usr.uid')
+                        ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.uid')
                         ->leftJoin(
                             'transaction_payments AS TP',
-                            'transactions.id',
+                            'transactions.uid',
                             '=',
                             'TP.transaction_uid'
                         )
                         ->where('transactions.business_uid', $business_uid)
                         ->whereIn('transactions.type', ['expense', 'expense_refund'])
                         ->select(
-                            'transactions.id',
+                            'transactions.uid',
                             'transactions.contact_id as c_id',
                             'transactions.document',
                             'transaction_date',
@@ -99,7 +99,7 @@ class ExpenseController extends Controller
                             'transactions.type'
                         )
                         ->with(['recurring_parent'])
-                        ->groupBy('transactions.id');
+                        ->groupBy('transactions.uid');
 
             //Add condition for expense for,used in sales representative expense report & list of expense
             if (request()->has('expense_for')) {
@@ -377,7 +377,7 @@ class ExpenseController extends Controller
                 'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             DB::beginTransaction();
 
@@ -601,7 +601,7 @@ class ExpenseController extends Controller
         ini_set('memory_limit', -1);
 
         $business_uid = $request->session()->get('user.business_uid');
-        $user_uid = $request->session()->get('user.id');
+        $user_uid = $request->session()->get('user.uid');
 
         if ($request->hasFile('expense_csv')) {
             $file = $request->file('expense_csv');

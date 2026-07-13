@@ -243,11 +243,11 @@ class SellingPriceGroupController extends Controller
         $business_uid = request()->user()->business_uid;
         $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->get();
 
-        $variations = Variation::join('products as p', 'variations.product_uid', '=', 'p.id')
-                            ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.id')
+        $variations = Variation::join('products as p', 'variations.product_uid', '=', 'p.uid')
+                            ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.uid')
                             ->where('p.business_uid', $business_uid)
                             ->whereIn('p.type', ['single', 'variable'])
-                            ->select('sub_sku', 'p.name as product_name', 'variations.name as variation_name', 'p.type', 'variations.id', 'pv.name as product_variation_name', 'sell_price_inc_tax')
+                            ->select('sub_sku', 'p.name as product_name', 'variations.name as variation_name', 'p.type', 'variations.uid', 'pv.name as product_variation_name', 'sell_price_inc_tax')
                             ->with(['group_prices'])
                             ->get();
         $export_data = [];
@@ -324,7 +324,7 @@ class SellingPriceGroupController extends Controller
 
                 foreach ($imported_data as $key => $value) {
                     $variation = Variation::where('sub_sku', $value[1])
-                                        ->join('products', 'products.id', '=', 'variations.product_uid')
+                                        ->join('products', 'products.uid', '=', 'variations.product_uid')
                                         ->where('products.business_uid', $business_uid)
                                         ->select('variations.*')
                                         ->first();

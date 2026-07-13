@@ -44,7 +44,7 @@
             var contacts = {!! json_encode($all_contacts->toArray()) !!};
             var data = $.map(contacts, function (obj) {
                 obj.text = obj.name; 
-                obj.id = obj.id;
+                obj.uid = obj.uid;
                 obj.shipping_address = obj.shipping_address || "";
                 obj.contact_id = obj.contact_id || "";
                   return obj;

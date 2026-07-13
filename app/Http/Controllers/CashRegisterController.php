@@ -75,7 +75,7 @@ class CashRegisterController extends Controller
             if (! empty($request->input('amount'))) {
                 $initial_amount = $this->cashRegisterUtil->num_uf($request->input('amount'));
             }
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
             $business_uid = $request->session()->get('user.business_uid');
 
             $register = CashRegister::create([

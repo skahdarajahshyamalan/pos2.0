@@ -57,13 +57,13 @@ class StockAdjustmentController extends Controller
                 'business_locations AS BL',
                 'transactions.location_uid',
                 '=',
-                'BL.id'
+                'BL.uid'
             )
-                ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.id')
+                ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.uid')
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'stock_adjustment')
                     ->select(
-                        'transactions.id',
+                        'transactions.uid',
                         'transaction_date',
                         'ref_no',
                         'BL.name as location_name',
@@ -71,7 +71,7 @@ class StockAdjustmentController extends Controller
                         'final_total',
                         'total_amount_recovered',
                         'additional_notes',
-                        'transactions.id as DT_RowId',
+                        'transactions.uid as DT_RowId',
                         DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by")
                     );
 
@@ -93,7 +93,7 @@ class StockAdjustmentController extends Controller
             }
 
             if (! auth()->user()->can('stock_adjustment.view') && auth()->user()->can('view_own_stock_adjustment')) {
-                $stock_adjustments->where('transactions.created_by_uid', request()->session()->get('user.id'));
+                $stock_adjustments->where('transactions.created_by_uid', request()->session()->get('user.uid'));
             }
 
             if(! auth()->user()->can('stock_adjustment.delete')){
@@ -189,7 +189,7 @@ class StockAdjustmentController extends Controller
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\StockAdjustmentController::class, 'index']));
             }
 
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $input_data['type'] = 'stock_adjustment';
             $input_data['business_uid'] = $business_uid;
@@ -282,7 +282,7 @@ class StockAdjustmentController extends Controller
         }
         $business_uid = request()->session()->get('user.business_uid');
         $stock_adjustment = Transaction::where('transactions.business_uid', $business_uid)
-                    ->where('transactions.id', $id)
+                    ->where('transactions.uid', $id)
                     ->where('transactions.type', 'stock_adjustment')
                     ->with(['stock_adjustment_lines', 'location', 'business', 'stock_adjustment_lines.variation', 'stock_adjustment_lines.variation.product', 'stock_adjustment_lines.variation.product_variation', 'stock_adjustment_lines.lot_details'])
                     ->first();
@@ -448,7 +448,7 @@ class StockAdjustmentController extends Controller
                 $qty_unsold = $purchase_line->quantity - $purchase_line->quantity_sold - $purchase_line->quantity_adjusted - $purchase_line->quantity_returned;
                 $final_total = $purchase_line->purchase_price_inc_tax * $qty_unsold;
 
-                $user_uid = request()->session()->get('user.id');
+                $user_uid = request()->session()->get('user.uid');
                 $business_uid = request()->session()->get('user.business_uid');
 
                 //Update reference count

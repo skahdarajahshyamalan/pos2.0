@@ -148,7 +148,7 @@ class OpeningStockController extends Controller
             $product_uid = $request->input('product_uid');
 
             $business_uid = $request->session()->get('user.business_uid');
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $product = Product::where('business_uid', $business_uid)
                                 ->where('id', $product_uid)

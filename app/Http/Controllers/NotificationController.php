@@ -113,7 +113,7 @@ class NotificationController extends Controller
             $emails_array = array_map('trim', explode(',', $data['to_email']));
 
             $transaction_uid = $request->input('transaction_uid');
-            $business_uid = request()->session()->get('business.id');
+            $business_uid = request()->session()->get('business.uid');
 
             $transaction = ! empty($transaction_uid) ? Transaction::find($transaction_uid) : null;
 

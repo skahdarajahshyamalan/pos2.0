@@ -296,7 +296,7 @@ class ProductUtil extends Util
                 'transactions as T',
                 'purchase_lines.transaction_uid',
                 '=',
-                'T.id'
+                'T.uid'
                 )
                   ->where('T.type', 'purchase')
                   ->where('T.status', 'received')
@@ -309,7 +309,7 @@ class ProductUtil extends Util
                 'transactions as T',
                 'transaction_sell_lines.transaction_uid',
                 '=',
-                'T.id'
+                'T.uid'
                 )
                   ->where('T.type', 'sell')
                   ->where('T.status', 'final')
@@ -463,17 +463,17 @@ class ProductUtil extends Util
     {
         $variation = Variation::with('media')->findOrFail($variation_uid);
 
-        $query = Variation::join('products AS p', 'variations.product_uid', '=', 'p.id')
-                ->join('product_variations AS pv', 'variations.product_variation_id', '=', 'pv.id')
-                ->leftjoin('variation_location_details AS vld', 'variations.id', '=', 'vld.variation_uid')
-                ->leftjoin('units', 'p.unit_uid', '=', 'units.id')
-                ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
+        $query = Variation::join('products AS p', 'variations.product_uid', '=', 'p.uid')
+                ->join('product_variations AS pv', 'variations.product_variation_id', '=', 'pv.uid')
+                ->leftjoin('variation_location_details AS vld', 'variations.uid', '=', 'vld.variation_uid')
+                ->leftjoin('units', 'p.unit_uid', '=', 'units.uid')
+                ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
                 ->leftjoin('brands', function ($join) {
-                    $join->on('p.brand_uid', '=', 'brands.id')
+                    $join->on('p.brand_uid', '=', 'brands.uid')
                         ->whereNull('brands.deleted_at');
                 })
                 ->where('p.business_uid', $business_uid)
-                ->where('variations.id', $variation_uid);
+                ->where('variations.uid', $variation_uid);
 
         //Add condition for check of quantity. (if stock is not enabled or qty_available > 0)
         if ($check_qty) {
@@ -498,7 +498,7 @@ class ProductUtil extends Util
         $product = $query->select(
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-            'p.id as product_uid',
+            'p.uid as product_uid',
             'p.brand_uid',
             'p.category_uid',
             'p.tax as tax_id',
@@ -537,15 +537,15 @@ class ProductUtil extends Util
             'variations.default_sell_price',
             'variations.default_purchase_price',
             'variations.sell_price_inc_tax',
-            'variations.id as variation_uid',
+            'variations.uid as variation_uid',
             'variations.combo_variations',  //Used in combo products
             'units.short_name as unit',
-            'units.id as unit_uid',
+            'units.uid as unit_uid',
             'units.allow_decimal as unit_allow_decimal',
             'u.short_name as second_unit',
             'brands.name as brand',
             DB::raw('(SELECT purchase_price_inc_tax FROM purchase_lines WHERE 
-                        variation_uid=variations.id ORDER BY id DESC LIMIT 1) as last_purchased_price')
+                        variation_uid=variations.uid ORDER BY id DESC LIMIT 1) as last_purchased_price')
         )
         ->firstOrFail();
 
@@ -721,12 +721,12 @@ class ProductUtil extends Util
     {
         $query = Transaction::join(
             'transaction_sell_lines as tsl',
-            'transactions.id',
+            'transactions.uid',
             '=',
             'tsl.transaction_uid'
         )
-                    ->join('products as p', 'tsl.product_uid', '=', 'p.id')
-                    ->leftjoin('units as u', 'u.id', '=', 'p.unit_uid')
+                    ->join('products as p', 'tsl.product_uid', '=', 'p.uid')
+                    ->leftjoin('units as u', 'u.uid', '=', 'p.unit_uid')
                     ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'sell')
                     ->where('transactions.status', 'final');
@@ -765,7 +765,7 @@ class ProductUtil extends Util
                 $filters['end_date'], ]);
         }
 
-        // $sell_return_query = "(SELECT SUM(TPL.quantity) FROM transactions AS T JOIN purchase_lines AS TPL ON T.id=TPL.transaction_uid WHERE TPL.product_uid=tsl.product_uid AND T.type='sell_return'";
+        // $sell_return_query = "(SELECT SUM(TPL.quantity) FROM transactions AS T JOIN purchase_lines AS TPL ON T.uid=TPL.transaction_uid WHERE TPL.product_uid=tsl.product_uid AND T.type='sell_return'";
         // if ($permitted_locations != 'all') {
         //     $sell_return_query .= ' AND T.location_uid IN ('
         //      . implode(',', $permitted_locations) . ') ';
@@ -798,20 +798,20 @@ class ProductUtil extends Util
      */
     public function getDetailsFromProduct($business_uid, $product_uid, $variation_uid = null)
     {
-        $product = Product::leftjoin('variations as v', 'products.id', '=', 'v.product_uid')
+        $product = Product::leftjoin('variations as v', 'products.uid', '=', 'v.product_uid')
                         ->whereNull('v.deleted_at')
                         ->where('products.business_uid', $business_uid);
 
         if (! is_null($variation_uid) && $variation_uid !== '0') {
-            $product->where('v.id', $variation_uid);
+            $product->where('v.uid', $variation_uid);
         }
 
-        $product->where('products.id', $product_uid);
+        $product->where('products.uid', $product_uid);
 
         $products = $product->select(
-            'products.id as product_uid',
+            'products.uid as product_uid',
             'products.name as product_name',
-            'v.id as variation_uid',
+            'v.uid as variation_uid',
             'v.name as variation_name'
         )
                     ->get();
@@ -1005,7 +1005,7 @@ class ProductUtil extends Util
                     ->where('product_uid', $product_uid);
 
         if ($get_location) {
-            $racks = $query->join('business_locations AS BL', 'product_racks.location_uid', '=', 'BL.id')
+            $racks = $query->join('business_locations AS BL', 'product_racks.location_uid', '=', 'BL.uid')
                 ->select(['product_racks.rack',
                     'product_racks.row',
                     'product_racks.position',
@@ -1494,8 +1494,8 @@ class ProductUtil extends Util
                 //update sell line purchase line mapping
                 $sell_line_purchase_lines =
         TransactionSellLinesPurchaseLines::where('purchase_line_id', 0)
-                ->join('transaction_sell_lines as tsl', 'tsl.id', '=', 'transaction_sell_lines_purchase_lines.sell_line_id')
-                ->join('transactions as t', 'tsl.transaction_uid', '=', 't.id')
+                ->join('transaction_sell_lines as tsl', 'tsl.uid', '=', 'transaction_sell_lines_purchase_lines.sell_line_id')
+                ->join('transactions as t', 'tsl.transaction_uid', '=', 't.uid')
                 ->where('t.location_uid', $transaction->location_uid)
                 ->where('tsl.variation_uid', $purchase_line->variation_uid)
                 ->where('tsl.product_uid', $purchase_line->product_uid)
@@ -1604,14 +1604,14 @@ class ProductUtil extends Util
      */
     public function filterProduct($business_uid, $search_term, $location_uid = null, $not_for_selling = null, $price_group_id = null, $product_types = [], $search_fields = [], $check_qty = false, $search_type = 'like')
     {
-        $query = Product::join('variations', 'products.id', '=', 'variations.product_uid')
+        $query = Product::join('variations', 'products.uid', '=', 'variations.product_uid')
                 ->active()
                 ->whereNull('variations.deleted_at')
-                ->leftjoin('units as U', 'products.unit_uid', '=', 'U.id')
+                ->leftjoin('units as U', 'products.unit_uid', '=', 'U.uid')
                 ->leftjoin(
                     'variation_location_details AS VLD',
                     function ($join) use ($location_uid) {
-                        $join->on('variations.id', '=', 'VLD.variation_uid');
+                        $join->on('variations.uid', '=', 'VLD.variation_uid');
 
                         //Include Location
                         if (! empty($location_uid)) {
@@ -1633,7 +1633,7 @@ class ProductUtil extends Util
             $query->leftjoin(
                 'variation_group_prices AS VGP',
                 function ($join) use ($price_group_id) {
-                    $join->on('variations.id', '=', 'VGP.variation_uid')
+                    $join->on('variations.uid', '=', 'VGP.variation_uid')
                         ->where('VGP.price_group_id', '=', $price_group_id);
                 }
             );
@@ -1647,7 +1647,7 @@ class ProductUtil extends Util
         }
 
         if (in_array('lot', $search_fields)) {
-            $query->leftjoin('purchase_lines as pl', 'variations.id', '=', 'pl.variation_uid');
+            $query->leftjoin('purchase_lines as pl', 'variations.uid', '=', 'pl.variation_uid');
         }
 
         //Include search
@@ -1719,11 +1719,11 @@ class ProductUtil extends Util
         }
 
         $query->select(
-                'products.id as product_uid',
+                'products.uid as product_uid',
                 'products.name',
                 'products.type',
                 'products.enable_stock',
-                'variations.id as variation_uid',
+                'variations.uid as variation_uid',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.sell_price_inc_tax as selling_price',
@@ -1736,10 +1736,10 @@ class ProductUtil extends Util
         }
 
         if (in_array('lot', $search_fields)) {
-            $query->addSelect('pl.id as purchase_line_id', 'pl.lot_number');
+            $query->addSelect('pl.uid as purchase_line_id', 'pl.lot_number');
         }
 
-        $data = $query->groupBy('variations.id')
+        $data = $query->groupBy('variations.uid')
              ->orderBy('VLD.qty_available', 'desc')
              ->get();
 
@@ -1757,12 +1757,12 @@ class ProductUtil extends Util
 
     public function getProductStockDetails($business_uid, $filters, $for)
     {
-        $query = Variation::join('products as p', 'p.id', '=', 'variations.product_uid')
-                  ->join('units', 'p.unit_uid', '=', 'units.id')
-                  ->leftjoin('variation_location_details as vld', 'variations.id', '=', 'vld.variation_uid')
-                  ->leftjoin('business_locations as l', 'vld.location_uid', '=', 'l.id')
-                  ->leftjoin('categories as c', 'p.category_uid', '=', 'c.id')
-                  ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.id')
+        $query = Variation::join('products as p', 'p.uid', '=', 'variations.product_uid')
+                  ->join('units', 'p.unit_uid', '=', 'units.uid')
+                  ->leftjoin('variation_location_details as vld', 'variations.uid', '=', 'vld.variation_uid')
+                  ->leftjoin('business_locations as l', 'vld.location_uid', '=', 'l.uid')
+                  ->leftjoin('categories as c', 'p.category_uid', '=', 'c.uid')
+                  ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.uid')
                   ->where('p.business_uid', $business_uid)
                   ->whereIn('p.type', ['single', 'variable']);
 
@@ -1784,7 +1784,7 @@ class ProductUtil extends Util
             $location_filter .= "AND transactions.location_uid=$location_uid";
 
             //If filter by location then hide products not available in that location
-            $query->join('product_locations as pl', 'pl.product_uid', '=', 'p.id')
+            $query->join('product_locations as pl', 'pl.product_uid', '=', 'p.uid')
                   ->where(function ($q) use ($location_uid) {
                       $q->where('pl.location_uid', $location_uid);
                   });
@@ -1812,7 +1812,7 @@ class ProductUtil extends Util
         }
 
         if (isset($filters['only_mfg_products']) && $filters['only_mfg_products'] == 1) {
-            $query->join('mfg_recipes as mr', 'mr.variation_uid', '=', 'variations.id');
+            $query->join('mfg_recipes as mr', 'mr.variation_uid', '=', 'variations.uid');
         }
 
         if (isset($filters['active_state']) && $filters['active_state'] == 'active') {
@@ -1833,62 +1833,62 @@ class ProductUtil extends Util
         $pl_query_string = $this->get_pl_quantity_sum_string('pl');
 
         if ($for == 'view_product' && ! empty(request()->input('product_uid'))) {
-            $location_filter = 'AND transactions.location_uid=l.id';
+            $location_filter = 'AND transactions.location_uid=l.uid';
         }
 
         $products = $query->select(
-            // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_uid=transactions.id WHERE transactions.status='final' $location_filter AND
-            //     transaction_sell_lines.product_uid=products.id) as total_sold"),
+            // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_uid=transactions.uid WHERE transactions.status='final' $location_filter AND
+            //     transaction_sell_lines.product_uid=products.uid) as total_sold"),
 
             DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
-                  JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
+                  JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
                   WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_uid=vld.location_uid
-                  AND TSL.variation_uid=variations.id) as total_sold"),
+                  AND TSL.variation_uid=variations.uid) as total_sold"),
             DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
-                  JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
-                  WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_uid=vld.location_uid AND (TSL.variation_uid=variations.id)) as total_transfered"),
+                  JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
+                  WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_uid=vld.location_uid AND (TSL.variation_uid=variations.uid)) as total_transfered"),
             DB::raw("(SELECT SUM(IF(transactions.type='stock_adjustment', SAL.quantity, 0) ) FROM transactions 
-                  JOIN stock_adjustment_lines AS SAL ON transactions.id=SAL.transaction_uid
+                  JOIN stock_adjustment_lines AS SAL ON transactions.uid=SAL.transaction_uid
                   WHERE transactions.type='stock_adjustment' AND transactions.location_uid=vld.location_uid 
-                    AND (SAL.variation_uid=variations.id)) as total_adjusted"),
+                    AND (SAL.variation_uid=variations.uid)) as total_adjusted"),
             DB::raw("(SELECT SUM( COALESCE(pl.quantity - ($pl_query_string), 0) * purchase_price_inc_tax) FROM transactions 
-                  JOIN purchase_lines AS pl ON transactions.id=pl.transaction_uid
+                  JOIN purchase_lines AS pl ON transactions.uid=pl.transaction_uid
                   WHERE (transactions.status='received' OR transactions.type='purchase_return')  AND transactions.location_uid=vld.location_uid 
-                  AND (pl.variation_uid=variations.id)) as stock_price"),
+                  AND (pl.variation_uid=variations.uid)) as stock_price"),
             DB::raw('SUM(vld.qty_available) as stock'),
             'variations.sub_sku as sku',
             'p.name as product',
             'p.type',
             'p.alert_quantity',
-            'p.id as product_uid',
+            'p.uid as product_uid',
             'units.short_name as unit',
             'p.enable_stock as enable_stock',
             'variations.sell_price_inc_tax as unit_price',
             'pv.name as product_variation',
             'variations.name as variation_name',
             'l.name as location_name',
-            'l.id as location_uid',
-            'variations.id as variation_uid',
+            'l.uid as location_uid',
+            'variations.uid as variation_uid',
             'c.name as category_name',
             'p.product_custom_field1',
             'p.product_custom_field2',
             'p.product_custom_field3',
             'p.product_custom_field4'
-        )->groupBy('variations.id', 'vld.location_uid');
+        )->groupBy('variations.uid', 'vld.location_uid');
 
         if (isset($filters['show_manufacturing_data']) && $filters['show_manufacturing_data']) {
             $pl_query_string = $this->get_pl_quantity_sum_string('PL');
             $products->addSelect(
                 DB::raw("(SELECT COALESCE(SUM(PL.quantity - ($pl_query_string)), 0) FROM transactions 
-                    JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.status='received' AND transactions.type='production_purchase' AND transactions.location_uid=vld.location_uid  
-                    AND (PL.variation_uid=variations.id)) as total_mfg_stock")
+                    AND (PL.variation_uid=variations.uid)) as total_mfg_stock")
             );
         }
 
         if (! empty($filters['product_uid'])) {
-            $products->where('p.id', $filters['product_uid'])
-                    ->groupBy('l.id');
+            $products->where('p.uid', $filters['product_uid'])
+                    ->groupBy('l.uid');
         }
 
         if ($for == 'view_product') {
@@ -1931,16 +1931,16 @@ class ProductUtil extends Util
 
     public function getVariationStockDetails($business_uid, $variation_uid, $location_uid)
     {
-        $purchase_details = Variation::join('products as p', 'p.id', '=', 'variations.product_uid')
-                    ->join('units', 'p.unit_uid', '=', 'units.id')
-                    ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
-                    ->leftjoin('product_variations as pv', 'variations.product_variation_id', '=', 'pv.id')
-                    ->leftjoin('purchase_lines as pl', 'pl.variation_uid', '=', 'variations.id')
-                    ->leftjoin('transactions as t', 'pl.transaction_uid', '=', 't.id')
+        $purchase_details = Variation::join('products as p', 'p.uid', '=', 'variations.product_uid')
+                    ->join('units', 'p.unit_uid', '=', 'units.uid')
+                    ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
+                    ->leftjoin('product_variations as pv', 'variations.product_variation_id', '=', 'pv.uid')
+                    ->leftjoin('purchase_lines as pl', 'pl.variation_uid', '=', 'variations.uid')
+                    ->leftjoin('transactions as t', 'pl.transaction_uid', '=', 't.uid')
                     ->where('t.location_uid', $location_uid)
                     //->where('t.status', 'received')
                     ->where('p.business_uid', $business_uid)
-                    ->where('variations.id', $variation_uid)
+                    ->where('variations.uid', $variation_uid)
                     ->select(
                         DB::raw("SUM(IF(t.type='purchase' AND t.status='received', pl.quantity, 0)) as total_purchase"),
                         DB::raw("SUM(IF(t.type='purchase' OR t.type='purchase_return', pl.quantity_returned, 0)) as total_purchase_return"),
@@ -1951,22 +1951,22 @@ class ProductUtil extends Util
                         'p.name as product',
                         'p.type',
                         'p.sku',
-                        'p.id as product_uid',
+                        'p.uid as product_uid',
                         'units.short_name as unit',
                         'u.short_name as second_unit',
                         'pv.name as product_variation',
                         'variations.name as variation_name',
-                        'variations.id as variation_uid'
+                        'variations.uid as variation_uid'
                     )
                   ->get()->first();
 
-        $sell_details = Variation::join('products as p', 'p.id', '=', 'variations.product_uid')
-                    ->leftjoin('transaction_sell_lines as sl', 'sl.variation_uid', '=', 'variations.id')
-                    ->join('transactions as t', 'sl.transaction_uid', '=', 't.id')
+        $sell_details = Variation::join('products as p', 'p.uid', '=', 'variations.product_uid')
+                    ->leftjoin('transaction_sell_lines as sl', 'sl.variation_uid', '=', 'variations.uid')
+                    ->join('transactions as t', 'sl.transaction_uid', '=', 't.uid')
                     ->where('t.location_uid', $location_uid)
                     ->where('t.status', 'final')
                     ->where('p.business_uid', $business_uid)
-                    ->where('variations.id', $variation_uid)
+                    ->where('variations.uid', $variation_uid)
                     ->select(
                         DB::raw("SUM(IF(t.type='sell', sl.quantity, 0)) as total_sold"),
                         DB::raw("SUM(IF(t.type='sell', sl.quantity_returned, 0)) as total_sell_return"),
@@ -2006,17 +2006,17 @@ class ProductUtil extends Util
     public function getVariationStockHistory($business_uid, $variation_uid, $location_uid)
     {
         $stock_history = Transaction::leftjoin('transaction_sell_lines as sl',
-            'sl.transaction_uid', '=', 'transactions.id')
+            'sl.transaction_uid', '=', 'transactions.uid')
                                 ->leftjoin('purchase_lines as pl',
-                                    'pl.transaction_uid', '=', 'transactions.id')
+                                    'pl.transaction_uid', '=', 'transactions.uid')
                                 ->leftjoin('stock_adjustment_lines as al',
-                                    'al.transaction_uid', '=', 'transactions.id')
-                                ->leftjoin('transactions as return', 'transactions.return_parent_id', '=', 'return.id')
+                                    'al.transaction_uid', '=', 'transactions.uid')
+                                ->leftjoin('transactions as return', 'transactions.return_parent_id', '=', 'return.uid')
                                 ->leftjoin('purchase_lines as rpl',
-                                    'rpl.transaction_uid', '=', 'return.id')
+                                    'rpl.transaction_uid', '=', 'return.uid')
                                 ->leftjoin('transaction_sell_lines as rsl',
-                                        'rsl.transaction_uid', '=', 'return.id')
-                                ->leftjoin('contacts as c', 'transactions.contact_id', '=', 'c.id')
+                                        'rsl.transaction_uid', '=', 'return.uid')
+                                ->leftjoin('contacts as c', 'transactions.contact_id', '=', 'c.uid')
                                 ->where('transactions.location_uid', $location_uid)
                                 ->where(function ($q) use ($variation_uid) {
                                     $q->where('sl.variation_uid', $variation_uid)
@@ -2027,7 +2027,7 @@ class ProductUtil extends Util
                                 })
                                 ->whereIn('transactions.type', ['sell', 'purchase', 'stock_adjustment', 'opening_stock', 'sell_transfer', 'purchase_transfer', 'production_purchase', 'purchase_return', 'sell_return', 'production_sell'])
                                 ->select(
-                                    'transactions.id as transaction_uid',
+                                    'transactions.uid as transaction_uid',
                                     'transactions.type as transaction_type',
                                     'sl.quantity as sell_line_quantity',
                                     'pl.quantity as purchase_line_quantity',
@@ -2211,66 +2211,66 @@ class ProductUtil extends Util
      */
     public function getVariationStockMisMatch($business_uid, $variation_uid, $location_uid)
     {
-        $query = Variation::leftjoin('products as p', 'p.id', '=', 'variations.product_uid')
-                    ->leftjoin('units', 'p.unit_uid', '=', 'units.id')
-                    ->leftjoin('variation_location_details as vld', 'variations.id', '=', 'vld.variation_uid')
-                    ->leftjoin('product_variations as pv', 'variations.product_variation_id', '=', 'pv.id')
+        $query = Variation::leftjoin('products as p', 'p.uid', '=', 'variations.product_uid')
+                    ->leftjoin('units', 'p.unit_uid', '=', 'units.uid')
+                    ->leftjoin('variation_location_details as vld', 'variations.uid', '=', 'vld.variation_uid')
+                    ->leftjoin('product_variations as pv', 'variations.product_variation_id', '=', 'pv.uid')
                     ->where('p.business_uid', $business_uid)
                     ->where('vld.location_uid', $location_uid);
 
         if (! is_null($variation_uid)) {
-            $query->where('variations.id', $variation_uid);
+            $query->where('variations.uid', $variation_uid);
         }
 
         $stock_details = $query->select(
             DB::raw("(SELECT SUM(COALESCE(TSL.quantity, 0)) FROM transactions 
-                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
+                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
                     WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_uid=$location_uid 
-                    AND TSL.variation_uid=variations.id) as total_sold"),
+                    AND TSL.variation_uid=variations.uid) as total_sold"),
             DB::raw("(SELECT SUM(COALESCE(TSL.quantity_returned, 0)) FROM transactions 
-                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
+                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
                     WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_uid=$location_uid 
-                    AND TSL.variation_uid=variations.id) as total_sell_return"),
+                    AND TSL.variation_uid=variations.uid) as total_sell_return"),
             DB::raw("(SELECT SUM(COALESCE(TSL.quantity,0)) FROM transactions 
-                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
+                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
                     WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_uid=$location_uid 
-                    AND TSL.variation_uid=variations.id) as total_sell_transfered"),
+                    AND TSL.variation_uid=variations.uid) as total_sell_transfered"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity,0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.status='received' AND transactions.type='purchase_transfer' AND transactions.location_uid=$location_uid 
-                    AND PL.variation_uid=variations.id) as total_purchase_transfered"),
+                    AND PL.variation_uid=variations.uid) as total_purchase_transfered"),
             DB::raw("(SELECT SUM(COALESCE(SAL.quantity, 0)) FROM transactions 
-                    LEFT JOIN stock_adjustment_lines AS SAL ON transactions.id=SAL.transaction_uid
+                    LEFT JOIN stock_adjustment_lines AS SAL ON transactions.uid=SAL.transaction_uid
                     WHERE transactions.type='stock_adjustment' AND transactions.location_uid=$location_uid 
-                    AND SAL.variation_uid=variations.id) as total_adjusted"),
+                    AND SAL.variation_uid=variations.uid) as total_adjusted"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity, 0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.status='received' AND transactions.type='purchase' AND transactions.location_uid=$location_uid
-                    AND PL.variation_uid=variations.id) as total_purchased"),
+                    AND PL.variation_uid=variations.uid) as total_purchased"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity_returned, 0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.status='received' AND transactions.type='purchase' AND transactions.location_uid=$location_uid
-                    AND PL.variation_uid=variations.id) as total_purchase_return"),
+                    AND PL.variation_uid=variations.uid) as total_purchase_return"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity_returned, 0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.type='purchase_return' AND transactions.location_uid=$location_uid
-                    AND PL.variation_uid=variations.id) as total_combined_purchase_return"),
+                    AND PL.variation_uid=variations.uid) as total_combined_purchase_return"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity, 0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.type='opening_stock' AND transactions.status='received' AND transactions.location_uid=$location_uid
-                    AND PL.variation_uid=variations.id) as total_opening_stock"),
+                    AND PL.variation_uid=variations.uid) as total_opening_stock"),
             DB::raw("(SELECT SUM(COALESCE(PL.quantity, 0)) FROM transactions 
-                    LEFT JOIN purchase_lines AS PL ON transactions.id=PL.transaction_uid
+                    LEFT JOIN purchase_lines AS PL ON transactions.uid=PL.transaction_uid
                     WHERE transactions.status='received' AND transactions.type='production_purchase' AND transactions.location_uid=$location_uid
-                    AND PL.variation_uid=variations.id) as total_manufactured"),
+                    AND PL.variation_uid=variations.uid) as total_manufactured"),
             DB::raw("(SELECT SUM(COALESCE(TSL.quantity, 0)) FROM transactions 
-                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_uid
+                    LEFT JOIN transaction_sell_lines AS TSL ON transactions.uid=TSL.transaction_uid
                     WHERE transactions.status='final' AND transactions.type='production_sell' AND transactions.location_uid=$location_uid 
-                    AND TSL.variation_uid=variations.id) as total_ingredients_used"),
+                    AND TSL.variation_uid=variations.uid) as total_ingredients_used"),
             DB::raw('SUM(vld.qty_available) as stock'),
             'variations.sub_sku as sub_sku',
             'p.name as product',
-            'p.id as product_uid',
+            'p.uid as product_uid',
             'p.type',
             'p.sku as sku',
             'units.short_name as unit',
@@ -2278,9 +2278,9 @@ class ProductUtil extends Util
             'variations.sell_price_inc_tax as unit_price',
             'pv.name as product_variation',
             'variations.name as variation_name',
-            'variations.id as variation_uid'
+            'variations.uid as variation_uid'
         )
-        ->groupBy('variations.id')
+        ->groupBy('variations.uid')
         ->get();
 
         foreach ($stock_details as $index => $row) {
@@ -2310,7 +2310,7 @@ class ProductUtil extends Util
     {
         $vld = VariationLocationDetails::join(
             'business_locations as bl',
-            'bl.id',
+            'bl.uid',
             '=',
             'variation_location_details.location_uid'
         )
@@ -2328,14 +2328,14 @@ class ProductUtil extends Util
         //check if there are more such rows then delete it because one location can have only one variation_location_details
         $vld_duplicate = VariationLocationDetails::join(
             'business_locations as bl',
-            'bl.id',
+            'bl.uid',
             '=',
             'variation_location_details.location_uid'
         )
                 ->where('variation_location_details.location_uid', $location_uid)
                 ->where('variation_uid', $variation_uid)
                 ->where('bl.business_uid', $business_uid)
-                ->where('variation_location_details.id', '!=', $vld->id)
+                ->where('variation_location_details.uid', '!=', $vld->id)
                 ->delete();
     }
 
@@ -2350,27 +2350,27 @@ class ProductUtil extends Util
             'product_variations as pv',
             'variation_location_details.product_variation_id',
             '=',
-            'pv.id'
+            'pv.uid'
         )
                 ->join(
                     'variations as v',
                     'variation_location_details.variation_uid',
                     '=',
-                    'v.id'
+                    'v.uid'
                 )
                 ->join(
                     'products as p',
                     'variation_location_details.product_uid',
                     '=',
-                    'p.id'
+                    'p.uid'
                 )
                 ->leftjoin(
                     'business_locations as l',
                     'variation_location_details.location_uid',
                     '=',
-                    'l.id'
+                    'l.uid'
                 )
-                ->leftjoin('units as u', 'p.unit_uid', '=', 'u.id')
+                ->leftjoin('units as u', 'p.unit_uid', '=', 'u.uid')
                 ->where('p.business_uid', $business_uid)
                 ->where('p.enable_stock', 1)
                 ->where('p.is_inactive', 0)
@@ -2401,7 +2401,7 @@ class ProductUtil extends Util
             'variation_location_details.qty_available as stock',
             'u.short_name as unit'
         )
-                ->groupBy('variation_location_details.id')
+                ->groupBy('variation_location_details.uid')
                 ->orderBy('stock', 'asc');
 
         return $products;
@@ -2481,7 +2481,7 @@ class ProductUtil extends Util
      */
     public function getLastSellLineForCustomer($variation_uid, $customer_id, $location_uid)
     {
-        $sell_line = \App\TransactionSellLine::join('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
+        $sell_line = \App\TransactionSellLine::join('transactions as t', 't.uid', '=', 'transaction_sell_lines.transaction_uid')
             ->where('t.location_uid', $location_uid)
             ->where('t.contact_id', $customer_id)
             ->where('t.type', 'sell')

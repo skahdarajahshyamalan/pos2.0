@@ -88,7 +88,7 @@ class CombinedPurchaseReturnController extends Controller
                 return $this->moduleUtil->expiredResponse();
             }
 
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $input_data['type'] = 'purchase_return';
             $input_data['business_uid'] = $business_uid;
@@ -183,39 +183,39 @@ class CombinedPurchaseReturnController extends Controller
                             'products AS p',
                             'purchase_lines.product_uid',
                             '=',
-                            'p.id'
+                            'p.uid'
                         )
                         ->join(
                             'variations AS variations',
                             'purchase_lines.variation_uid',
                             '=',
-                            'variations.id'
+                            'variations.uid'
                         )
                         ->join(
                             'product_variations AS pv',
                             'variations.product_variation_id',
                             '=',
-                            'pv.id'
+                            'pv.uid'
                         )
                         ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
-                            $join->on('variations.id', '=', 'vld.variation_uid')
+                            $join->on('variations.uid', '=', 'vld.variation_uid')
                                 ->where('vld.location_uid', '=', $location_uid);
                         })
-                        ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
+                        ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
                         ->where('purchase_lines.transaction_uid', $id)
                         ->select(
                             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                            'p.id as product_uid',
+                            'p.uid as product_uid',
                             'p.enable_stock',
                             'pv.is_dummy as is_dummy',
                             'variations.sub_sku',
                             'vld.qty_available',
-                            'variations.id as variation_uid',
+                            'variations.uid as variation_uid',
                             'units.short_name as unit',
                             'units.allow_decimal as unit_allow_decimal',
                             'purchase_lines.purchase_price',
-                            'purchase_lines.id as purchase_line_id',
+                            'purchase_lines.uid as purchase_line_id',
                             'purchase_lines.quantity_returned as quantity_returned',
                             'purchase_lines.lot_number',
                             'purchase_lines.exp_date'

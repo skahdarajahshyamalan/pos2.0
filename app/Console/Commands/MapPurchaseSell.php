@@ -65,7 +65,7 @@ class MapPurchaseSell extends Command
             //DB::statement('Update variation_location_details set qty_available = 0');
 
             //Step 2
-            // $qty_sums = DB::select('Select SUM(pl.quantity) as qty, pl.product_uid, pl.variation_uid, transactions.location_uid from purchase_lines as pl join transactions on pl.transaction_uid = transactions.id group by transactions.location_uid, pl.product_uid, pl.variation_uid');
+            // $qty_sums = DB::select('Select SUM(pl.quantity) as qty, pl.product_uid, pl.variation_uid, transactions.location_uid from purchase_lines as pl join transactions on pl.transaction_uid = transactions.uid group by transactions.location_uid, pl.product_uid, pl.variation_uid');
             // foreach ($qty_sums as $key => $value) {
             //     DB::statement('update variation_location_details set qty_available = qty_available + ? where variation_uid = ? and product_uid = ? and location_uid = ?', [$value->qty, $value->variation_uid, $value->product_uid, $value->location_uid]);
             // }

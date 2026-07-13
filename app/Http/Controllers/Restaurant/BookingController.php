@@ -42,7 +42,7 @@ class BookingController extends Controller
 
         $user_uid = request()->has('user_uid') ? request()->user_uid : null;
         if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->restUtil->is_admin(auth()->user(), $business_uid)) {
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
         }
         if (request()->ajax()) {
             $filters = [
@@ -94,7 +94,7 @@ class BookingController extends Controller
         try {
             if ($request->ajax()) {
                 $business_uid = request()->session()->get('user.business_uid');
-                $user_uid = request()->session()->get('user.id');
+                $user_uid = request()->session()->get('user.uid');
 
                 $input = $request->input();
                 $booking_start = $this->commonUtil->uf_date($input['booking_start'], true);
@@ -274,7 +274,7 @@ class BookingController extends Controller
 
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
-            $user_uid = request()->session()->get('user.id');
+            $user_uid = request()->session()->get('user.uid');
             $today = \Carbon::now()->format('Y-m-d');
             $query = Booking::where('business_uid', $business_uid)
                         ->where('booking_status', 'booked')

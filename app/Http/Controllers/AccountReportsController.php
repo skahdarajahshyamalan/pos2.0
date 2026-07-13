@@ -156,7 +156,7 @@ class AccountReportsController extends Controller
             'account_transactions as AT',
             'AT.account_id',
             '=',
-            'accounts.id'
+            'accounts.uid'
         )
                                 // ->NotClosed()
                                 ->whereNull('AT.deleted_at')
@@ -191,7 +191,7 @@ class AccountReportsController extends Controller
         }
 
         if ($permitted_locations != 'all') {
-            $query->whereIn('accounts.id', $account_ids);
+            $query->whereIn('accounts.uid', $account_ids);
         }
 
         if (! empty($location_uid)) {
@@ -205,13 +205,13 @@ class AccountReportsController extends Controller
                     }
                 }
 
-                $query->whereIn('accounts.id', $account_ids);
+                $query->whereIn('accounts.uid', $account_ids);
             }
         }
 
         $account_details = $query->select(['name',
             DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance"), ])
-                                ->groupBy('accounts.id')
+                                ->groupBy('accounts.uid')
                                 ->get()
                                 ->pluck('balance', 'name');
 
@@ -236,23 +236,23 @@ class AccountReportsController extends Controller
                 'transactions as T',
                 'transaction_payments.transaction_uid',
                 '=',
-                'T.id'
+                'T.uid'
             )
-                                    ->leftjoin('accounts as A', 'transaction_payments.account_id', '=', 'A.id')
+                                    ->leftjoin('accounts as A', 'transaction_payments.account_id', '=', 'A.uid')
                                     ->where('transaction_payments.business_uid', $business_uid)
                                     ->whereNull('transaction_payments.parent_id')
                                     ->where('transaction_payments.method', '!=', 'advance')
-                                    ->leftjoin('contacts as c', 'transaction_payments.payment_for', '=', 'c.id')
+                                    ->leftjoin('contacts as c', 'transaction_payments.payment_for', '=', 'c.uid')
                                     ->select([
                                         'paid_on',
                                         'payment_ref_no',
                                         'T.ref_no',
                                         'T.invoice_no',
                                         'T.type',
-                                        'T.id as transaction_uid',
+                                        'T.uid as transaction_uid',
                                         'A.name as account_name',
                                         'A.account_number',
-                                        'transaction_payments.id as payment_id',
+                                        'transaction_payments.uid as payment_id',
                                         'transaction_payments.account_id',
                                         'c.name as contact_name',
                                         'c.type as contact_type',

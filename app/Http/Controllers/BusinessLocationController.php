@@ -50,32 +50,32 @@ class BusinessLocationController extends Controller
                     'invoice_schemes as ic',
                     'business_locations.invoice_scheme_id',
                     '=',
-                    'ic.id'
+                    'ic.uid'
                 )
                 ->leftjoin(
                     'invoice_layouts as il',
                     'business_locations.invoice_layout_id',
                     '=',
-                    'il.id'
+                    'il.uid'
                 )
                 ->leftjoin(
                     'invoice_layouts as sil',
                     'business_locations.sale_invoice_layout_id',
                     '=',
-                    'sil.id'
+                    'sil.uid'
                 )
                 ->leftjoin(
                     'selling_price_groups as spg',
                     'business_locations.selling_price_group_id',
                     '=',
-                    'spg.id'
+                    'spg.uid'
                 )
                 ->select(['business_locations.name', 'location_uid', 'landmark', 'city', 'zip_code', 'state',
-                    'country', 'business_locations.id', 'spg.name as price_group', 'ic.name as invoice_scheme', 'il.name as invoice_layout', 'sil.name as sale_invoice_layout', 'business_locations.is_active', ]);
+                    'country', 'business_locations.uid', 'spg.name as price_group', 'ic.name as invoice_scheme', 'il.name as invoice_layout', 'sil.name as sale_invoice_layout', 'business_locations.is_active', ]);
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $locations->whereIn('business_locations.id', $permitted_locations);
+                $locations->whereIn('business_locations.uid', $permitted_locations);
             }
 
             return Datatables::of($locations)

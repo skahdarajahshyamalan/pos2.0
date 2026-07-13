@@ -99,7 +99,7 @@ class BrandController extends Controller
             $input = $request->only(['name', 'description']);
             $business_uid = $request->session()->get('user.business_uid');
             $input['business_uid'] = $business_uid;
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             if ($this->moduleUtil->isModuleInstalled('Repair')) {
                 $input['use_for_repair'] = ! empty($request->input('use_for_repair')) ? 1 : 0;

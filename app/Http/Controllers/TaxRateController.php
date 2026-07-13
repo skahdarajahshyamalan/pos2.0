@@ -95,7 +95,7 @@ class TaxRateController extends Controller
         try {
             $input = $request->only(['name', 'amount']);
             $input['business_uid'] = $request->session()->get('user.business_uid');
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
             $input['amount'] = $this->taxUtil->num_uf($input['amount']);
             $input['for_tax_group'] = ! empty($request->for_tax_group) ? 1 : 0;
 

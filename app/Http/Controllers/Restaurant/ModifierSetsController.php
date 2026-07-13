@@ -110,7 +110,7 @@ class ModifierSetsController extends Controller
 
             $input = $request->all();
             $business_uid = $request->session()->get('user.business_uid');
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $modifer_set_data = [
                 'name' => $input['name'],
@@ -216,7 +216,7 @@ class ModifierSetsController extends Controller
 
             $input = $request->all();
             $business_uid = $request->session()->get('user.business_uid');
-            $user_uid = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.uid');
 
             $modifer_set = Product::where('business_uid', $business_uid)
                     ->where('id', $id)

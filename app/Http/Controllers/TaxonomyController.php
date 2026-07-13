@@ -159,7 +159,7 @@ class TaxonomyController extends Controller
                 $input['parent_id'] = 0;
             }
             $input['business_uid'] = $request->session()->get('user.business_uid');
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             $category = Category::create($input);
             $output = ['success' => true,

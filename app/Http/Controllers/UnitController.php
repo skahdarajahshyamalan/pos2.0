@@ -117,7 +117,7 @@ class UnitController extends Controller
         try {
             $input = $request->only(['actual_name', 'short_name', 'allow_decimal']);
             $input['business_uid'] = $request->session()->get('user.business_uid');
-            $input['created_by_uid'] = $request->session()->get('user.id');
+            $input['created_by_uid'] = $request->session()->get('user.uid');
 
             if ($request->has('define_base_unit')) {
                 if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {

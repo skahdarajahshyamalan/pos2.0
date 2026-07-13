@@ -215,7 +215,7 @@
                         delay: 250
                     });
                     const sid = String(id);
-                    const filteredCustomers = (response || []).filter(function(customer) { return String(customer.id) === sid; });
+                    const filteredCustomers = (response || []).filter(function(customer) { return String(customer.uid) === sid; });
                     return filteredCustomers.length ? filteredCustomers[0] : null;
                 } catch (e) {
                     return null;

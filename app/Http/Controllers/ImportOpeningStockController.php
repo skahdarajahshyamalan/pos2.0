@@ -91,7 +91,7 @@ class ImportOpeningStockController extends Controller
                 $imported_data = array_splice($parsed_array[0], 1);
 
                 $business_uid = $request->session()->get('user.business_uid');
-                $user_uid = $request->session()->get('user.id');
+                $user_uid = $request->session()->get('user.uid');
 
                 $formated_data = [];
 
@@ -106,12 +106,12 @@ class ImportOpeningStockController extends Controller
                     if (! empty($value[0])) {
                         $sku = $value[0];
                         $product_info = Variation::where('sub_sku', $sku)
-                                ->join('products AS P', 'variations.product_uid', '=', 'P.id')
-                                ->leftjoin('tax_rates AS TR', 'P.tax', 'TR.id')
+                                ->join('products AS P', 'variations.product_uid', '=', 'P.uid')
+                                ->leftjoin('tax_rates AS TR', 'P.tax', 'TR.uid')
                                 ->where('P.business_uid', $business_uid)
-                                ->select(['P.id', 'variations.id as variation_uid',
+                                ->select(['P.uid', 'variations.uid as variation_uid',
                                     'P.enable_stock', 'TR.amount as tax_percent',
-                                    'TR.id as tax_id', ])
+                                    'TR.uid as tax_id', ])
                                 ->first();
                         if (empty($product_info)) {
                             $is_valid = false;
@@ -218,7 +218,7 @@ class ImportOpeningStockController extends Controller
      */
     private function addOpeningStock($opening_stock, $product, $business_uid, $unit_cost_before_tax, $transaction = null)
     {
-        $user_uid = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.uid');
 
         $transaction_date = request()->session()->get('financial_year.start');
         $transaction_date = \Carbon::createFromFormat('Y-m-d', $transaction_date)->toDateTimeString();
