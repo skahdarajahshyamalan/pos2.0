@@ -302,7 +302,7 @@ class PurchaseController extends Controller
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\PurchaseController::class, 'index']));
             }
 
-            $transaction_data = $request->only(['ref_no', 'status', 'contact_id', 'transaction_date', 'total_before_tax', 'location_uid', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'purchase_order_ids']);
+            $transaction_data = $request->only(['ref_no', 'status', 'contact_uid', 'transaction_date', 'total_before_tax', 'location_uid', 'discount_type', 'discount_amount', 'tax_uid', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'purchase_order_ids']);
 
             $exchange_rate = $transaction_data['exchange_rate'];
 
@@ -313,7 +313,7 @@ class PurchaseController extends Controller
             //Adding temporary fix by validating
             $request->validate([
                 'status' => 'required',
-                'contact_id' => 'required',
+                'contact_uid' => 'required',
                 'transaction_date' => 'required',
                 'total_before_tax' => 'required',
                 'location_uid' => 'required',
@@ -470,7 +470,7 @@ class PurchaseController extends Controller
                                 ->firstOrFail();
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -570,7 +570,7 @@ class PurchaseController extends Controller
                     ->first();
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -606,7 +606,7 @@ class PurchaseController extends Controller
         if (! empty($common_settings['enable_purchase_order'])) {
             $purchase_orders = Transaction::where('business_uid', $business_uid)
                                         ->where('type', 'purchase_order')
-                                        ->where('contact_id', $purchase->contact_id)
+                                        ->where('contact_uid', $purchase->contact_uid)
                                         ->where(function ($q) use ($purchase) {
                                             $q->where('status', '!=', 'completed');
 
@@ -664,9 +664,9 @@ class PurchaseController extends Controller
 
             $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
-            $update_data = $request->only(['ref_no', 'status', 'contact_id',
+            $update_data = $request->only(['ref_no', 'status', 'contact_uid',
                 'transaction_date', 'total_before_tax',
-                'discount_type', 'discount_amount', 'tax_id',
+                'discount_type', 'discount_amount', 'tax_uid',
                 'tax_amount', 'shipping_details',
                 'shipping_charges', 'final_total',
                 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'purchase_order_ids', ]);
@@ -893,7 +893,7 @@ class PurchaseController extends Controller
             $suppliers = $query->where(function ($query) use ($term) {
                 $query->where('name', 'like', '%'.$term.'%')
                                 ->orWhere('supplier_business_name', 'like', '%'.$term.'%')
-                                ->orWhere('contacts.contact_id', 'like', '%'.$term.'%');
+                                ->orWhere('contacts.contact_uid', 'like', '%'.$term.'%');
             })
                         ->select(
                             'contacts.uid',
@@ -906,7 +906,7 @@ class PurchaseController extends Controller
                             'contacts.state',
                             'contacts.country',
                             'contacts.zip_code',
-                            'contacts.contact_id',
+                            'contacts.contact_uid',
                             'contacts.pay_term_type',
                             'contacts.pay_term_number',
                             'contacts.balance'
@@ -1100,7 +1100,7 @@ class PurchaseController extends Controller
                         ->where('purchase_lines.variation_uid', $variation_uid);
 
         if (! empty($supplier_id)) {
-            $query = $query->where('t.contact_id', '=', $supplier_id);
+            $query = $query->where('t.contact_uid', '=', $supplier_id);
         }
         $purchase_line = $query->orderBy('transaction_date', 'desc')
                             ->select('purchase_lines.*')
@@ -1178,7 +1178,7 @@ class PurchaseController extends Controller
                 $temp_array['unit_cost_before_discount'] = ! empty($value[2]) ? $value[2] : $variation->default_purchase_price;
                 $temp_array['discount_percent'] = ! empty($value[3]) ? $value[3] : 0;
 
-                $tax_id = null;
+                $tax_uid = null;
 
                 if (! empty($value[4])) {
                     $tax_name = trim($value[4]);
@@ -1186,10 +1186,10 @@ class PurchaseController extends Controller
                                 ->where('name', 'like', "%{$tax_name}%")
                                 ->first();
 
-                    $tax_id = $tax->id ?? $tax_id;
+                    $tax_uid = $tax->id ?? $tax_uid;
                 }
 
-                $temp_array['tax_id'] = $tax_id;
+                $temp_array['tax_uid'] = $tax_uid;
                 $temp_array['lot_number'] = ! empty($value[5]) ? $value[5] : null;
                 $temp_array['mfg_date'] = ! empty($value[6]) ? $this->productUtil->format_date($value[6]) : null;
                 $temp_array['exp_date'] = ! empty($value[7]) ? $this->productUtil->format_date($value[7]) : null;
@@ -1278,16 +1278,16 @@ class PurchaseController extends Controller
     public function checkRefNumber(Request $request)
     {
         $business_uid = $request->session()->get('user.business_uid');
-        $contact_id = $request->input('contact_id');
+        $contact_uid = $request->input('contact_uid');
         $ref_no = $request->input('ref_no');
         $purchase_id = $request->input('purchase_id');
 
         $count = 0;
-        if (! empty($contact_id) && ! empty($ref_no)) {
+        if (! empty($contact_uid) && ! empty($ref_no)) {
             //check in transactions table
             $query = Transaction::where('business_uid', $business_uid)
                             ->where('ref_no', $ref_no)
-                            ->where('contact_id', $contact_id);
+                            ->where('contact_uid', $contact_uid);
             if (! empty($purchase_id)) {
                 $query->where('uid', '!=', $purchase_id);
             }
@@ -1340,7 +1340,7 @@ class PurchaseController extends Controller
 
 
             foreach ($purchase->purchase_lines as $key => $value) {
-                if (! empty($value->sub_unit_id)) {
+                if (! empty($value->sub_unit_uid)) {
                     $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                     $purchase->purchase_lines[$key] = $formated_purchase_line;
                 }

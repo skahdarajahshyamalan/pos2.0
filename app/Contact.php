@@ -58,7 +58,7 @@ class Contact extends Authenticatable
         $query->whereIn('contacts.type', ['supplier', 'both']);
 
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_uid');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -82,7 +82,7 @@ class Contact extends Authenticatable
         $query->whereIn('contacts.type', ['customer', 'both']);
 
         if (auth()->check() && ! auth()->user()->can('customer.view') && auth()->user()->can('customer.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_uid');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -98,7 +98,7 @@ class Contact extends Authenticatable
      */
     public function scopeOnlyOwnContact($query)
     {
-        $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
+        $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_uid');
         $query->where(function ($q) {
             $user_uid = auth()->user()->id;
             $q->where('contacts.created_by_uid', $user_uid)
@@ -136,7 +136,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $query->select(
-                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(name, ' - ', COALESCE(supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
+                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', name, CONCAT(name, ' - ', COALESCE(supplier_business_name, ''), '(', contacts.contact_uid, ')')) AS supplier"),
                 'contacts.uid'
                     );
         } else {
@@ -147,7 +147,7 @@ class Contact extends Authenticatable
         }
 
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
-            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_id');
+            $query->leftjoin('user_contact_access AS ucas', 'contacts.uid', 'ucas.contact_uid');
             $query->where(function ($q) {
                 $user_uid = auth()->user()->id;
                 $q->where('contacts.created_by_uid', $user_uid)
@@ -180,7 +180,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $all_contacts->select(
-                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(contacts.name, ' - ', COALESCE(contacts.supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
+                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', name, CONCAT(contacts.name, ' - ', COALESCE(contacts.supplier_business_name, ''), '(', contacts.contact_uid, ')')) AS supplier"),
                 'contacts.uid'
                     );
         } else {
@@ -219,7 +219,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $all_contacts->select(
-                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', CONCAT( COALESCE(contacts.supplier_business_name, ''), ' - ', contacts.name), CONCAT(COALESCE(contacts.supplier_business_name, ''), ' - ', name, ' (', contacts.contact_id, ')')) AS customer"),
+                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', CONCAT( COALESCE(contacts.supplier_business_name, ''), ' - ', contacts.name), CONCAT(COALESCE(contacts.supplier_business_name, ''), ' - ', name, ' (', contacts.contact_uid, ')')) AS customer"),
                 'contacts.uid'
                 );
         } else {

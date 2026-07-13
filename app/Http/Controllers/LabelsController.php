@@ -137,10 +137,10 @@ class LabelsController extends Controller
                     $details->lot_number = $value['lot_number'];
                 }
 
-                if (! empty($value['price_group_id'])) {
-                    $tax_id = $print['price_type'] == 'inclusive' ?: $details->tax_id;
+                if (! empty($value['price_group_uid'])) {
+                    $tax_uid = $print['price_type'] == 'inclusive' ?: $details->tax_uid;
 
-                    $group_prices = $this->productUtil->getVariationGroupPrice($value['variation_uid'], $value['price_group_id'], $tax_id);
+                    $group_prices = $this->productUtil->getVariationGroupPrice($value['variation_uid'], $value['price_group_uid'], $tax_uid);
 
                     $details->sell_price_inc_tax = $group_prices['price_inc_tax'];
                     $details->default_sell_price = $group_prices['price_exc_tax'];

@@ -82,7 +82,7 @@
                                 <th>@lang('lang_v1.paid_on')</th>
                                 <th>@lang('sale.amount')</th>
                                 <th>@lang('contact.customer')</th>
-                                <th>@lang('lang_v1.contact_id')</th>
+                                <th>@lang('lang_v1.contact_uid')</th>
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('lang_v1.payment_method')</th>
                                 <th>@lang('sale.sale')</th>

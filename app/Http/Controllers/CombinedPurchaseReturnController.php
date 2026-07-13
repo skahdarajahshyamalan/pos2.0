@@ -80,7 +80,7 @@ class CombinedPurchaseReturnController extends Controller
             DB::beginTransaction();
 
             $input_data = $request->only(['location_uid', 'transaction_date', 'final_total', 'ref_no',
-                'tax_id', 'tax_amount', 'contact_id', ]);
+                'tax_uid', 'tax_amount', 'contact_uid', ]);
             $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not
@@ -193,7 +193,7 @@ class CombinedPurchaseReturnController extends Controller
                         )
                         ->join(
                             'product_variations AS pv',
-                            'variations.product_variation_id',
+                            'variations.product_variation_uid',
                             '=',
                             'pv.uid'
                         )
@@ -215,7 +215,7 @@ class CombinedPurchaseReturnController extends Controller
                             'units.short_name as unit',
                             'units.allow_decimal as unit_allow_decimal',
                             'purchase_lines.purchase_price',
-                            'purchase_lines.uid as purchase_line_id',
+                            'purchase_lines.uid as purchase_line_uid',
                             'purchase_lines.quantity_returned as quantity_returned',
                             'purchase_lines.lot_number',
                             'purchase_lines.exp_date'
@@ -254,7 +254,7 @@ class CombinedPurchaseReturnController extends Controller
             DB::beginTransaction();
 
             $input_data = $request->only(['transaction_date', 'final_total',
-                'tax_id', 'tax_amount', 'contact_id', ]);
+                'tax_uid', 'tax_amount', 'contact_uid', ]);
             $business_uid = $request->session()->get('user.business_uid');
 
             if (! empty($request->input('ref_no'))) {
@@ -288,8 +288,8 @@ class CombinedPurchaseReturnController extends Controller
 
                 foreach ($products as $product) {
                     $unit_price = $this->productUtil->num_uf($product['unit_price']);
-                    if (! empty($product['purchase_line_id'])) {
-                        $return_line = PurchaseLine::find($product['purchase_line_id']);
+                    if (! empty($product['purchase_line_uid'])) {
+                        $return_line = PurchaseLine::find($product['purchase_line_uid']);
                         $updated_purchase_lines[] = $return_line->id;
 
                         $this->productUtil->decreaseProductQuantity(

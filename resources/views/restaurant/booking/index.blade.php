@@ -352,13 +352,13 @@
             })
             .validate({
                 rules: {
-                    contact_id: {
+                    contact_uid: {
                         remote: {
                             url: '/contacts/check-contacts-id',
                             type: 'post',
                             data: {
-                                contact_id: function() {
-                                    return $('#contact_id').val();
+                                contact_uid: function() {
+                                    return $('#contact_uid').val();
                                 },
                                 hidden_id: function() {
                                     if ($('#hidden_id').length) {
@@ -372,7 +372,7 @@
                     },
                 },
                 messages: {
-                    contact_id: {
+                    contact_uid: {
                         remote: LANG.contact_id_already_exists,
                     },
                 },

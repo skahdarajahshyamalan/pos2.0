@@ -15,8 +15,8 @@
                 @component('components.filters', ['title' => __('report.filters')])
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('account_id', __('account.account') . ':') !!}
-                        {!! Form::select('account_id', $accounts, null, ['class' => 'form-control select2', 'style' => 'width:100%']) !!}
+                        {!! Form::label('account_uid', __('account.account') . ':') !!}
+                        {!! Form::select('account_uid', $accounts, null, ['class' => 'form-control select2', 'style' => 'width:100%']) !!}
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -89,7 +89,7 @@
                 "ajax": {
                     "url": "{{ action([\App\Http\Controllers\AccountReportsController::class, 'paymentAccountReport']) }}",
                     "data": function(d) {
-                        d.account_id = $('#account_id').val();
+                        d.account_uid = $('#account_uid').val();
                         var start_date = '';
                         var endDate = '';
                         if ($('#date_filter').val()) {
@@ -146,7 +146,7 @@
                 }
             });
 
-            $('select#account_id, #date_filter').change(function() {
+            $('select#account_uid, #date_filter').change(function() {
                 payment_account_report.ajax.reload();
             });
         })

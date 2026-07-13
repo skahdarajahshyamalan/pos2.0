@@ -26,8 +26,8 @@
       </div>
 
       <div class="form-group selling_price_group-field hide">
-            {!! Form::label('selling_price_group_id', __( 'lang_v1.selling_price_group' ) . ':') !!}
-            {!! Form::select('selling_price_group_id', $price_groups, null, ['class' => 'form-control']); !!}
+            {!! Form::label('selling_price_group_uid', __( 'lang_v1.selling_price_group' ) . ':') !!}
+            {!! Form::select('selling_price_group_uid', $price_groups, null, ['class' => 'form-control']); !!}
       </div>
 
     </div>

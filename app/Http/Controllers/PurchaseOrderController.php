@@ -83,7 +83,7 @@ class PurchaseOrderController extends Controller
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $purchase_orders = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+            $purchase_orders = Transaction::leftJoin('contacts', 'transactions.contact_uid', '=', 'contacts.uid')
                     ->join(
                         'business_locations AS BS',
                         'transactions.location_uid',
@@ -307,7 +307,7 @@ class PurchaseOrderController extends Controller
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\PurchaseController::class, 'index']));
             }
 
-            $transaction_data = $request->only(['ref_no', 'contact_id', 'transaction_date', 'total_before_tax', 'location_uid', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'shipping_address', 'shipping_status', 'delivered_to', 'delivery_date', 'purchase_requisition_ids']);
+            $transaction_data = $request->only(['ref_no', 'contact_uid', 'transaction_date', 'total_before_tax', 'location_uid', 'discount_type', 'discount_amount', 'tax_uid', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'shipping_address', 'shipping_status', 'delivered_to', 'delivery_date', 'purchase_requisition_ids']);
 
             $exchange_rate = $transaction_data['exchange_rate'];
 
@@ -333,7 +333,7 @@ class PurchaseOrderController extends Controller
             //TODO: Check for "Undefined index: total_before_tax" issue
             //Adding temporary fix by validating
             $request->validate([
-                'contact_id' => 'required',
+                'contact_uid' => 'required',
                 'transaction_date' => 'required',
                 'total_before_tax' => 'required',
                 'location_uid' => 'required',
@@ -469,7 +469,7 @@ class PurchaseOrderController extends Controller
         $purchase = $query->firstOrFail();
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -540,7 +540,7 @@ class PurchaseOrderController extends Controller
         $purchase = $query->first();
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -630,9 +630,9 @@ class PurchaseOrderController extends Controller
 
             $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
-            $update_data = $request->only(['ref_no', 'contact_id',
+            $update_data = $request->only(['ref_no', 'contact_uid',
                 'transaction_date', 'total_before_tax',
-                'discount_type', 'discount_amount', 'tax_id',
+                'discount_type', 'discount_amount', 'tax_uid',
                 'tax_amount', 'shipping_details',
                 'shipping_charges', 'final_total',
                 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'shipping_address', 'shipping_status', 'delivered_to', 'delivery_date', 'purchase_requisition_ids', ]);
@@ -749,9 +749,9 @@ class PurchaseOrderController extends Controller
                                 ->with('purchase_lines')
                                 ->findOrFail($id);
 
-                //unset purchase_order_line_id if set
-                PurchaseLine::whereIn('purchase_order_line_id', $transaction->purchase_lines->pluck('id'))
-                        ->update(['purchase_order_line_id' => null]);
+                //unset purchase_order_line_uid if set
+                PurchaseLine::whereIn('purchase_order_line_uid', $transaction->purchase_lines->pluck('id'))
+                        ->update(['purchase_order_line_uid' => null]);
 
                 $log_properities = [
                     'id' => $transaction->id,
@@ -777,14 +777,14 @@ class PurchaseOrderController extends Controller
         return $output;
     }
 
-    public function getPurchaseOrders($contact_id)
+    public function getPurchaseOrders($contact_uid)
     {
         $business_uid = request()->session()->get('user.business_uid');
 
         $purchase_orders = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_order')
                         ->whereIn('status', ['partial', 'ordered'])
-                        ->where('contact_id', $contact_id)
+                        ->where('contact_uid', $contact_uid)
                         ->select('ref_no as text', 'id')
                         ->get();
 
@@ -823,14 +823,14 @@ class PurchaseOrderController extends Controller
 
         
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
 
         $location_details = BusinessLocation::find($purchase->location_uid);
-        $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $location_details->invoice_layout_id);
+        $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $location_details->invoice_layout_uid);
 
         //Logo
         $logo = $invoice_layout->show_logo != 0 && ! empty($invoice_layout->logo) && file_exists(public_path('uploads/invoice_logos/'.$invoice_layout->logo)) ? asset('uploads/invoice_logos/'.$invoice_layout->logo) : false;

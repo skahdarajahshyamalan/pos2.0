@@ -25,6 +25,6 @@ class StockAdjustmentLine extends Model
 
     public function lot_details()
     {
-        return $this->belongsTo(\App\PurchaseLine::class, 'lot_no_line_id');
+        return $this->belongsTo(\App\PurchaseLine::class, 'lot_no_line_uid');
     }
 }

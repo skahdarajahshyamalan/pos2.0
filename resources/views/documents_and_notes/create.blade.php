@@ -10,7 +10,7 @@
             </h4>
         </div>
         <!-- model id like project_id, user_uid -->
-        {!! Form::hidden('notable_id', $notable_id, ['class' => 'form-control']) !!}
+        {!! Form::hidden('notable_uid', $notable_uid, ['class' => 'form-control']) !!}
         <!-- model name like App\User -->
         {!! Form::hidden('notable_type', $notable_type, ['class' => 'form-control']) !!}
         <div class="modal-body">

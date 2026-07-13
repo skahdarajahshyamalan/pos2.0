@@ -50,7 +50,7 @@ class InstallUtil extends Util
                                 if (! empty($variation)) {
                                     $variation_location_d = VariationLocationDetails::where('variation_uid', $variation->id)
                                         ->where('product_uid', $line->product_uid)
-                                        ->where('product_variation_id', $variation->product_variation_id)
+                                        ->where('product_variation_uid', $variation->product_variation_uid)
                                         ->where('location_uid', $sa->location_uid)
                                         ->increment('qty_available', $line->quantity);
                                 }
@@ -145,7 +145,7 @@ class InstallUtil extends Util
                             'name' => $product_variation->name,
                         ]);
                     }
-                    $product_variation->variation_template_id = $variation_template->id;
+                    $product_variation->variation_template_uid = $variation_template->id;
                     $product_variation->save();
 
                     //Update variations
@@ -158,10 +158,10 @@ class InstallUtil extends Util
                         if (empty($variation_value)) {
                             $variation_value = VariationValueTemplate::create([
                                 'name' => $variation->name,
-                                'variation_template_id' => $variation_template->id,
+                                'variation_template_uid' => $variation_template->id,
                             ]);
                         }
-                        $variation->variation_value_id = $variation_value->id;
+                        $variation->variation_value_uid = $variation_value->id;
                         $variation->save();
                     }
                 }

@@ -48,7 +48,7 @@ class PurchaseReturnController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
-            $purchases_returns = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+            $purchases_returns = Transaction::leftJoin('contacts', 'transactions.contact_uid', '=', 'contacts.uid')
                     ->join(
                         'business_locations AS BS',
                         'transactions.location_uid',
@@ -57,7 +57,7 @@ class PurchaseReturnController extends Controller
                     )
                     ->leftJoin(
                         'transactions AS T',
-                        'transactions.return_parent_id',
+                        'transactions.return_parent_uid',
                         '=',
                         'T.uid'
                     )
@@ -78,7 +78,7 @@ class PurchaseReturnController extends Controller
                         'transactions.status',
                         'transactions.payment_status',
                         'transactions.final_total',
-                        'transactions.return_parent_id',
+                        'transactions.return_parent_uid',
                         'BS.name as location_name',
                         'T.ref_no as parent_purchase',
                         DB::raw('SUM(TP.amount) as amount_paid')
@@ -115,8 +115,8 @@ class PurchaseReturnController extends Controller
                                         </span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">';
-                    if (! empty($row->return_parent_id)) {
-                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseReturnController::class, 'add'], $row->return_parent_id).'" ><i class="glyphicon glyphicon-edit"></i>'.
+                    if (! empty($row->return_parent_uid)) {
+                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseReturnController::class, 'add'], $row->return_parent_uid).'" ><i class="glyphicon glyphicon-edit"></i>'.
                                 __('messages.edit').
                                 '</a></li>';
                     } else {
@@ -139,7 +139,7 @@ class PurchaseReturnController extends Controller
                     return $html;
                 })
                 ->removeColumn('id')
-                ->removeColumn('return_parent_id')
+                ->removeColumn('return_parent_uid')
                 ->editColumn(
                     'final_total',
                     '<span class="display_currency final_total" data-currency_symbol="true" data-orig-value="{{$final_total}}">{{$final_total}}</span>'
@@ -158,7 +158,7 @@ class PurchaseReturnController extends Controller
                 ->editColumn('parent_purchase', function ($row) {
                     $html = '';
                     if (! empty($row->parent_purchase)) {
-                        $html = '<a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->return_parent_id]).'" class="btn-modal" data-container=".view_modal">'.$row->parent_purchase.'</a>';
+                        $html = '<a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->return_parent_uid]).'" class="btn-modal" data-container=".view_modal">'.$row->parent_purchase.'</a>';
                     }
 
                     return $html;
@@ -171,7 +171,7 @@ class PurchaseReturnController extends Controller
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can('purchase.view')) {
-                            $return_id = ! empty($row->return_parent_id) ? $row->return_parent_id : $row->id;
+                            $return_id = ! empty($row->return_parent_uid) ? $row->return_parent_uid : $row->id;
 
                             return  action([\App\Http\Controllers\PurchaseReturnController::class, 'show'], [$return_id]);
                         } else {
@@ -205,7 +205,7 @@ class PurchaseReturnController extends Controller
                         ->find($id);
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -278,7 +278,7 @@ class PurchaseReturnController extends Controller
                 'total_before_tax' => $return_total,
                 'final_total' => $return_total_inc_tax,
                 'tax_amount' => $request->input('tax_amount'),
-                'tax_id' => $purchase->tax_id,
+                'tax_uid' => $purchase->tax_uid,
             ];
 
             if (empty($request->input('ref_no'))) {
@@ -289,7 +289,7 @@ class PurchaseReturnController extends Controller
 
             $return_transaction = Transaction::where('business_uid', $business_uid)
                                             ->where('type', 'purchase_return')
-                                            ->where('return_parent_id', $purchase->id)
+                                            ->where('return_parent_uid', $purchase->id)
                                             ->first();
 
             if (! empty($return_transaction)) {
@@ -303,10 +303,10 @@ class PurchaseReturnController extends Controller
                 $return_transaction_data['location_uid'] = $purchase->location_uid;
                 $return_transaction_data['type'] = 'purchase_return';
                 $return_transaction_data['status'] = 'final';
-                $return_transaction_data['contact_id'] = $purchase->contact_id;
+                $return_transaction_data['contact_uid'] = $purchase->contact_uid;
                 $return_transaction_data['transaction_date'] = \Carbon::now();
                 $return_transaction_data['created_by_uid'] = request()->session()->get('user.uid');
-                $return_transaction_data['return_parent_id'] = $purchase->id;
+                $return_transaction_data['return_parent_uid'] = $purchase->id;
 
                 $return_transaction = Transaction::create($return_transaction_data);
 
@@ -352,7 +352,7 @@ class PurchaseReturnController extends Controller
                         ->find($id);
 
         foreach ($purchase->purchase_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
@@ -409,7 +409,7 @@ class PurchaseReturnController extends Controller
 
                 DB::beginTransaction();
 
-                if (empty($purchase_return->return_parent_id)) {
+                if (empty($purchase_return->return_parent_uid)) {
                     $delete_purchase_lines = $purchase_return->purchase_lines;
                     $delete_purchase_line_ids = [];
                     foreach ($delete_purchase_lines as $purchase_line) {
@@ -420,7 +420,7 @@ class PurchaseReturnController extends Controller
                                 ->whereIn('uid', $delete_purchase_line_ids)
                                 ->delete();
                 } else {
-                    $parent_purchase = Transaction::where('uid', $purchase_return->return_parent_id)
+                    $parent_purchase = Transaction::where('uid', $purchase_return->return_parent_uid)
                                 ->where('business_uid', $business_uid)
                                 ->where('type', 'purchase')
                                 ->with(['purchase_lines'])

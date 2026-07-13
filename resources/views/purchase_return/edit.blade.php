@@ -24,7 +24,7 @@
 							<span class="input-group-addon">
 								<i class="fa fa-user"></i>
 							</span>
-							{!! Form::select('contact_id', [ $purchase_return->contact_id => $purchase_return->contact->name], $purchase_return->contact_id, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
+							{!! Form::select('contact_uid', [ $purchase_return->contact_uid => $purchase_return->contact->name], $purchase_return->contact_uid, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
 						</div>
 					</div>
 				</div>
@@ -122,11 +122,11 @@
 				<div class="col-md-4">
 					<input type="hidden" id="product_row_index" value="{{$row_index}}">
 					<div class="form-group">
-						{!! Form::label('tax_id', __('purchase.purchase_tax') . ':') !!}
-						<select name="tax_id" id="tax_id" class="form-control select2" placeholder="'Please Select'">
+						{!! Form::label('tax_uid', __('purchase.purchase_tax') . ':') !!}
+						<select name="tax_uid" id="tax_uid" class="form-control select2" placeholder="'Please Select'">
 							<option value="" data-tax_amount="0" data-tax_type="fixed" selected>@lang('lang_v1.none')</option>
 							@foreach($taxes as $tax)
-								<option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" data-tax_type="{{ $tax->calculation_type }}" @if($purchase_return->tax_id == $tax->id) selected @endif>{{ $tax->name }}</option>
+								<option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" data-tax_type="{{ $tax->calculation_type }}" @if($purchase_return->tax_uid == $tax->id) selected @endif>{{ $tax->name }}</option>
 							@endforeach
 						</select>
 						{!! Form::hidden('tax_amount', $purchase_return->tax_amount, ['id' => 'tax_amount']); !!}

@@ -43,7 +43,7 @@ class UnitController extends Controller
             $unit = Unit::where('business_uid', $business_uid)
                         ->with(['base_unit'])
                         ->select(['actual_name', 'short_name', 'allow_decimal', 'id',
-                            'base_unit_id', 'base_unit_multiplier', ]);
+                            'base_unit_uid', 'base_unit_multiplier', ]);
 
             return Datatables::of($unit)
                 ->addColumn(
@@ -64,7 +64,7 @@ class UnitController extends Controller
                     }
                 })
                 ->editColumn('actual_name', function ($row) {
-                    if (! empty($row->base_unit_id)) {
+                    if (! empty($row->base_unit_uid)) {
                         return  $row->actual_name.' ('.(float) $row->base_unit_multiplier.$row->base_unit->short_name.')';
                     }
 
@@ -120,10 +120,10 @@ class UnitController extends Controller
             $input['created_by_uid'] = $request->session()->get('user.uid');
 
             if ($request->has('define_base_unit')) {
-                if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {
+                if (! empty($request->input('base_unit_uid')) && ! empty($request->input('base_unit_multiplier'))) {
                     $base_unit_multiplier = $this->commonUtil->num_uf($request->input('base_unit_multiplier'));
                     if ($base_unit_multiplier != 0) {
-                        $input['base_unit_id'] = $request->input('base_unit_id');
+                        $input['base_unit_uid'] = $request->input('base_unit_uid');
                         $input['base_unit_multiplier'] = $base_unit_multiplier;
                     }
                 }
@@ -202,15 +202,15 @@ class UnitController extends Controller
                 $unit->short_name = $input['short_name'];
                 $unit->allow_decimal = $input['allow_decimal'];
                 if ($request->has('define_base_unit')) {
-                    if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {
+                    if (! empty($request->input('base_unit_uid')) && ! empty($request->input('base_unit_multiplier'))) {
                         $base_unit_multiplier = $this->commonUtil->num_uf($request->input('base_unit_multiplier'));
                         if ($base_unit_multiplier != 0) {
-                            $unit->base_unit_id = $request->input('base_unit_id');
+                            $unit->base_unit_uid = $request->input('base_unit_uid');
                             $unit->base_unit_multiplier = $base_unit_multiplier;
                         }
                     }
                 } else {
-                    $unit->base_unit_id = null;
+                    $unit->base_unit_uid = null;
                     $unit->base_unit_multiplier = null;
                 }
 

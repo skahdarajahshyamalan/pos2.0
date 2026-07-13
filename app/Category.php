@@ -48,7 +48,7 @@ class Category extends Model
         $sub_categories = [];
 
         foreach ($all_categories as $category) {
-            if ($category['parent_id'] == 0) {
+            if ($category['parent_uid'] == 0) {
                 $categories[] = $category;
             } else {
                 $sub_categories[] = $category;
@@ -58,11 +58,11 @@ class Category extends Model
         $sub_cat_by_parent = [];
         if (! empty($sub_categories)) {
             foreach ($sub_categories as $sub_category) {
-                if (empty($sub_cat_by_parent[$sub_category['parent_id']])) {
-                    $sub_cat_by_parent[$sub_category['parent_id']] = [];
+                if (empty($sub_cat_by_parent[$sub_category['parent_uid']])) {
+                    $sub_cat_by_parent[$sub_category['parent_uid']] = [];
                 }
 
-                $sub_cat_by_parent[$sub_category['parent_id']][] = $sub_category;
+                $sub_cat_by_parent[$sub_category['parent_uid']][] = $sub_category;
             }
         }
 
@@ -85,7 +85,7 @@ class Category extends Model
     public static function forDropdown($business_uid, $type)
     {
         $categories = Category::where('business_uid', $business_uid)
-                            ->where('parent_id', 0)
+                            ->where('parent_uid', 0)
                             ->where('category_type', $type)
                             ->select(DB::raw('IF(short_code IS NOT NULL, CONCAT(name, "-", short_code), name) as name'), 'id')
                             ->orderBy('name', 'asc')
@@ -98,7 +98,7 @@ class Category extends Model
 
     public function sub_categories()
     {
-        return $this->hasMany(\App\Category::class, 'parent_id');
+        return $this->hasMany(\App\Category::class, 'parent_uid');
     }
 
     /**
@@ -109,6 +109,6 @@ class Category extends Model
      */
     public function scopeOnlyParent($query)
     {
-        return $query->where('parent_id', 0);
+        return $query->where('parent_uid', 0);
     }
 }

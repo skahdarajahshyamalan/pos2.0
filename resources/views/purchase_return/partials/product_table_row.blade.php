@@ -24,8 +24,8 @@
             name="products[{{$row_index}}][enable_stock]">
 
         @if(!empty($edit))
-            <input type="hidden" value="{{$product->purchase_line_id}}" 
-            name="products[{{$row_index}}][purchase_line_id]">
+            <input type="hidden" value="{{$product->purchase_line_uid}}" 
+            name="products[{{$row_index}}][purchase_line_uid]">
             @php
                 $qty = $product->quantity_returned;
                 $purchase_price = $product->purchase_price;

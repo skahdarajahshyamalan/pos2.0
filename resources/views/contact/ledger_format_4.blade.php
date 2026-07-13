@@ -18,7 +18,7 @@
         <h2 class="text-uppercase" style="margin: 0;"><strong>@lang('lang_v1.partner_ledger')</strong></h2>
     </div>
     <div class="col-md-4 col-sm-4 text-right" style="@if(!empty($for_pdf)) width:33.33%; float:left; text-align:right; @endif">
-        <p>{{$contact->contact_id ?? 'N/A'}}<br>
+        <p>{{$contact->contact_uid ?? 'N/A'}}<br>
         <p>{{$contact->name}}
             <br>@lang('contact.mobile'): {{$contact->mobile}}
         </p>

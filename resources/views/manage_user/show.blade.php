@@ -125,7 +125,7 @@
                         </div>
                         <div class="tab-pane" id="documents_and_notes_tab">
                             <!-- model id like project_id, user_uid -->
-                            <input type="hidden" name="notable_id" id="notable_id" value="{{$user->id}}">
+                            <input type="hidden" name="notable_uid" id="notable_uid" value="{{$user->id}}">
                             <!-- model name like App\User -->
                             <input type="hidden" name="notable_type" id="notable_type" value="App\User">
                             <div class="document_note_body">

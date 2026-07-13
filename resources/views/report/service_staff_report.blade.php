@@ -108,7 +108,7 @@
                     d.location_uid = $('select#ssr_location_id').val();
                     d.start_date = start;
                     d.end_date = end;
-                    d.res_waiter_id = $('select#service_staff_id').val();
+                    d.res_waiter_uid = $('select#service_staff_id').val();
                 }
             },
             columns: [

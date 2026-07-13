@@ -20,7 +20,7 @@
               {!! Form::text('product_variation[' . $loop->index . '][name]', $product_variation->name,
               ['class' => 'form-control input-sm variation_name', 'required']); !!}
               <input type="hidden" class="row_index" value="{{  $loop->index }}">
-              {!! Form::hidden('product_variation[' . $loop->index . '][product_variation_id]', $product_variation->id); !!}
+              {!! Form::hidden('product_variation[' . $loop->index . '][product_variation_uid]', $product_variation->id); !!}
             </td>
             <td>
                 <table class="table table-condensed table-bordered blue-header variation_value_table">

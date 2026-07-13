@@ -111,7 +111,7 @@ class ImportOpeningStockController extends Controller
                                 ->where('P.business_uid', $business_uid)
                                 ->select(['P.uid', 'variations.uid as variation_uid',
                                     'P.enable_stock', 'TR.amount as tax_percent',
-                                    'TR.uid as tax_id', ])
+                                    'TR.uid as tax_uid', ])
                                 ->first();
                         if (empty($product_info)) {
                             $is_valid = false;
@@ -165,11 +165,11 @@ class ImportOpeningStockController extends Controller
                         break;
                     }
 
-                    //Check for tra, location_uid, opening_stock_product_id, type=opening stock.
+                    //Check for tra, location_uid, opening_stock_product_uid, type=opening stock.
                     $os_transaction = Transaction::where('business_uid', $business_uid)
                             ->where('location_uid', $location->id)
                             ->where('type', 'opening_stock')
-                            ->where('opening_stock_product_id', $product_info->id)
+                            ->where('opening_stock_product_uid', $product_info->id)
                             ->first();
 
                     $this->addOpeningStock($opening_stock, $product_info, $business_uid, $unit_cost_before_tax, $os_transaction);
@@ -225,7 +225,7 @@ class ImportOpeningStockController extends Controller
 
         //Get product tax
         $tax_percent = ! empty($product->tax_percent) ? $product->tax_percent : 0;
-        $tax_id = ! empty($product->tax_id) ? $product->tax_id : null;
+        $tax_uid = ! empty($product->tax_uid) ? $product->tax_uid : null;
 
         $item_tax = $this->productUtil->calc_percentage($unit_cost_before_tax, $tax_percent);
 
@@ -237,7 +237,7 @@ class ImportOpeningStockController extends Controller
             $transaction = new Transaction();
             $transaction->type = 'opening_stock';
             $transaction->status = 'received';
-            $transaction->opening_stock_product_id = $product->id;
+            $transaction->opening_stock_product_uid = $product->id;
             $transaction->business_uid = $business_uid;
             $transaction->transaction_date = $transaction_date;
             $transaction->location_uid = $opening_stock['location_uid'];
@@ -257,7 +257,7 @@ class ImportOpeningStockController extends Controller
             'quantity' => $opening_stock['quantity'],
             'pp_without_discount' => $unit_cost_before_tax,
             'item_tax' => $item_tax,
-            'tax_id' => $tax_id,
+            'tax_uid' => $tax_uid,
             'pp_without_discount' => $unit_cost_before_tax,
             'purchase_price' => $unit_cost_before_tax,
             'purchase_price_inc_tax' => $unit_cost_before_tax + $item_tax,

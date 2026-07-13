@@ -21,8 +21,8 @@ $(document).ready( function(){
                 var end = $('#subscriptions_filter_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
                 d.start_date = start;
                 d.end_date = end;
-                @if(!empty($contact_id))
-                    d.contact_id = {{$contact_id}};
+                @if(!empty($contact_uid))
+                    d.contact_uid = {{$contact_uid}};
                 @endif
             }
         },

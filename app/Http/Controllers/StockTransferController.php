@@ -67,7 +67,7 @@ class StockTransferController extends Controller
                 '=',
                 'l1.uid'
             )
-                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.uid')
+                    ->join('transactions as t2', 't2.transfer_parent_uid', '=', 'transactions.uid')
                     ->join(
                         'business_locations AS l2',
                         't2.location_uid',
@@ -245,13 +245,13 @@ class StockTransferController extends Controller
                         'quantity' => $this->productUtil->num_uf($product['quantity']),
                         'item_tax' => 0,
                         'line_total_tax' => 0,
-                        'tax_id' => null, ];
+                        'tax_uid' => null, ];
 
                     if (! empty($product['product_unit_id'])) {
                         $sell_line_arr['product_unit_id'] = $product['product_unit_id'];
                     }
-                    if (! empty($product['sub_unit_id'])) {
-                        $sell_line_arr['sub_unit_id'] = $product['sub_unit_id'];
+                    if (! empty($product['sub_unit_uid'])) {
+                        $sell_line_arr['sub_unit_uid'] = $product['sub_unit_uid'];
                     }
 
                     $purchase_line_arr = $sell_line_arr;
@@ -266,12 +266,12 @@ class StockTransferController extends Controller
                     $purchase_line_arr['purchase_price'] = $sell_line_arr['unit_price'];
                     $purchase_line_arr['purchase_price_inc_tax'] = $sell_line_arr['unit_price'];
 
-                    if (! empty($product['lot_no_line_id'])) {
-                        //Add lot_no_line_id to sell line
-                        $sell_line_arr['lot_no_line_id'] = $product['lot_no_line_id'];
+                    if (! empty($product['lot_no_line_uid'])) {
+                        //Add lot_no_line_uid to sell line
+                        $sell_line_arr['lot_no_line_uid'] = $product['lot_no_line_uid'];
 
                         //Copy lot number and expiry date to purchase line
-                        $lot_details = PurchaseLine::find($product['lot_no_line_id']);
+                        $lot_details = PurchaseLine::find($product['lot_no_line_uid']);
                         $purchase_line_arr['lot_number'] = $lot_details->lot_number;
                         $purchase_line_arr['mfg_date'] = $lot_details->mfg_date;
                         $purchase_line_arr['exp_date'] = $lot_details->exp_date;
@@ -283,8 +283,8 @@ class StockTransferController extends Controller
                         $purchase_line_arr['purchase_price_inc_tax'] = $purchase_line_arr['purchase_price_inc_tax'] / $product['base_unit_multiplier'];
                     }
 
-                    if (isset($purchase_line_arr['sub_unit_id']) && $purchase_line_arr['sub_unit_id'] == $purchase_line_arr['product_unit_id']) {
-                        unset($purchase_line_arr['sub_unit_id']);
+                    if (isset($purchase_line_arr['sub_unit_uid']) && $purchase_line_arr['sub_unit_uid'] == $purchase_line_arr['product_unit_id']) {
+                        unset($purchase_line_arr['sub_unit_uid']);
                     }
                     unset($purchase_line_arr['product_unit_id']);
 
@@ -299,7 +299,7 @@ class StockTransferController extends Controller
             //Create Purchase Transfer at transfer location
             $input_data['type'] = 'purchase_transfer';
             $input_data['location_uid'] = $request->input('transfer_location_id');
-            $input_data['transfer_parent_id'] = $sell_transfer->id;
+            $input_data['transfer_parent_uid'] = $sell_transfer->id;
             $input_data['status'] = $status == 'completed' ? 'received' : $status;
 
             $purchase_transfer = Transaction::create($input_data);
@@ -407,7 +407,7 @@ class StockTransferController extends Controller
                             ->first();
 
         foreach ($sell_transfer->sell_lines as $key => $value) {
-            if (! empty($value->sub_unit_id)) {
+            if (! empty($value->sub_unit_uid)) {
                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_uid, $value);
 
                 $sell_transfer->sell_lines[$key] = $formated_sell_line;
@@ -415,7 +415,7 @@ class StockTransferController extends Controller
         }
 
         $purchase_transfer = Transaction::where('business_uid', $business_uid)
-                    ->where('transfer_parent_id', $sell_transfer->id)
+                    ->where('transfer_parent_uid', $sell_transfer->id)
                     ->where('type', 'purchase_transfer')
                     ->first();
 
@@ -465,7 +465,7 @@ class StockTransferController extends Controller
                                     ->first();
 
                 //Get purchase transfer transaction
-                $purchase_transfer = Transaction::where('transfer_parent_id', $sell_transfer->id)
+                $purchase_transfer = Transaction::where('transfer_parent_uid', $sell_transfer->id)
                                     ->where('type', 'purchase_transfer')
                                     ->with(['purchase_lines'])
                                     ->first();
@@ -489,11 +489,11 @@ class StockTransferController extends Controller
                 $products = []; //variation_uid as array
 
                 foreach ($sell_lines as $sell_line) {
-                    $purchase_sell_line = TransactionSellLinesPurchaseLines::where('sell_line_id', $sell_line->id)->first();
+                    $purchase_sell_line = TransactionSellLinesPurchaseLines::where('sell_line_uid', $sell_line->id)->first();
 
                     if (! empty($purchase_sell_line)) {
                         //Decrease quntity sold from purchase line
-                        PurchaseLine::where('uid', $purchase_sell_line->purchase_line_id)
+                        PurchaseLine::where('uid', $purchase_sell_line->purchase_line_uid)
                                 ->decrement('quantity_sold', $sell_line->quantity);
 
                         $deleted_sell_purchase_ids[] = $purchase_sell_line->id;
@@ -584,7 +584,7 @@ class StockTransferController extends Controller
                                 ->first();
 
             $purchase_transfer = Transaction::where('business_uid', $business_uid)
-                        ->where('transfer_parent_id', $sell_transfer->id)
+                        ->where('transfer_parent_uid', $sell_transfer->id)
                         ->where('type', 'purchase_transfer')
                         ->first();
 
@@ -630,7 +630,7 @@ class StockTransferController extends Controller
 
         $purchase_transfer = Transaction::where('business_uid',
                 $business_uid)
-                ->where('transfer_parent_id', $id)
+                ->where('transfer_parent_uid', $id)
                 ->where('status', '!=', 'received')
                 ->where('type', 'purchase_transfer')
                 ->first();
@@ -647,10 +647,10 @@ class StockTransferController extends Controller
                 true
             );
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
-            $product->sub_unit_id = $sell_line->sub_unit_id;
+            $product->sub_unit_uid = $sell_line->sub_unit_uid;
             $product->quantity_ordered = $sell_line->quantity;
             $product->transaction_sell_lines_id = $sell_line->id;
-            $product->lot_no_line_id = $sell_line->lot_no_line_id;
+            $product->lot_no_line_uid = $sell_line->lot_no_line_uid;
 
             $product->unit_details = $this->productUtil->getSubUnits($business_uid, $product->unit_uid);
 
@@ -703,7 +703,7 @@ class StockTransferController extends Controller
 
             $purchase_transfer = Transaction::where('business_uid',
                     $business_uid)
-                    ->where('transfer_parent_id', $id)
+                    ->where('transfer_parent_uid', $id)
                     ->where('type', 'purchase_transfer')
                     ->with(['purchase_lines'])
                     ->first();
@@ -733,13 +733,13 @@ class StockTransferController extends Controller
                         'quantity' => $this->productUtil->num_uf($product['quantity']),
                         'item_tax' => 0,
                         'line_total_tax' => 0,
-                        'tax_id' => null, ];
+                        'tax_uid' => null, ];
 
                     if (! empty($product['product_unit_id'])) {
                         $sell_line_arr['product_unit_id'] = $product['product_unit_id'];
                     }
-                    if (! empty($product['sub_unit_id'])) {
-                        $sell_line_arr['sub_unit_id'] = $product['sub_unit_id'];
+                    if (! empty($product['sub_unit_uid'])) {
+                        $sell_line_arr['sub_unit_uid'] = $product['sub_unit_uid'];
                     }
 
                     $purchase_line_arr = $sell_line_arr;
@@ -757,12 +757,12 @@ class StockTransferController extends Controller
                         $sell_line_arr['transaction_sell_lines_id'] = $product['transaction_sell_lines_id'];
                     }
 
-                    if (! empty($product['lot_no_line_id'])) {
-                        //Add lot_no_line_id to sell line
-                        $sell_line_arr['lot_no_line_id'] = $product['lot_no_line_id'];
+                    if (! empty($product['lot_no_line_uid'])) {
+                        //Add lot_no_line_uid to sell line
+                        $sell_line_arr['lot_no_line_uid'] = $product['lot_no_line_uid'];
 
                         //Copy lot number and expiry date to purchase line
-                        $lot_details = PurchaseLine::find($product['lot_no_line_id']);
+                        $lot_details = PurchaseLine::find($product['lot_no_line_uid']);
                         $purchase_line_arr['lot_number'] = $lot_details->lot_number;
                         $purchase_line_arr['mfg_date'] = $lot_details->mfg_date;
                         $purchase_line_arr['exp_date'] = $lot_details->exp_date;
@@ -774,8 +774,8 @@ class StockTransferController extends Controller
                         $purchase_line_arr['purchase_price_inc_tax'] = $purchase_line_arr['purchase_price_inc_tax'] / $product['base_unit_multiplier'];
                     }
 
-                    if (isset($purchase_line_arr['sub_unit_id']) && $purchase_line_arr['sub_unit_id'] == $purchase_line_arr['product_unit_id']) {
-                        unset($purchase_line_arr['sub_unit_id']);
+                    if (isset($purchase_line_arr['sub_unit_uid']) && $purchase_line_arr['sub_unit_uid'] == $purchase_line_arr['product_unit_id']) {
+                        unset($purchase_line_arr['sub_unit_uid']);
                     }
                     unset($purchase_line_arr['product_unit_id']);
 
@@ -909,7 +909,7 @@ class StockTransferController extends Controller
 
             $purchase_transfer = Transaction::where('business_uid',
                     $business_uid)
-                    ->where('transfer_parent_id', $id)
+                    ->where('transfer_parent_uid', $id)
                     ->where('type', 'purchase_transfer')
                     ->with(['purchase_lines'])
                     ->first();

@@ -110,8 +110,8 @@ class RecurringExpense extends Command
                     $this->notificationUtil->recurringExpenseNotification($created_by_uid, $recurring_expense);
 
                     //if admin is different
-                    if ($created_by_uid->id != $transaction->business->owner_id) {
-                        $admin = User::find($transaction->business->owner_id);
+                    if ($created_by_uid->id != $transaction->business->owner_uid) {
+                        $admin = User::find($transaction->business->owner_uid);
                         $this->notificationUtil->recurringExpenseNotification($admin, $recurring_expense);
                     }
                     DB::commit();

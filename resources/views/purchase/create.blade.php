@@ -34,7 +34,7 @@
 						<span class="input-group-addon">
 							<i class="fa fa-user"></i>
 						</span>
-						{!! Form::select('contact_id', [], null, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
+						{!! Form::select('contact_uid', [], null, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
 						<span class="input-group-btn">
 							<button type="button" class="btn btn-default bg-white btn-flat add_new_supplier" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
 						</span>
@@ -351,8 +351,8 @@
 				<tr>
 					<td>
 						<div class="form-group">
-						{!! Form::label('tax_id', __('purchase.purchase_tax') . ':') !!}
-						<select name="tax_id" id="tax_id" class="form-control select2" placeholder="'Please Select'">
+						{!! Form::label('tax_uid', __('purchase.purchase_tax') . ':') !!}
+						<select name="tax_uid" id="tax_uid" class="form-control select2" placeholder="'Please Select'">
 							<option value="" data-tax_amount="0" data-tax_type="fixed" selected>@lang('lang_v1.none')</option>
 							@foreach($taxes as $tax)
 								<option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" data-tax_type="{{ $tax->calculation_type }}">{{ $tax->name }}</option>

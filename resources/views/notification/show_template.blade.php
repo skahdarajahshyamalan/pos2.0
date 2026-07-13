@@ -121,7 +121,7 @@
         @endif
 
         @if($notification_template['template_for'] == 'send_ledger')
-            {!! Form::hidden('contact_id', $contact->id); !!}
+            {!! Form::hidden('contact_uid', $contact->id); !!}
             {!! Form::hidden('start_date', $start_date); !!}
             {!! Form::hidden('end_date', $end_date); !!}
             {!! Form::hidden('location_uid', $location_uid); !!}

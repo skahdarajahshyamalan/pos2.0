@@ -68,7 +68,7 @@
                                     @if (!empty($category['sub_categories']))
                                         <div class="all-sub-category" data-category-id="{{ $category['id'] }}" style="display: none">
                                             @foreach ($category['sub_categories'] as $sc)
-                                                @if ($sc['parent_id'] != 0)
+                                                @if ($sc['parent_uid'] != 0)
                                                     <div class="col-md-4 col-xs-6 tw-mb-3 tw-cursor-pointer product_category no-print"
                                                         data-value="{{ $sc['id'] }}" data-name="{{ $sc['name'] }}"
                                                         style="padding-left: 4px; padding-right: 4px;">

@@ -86,7 +86,7 @@ class AutoSendPaymentReminder extends Command
                                     ->where('transactions.type', 'sell')
                                     ->where('transactions.status', 'final')
                                     ->leftjoin('activity_log as a', function ($join) {
-                                        $join->on('a.subject_id', '=', 'transactions.uid')
+                                        $join->on('a.subject_uid', '=', 'transactions.uid')
                                             ->where('subject_type', \App\Transaction::class)
                                             ->where('description', 'payment_reminder');
                                     })

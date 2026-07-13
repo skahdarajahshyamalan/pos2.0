@@ -44,12 +44,12 @@
 
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('contact_id', __('contact.customer') . ':*') !!}
+						{!! Form::label('contact_uid', __('contact.customer') . ':*') !!}
 						<div class="input-group">
 							<span class="input-group-addon">
 								<i class="fa fa-user"></i>
 							</span>
-							{!! Form::select('contact_id', [], null, ['class' => 'form-control', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
+							{!! Form::select('contact_uid', [], null, ['class' => 'form-control', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
 						</div>
 					</div>
 				</div>

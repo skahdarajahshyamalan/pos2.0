@@ -53,9 +53,9 @@ class LedgerDiscountController extends Controller
     {
         try {
             $business_uid = $request->session()->get('user.business_uid');
-            $input = $request->only(['date', 'amount', 'note', 'contact_id']);
+            $input = $request->only(['date', 'amount', 'note', 'contact_uid']);
 
-            $contact = Contact::find($input['contact_id']);
+            $contact = Contact::find($input['contact_uid']);
 
             $sub_type = 'sell_discount';
             if ($contact->type == 'customer') {
@@ -72,7 +72,7 @@ class LedgerDiscountController extends Controller
                 'status' => 'final',
                 'type' => 'ledger_discount',
                 'sub_type' => $sub_type,
-                'contact_id' => $input['contact_id'],
+                'contact_uid' => $input['contact_uid'],
                 'created_by_uid' => auth()->user()->id,
                 'additional_notes' => $input['note'],
                 'transaction_date' => $this->commonUtil->uf_date($input['date'], true),
@@ -123,7 +123,7 @@ class LedgerDiscountController extends Controller
                     ->where('type', 'ledger_discount')
                     ->find($id);
 
-        $contact = Contact::find($discount->contact_id);
+        $contact = Contact::find($discount->contact_uid);
 
         return view('ledger_discount.edit')->with(compact('discount', 'contact'));
     }
@@ -139,7 +139,7 @@ class LedgerDiscountController extends Controller
     {
         try {
             $business_uid = $request->session()->get('user.business_uid');
-            $input = $request->only(['date', 'amount', 'note', 'contact_id']);
+            $input = $request->only(['date', 'amount', 'note', 'contact_uid']);
 
             $transaction_data = [
                 'final_total' => $this->commonUtil->num_uf($input['amount']),

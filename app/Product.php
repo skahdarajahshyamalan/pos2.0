@@ -87,7 +87,7 @@ class Product extends Model
      */
     public function second_unit()
     {
-        return $this->belongsTo(\App\Unit::class, 'secondary_unit_id');
+        return $this->belongsTo(\App\Unit::class, 'secondary_unit_uid');
     }
 
     /**
@@ -103,7 +103,7 @@ class Product extends Model
      */
     public function sub_category()
     {
-        return $this->belongsTo(\App\Category::class, 'sub_category_id', 'id');
+        return $this->belongsTo(\App\Category::class, 'sub_category_uid', 'id');
     }
 
     /**
@@ -127,7 +127,7 @@ class Product extends Model
      */
     public function modifier_products()
     {
-        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'modifier_set_id', 'product_uid');
+        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'modifier_set_uid', 'product_uid');
     }
 
     /**
@@ -135,7 +135,7 @@ class Product extends Model
      */
     public function modifier_sets()
     {
-        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'product_uid', 'modifier_set_id');
+        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'product_uid', 'modifier_set_uid');
     }
 
     /**

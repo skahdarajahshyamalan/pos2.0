@@ -113,7 +113,7 @@ class DiscountController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         $categories = Category::where('business_uid', $business_uid)
-                            ->where('parent_id', 0)
+                            ->where('parent_uid', 0)
                             ->pluck('name', 'id');
 
         $brands = Brands::forDropdown($business_uid);
@@ -203,7 +203,7 @@ class DiscountController extends Controller
             $ends_at = $this->commonUtil->format_date($discount->ends_at->toDateTimeString(), true);
 
             $categories = Category::where('business_uid', $business_uid)
-                            ->where('parent_id', 0)
+                            ->where('parent_uid', 0)
                             ->pluck('name', 'id');
 
             $brands = Brands::forDropdown($business_uid);

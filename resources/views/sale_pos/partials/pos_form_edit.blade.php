@@ -14,7 +14,7 @@
 				value="{{ $transaction->contact->name }}" >
 				<input type="hidden" id="default_customer_balance" 
 				value="{{$transaction->contact->balance}}" >
-				{!! Form::select('contact_id', 
+				{!! Form::select('contact_uid', 
 					[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required', 'style' => 'width: 100%;']); !!}
 				<span class="input-group-btn">
 					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
@@ -51,8 +51,8 @@
 	@if(!empty($pos_settings['show_invoice_layout']))
 	<div class="col-md-4">
 		<div class="form-group">
-		{!! Form::select('invoice_layout_id', 
-					$invoice_layouts, $transaction->location->invoice_layout_id, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_invoice_layout'), 'id' => 'invoice_layout_id']); !!}
+		{!! Form::select('invoice_layout_uid', 
+					$invoice_layouts, $transaction->location->invoice_layout_uid, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_invoice_layout'), 'id' => 'invoice_layout_uid']); !!}
 		</div>
 	</div>
 	@endif
@@ -94,14 +94,14 @@
 			</div>
 		</div>
 	@endif
-	@if(!empty($transaction->selling_price_group_id))
+	@if(!empty($transaction->selling_price_group_uid))
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
 				<div class="input-group">
 					<span class="input-group-addon">
 						<i class="fas fa-money-bill-alt"></i>
 					</span>
-					{!! Form::hidden('price_group', $transaction->selling_price_group_id, ['id' => 'price_group']) !!}
+					{!! Form::hidden('price_group', $transaction->selling_price_group_uid, ['id' => 'price_group']) !!}
 					{!! Form::text('price_group_text', $transaction->price_group->name, ['class' => 'form-control', 'readonly']); !!}
 					<span class="input-group-addon">
 					@show_tooltip(__('lang_v1.price_group_help_text'))
@@ -120,12 +120,12 @@
 					</span>
 					{!! Form::text('types_of_service_text', $transaction->types_of_service->name, ['class' => 'form-control', 'readonly']); !!}
 
-					{!! Form::hidden('types_of_service_id', $transaction->types_of_service_id, ['id' => 'types_of_service_id']) !!}
+					{!! Form::hidden('types_of_service_uid', $transaction->types_of_service_uid, ['id' => 'types_of_service_uid']) !!}
 					<span class="input-group-addon">
 						@show_tooltip(__('lang_v1.types_of_service_help'))
 					</span> 
 				</div>
-				<small><p class="help-block @if(empty($transaction->selling_price_group_id)) hide @endif" id="price_group_text">@lang('lang_v1.price_group'): <span>@if(!empty($transaction->selling_price_group_id)){{$transaction->price_group->name}}@endif</span></p></small>
+				<small><p class="help-block @if(empty($transaction->selling_price_group_uid)) hide @endif" id="price_group_text">@lang('lang_v1.price_group'): <span>@if(!empty($transaction->selling_price_group_uid)){{$transaction->price_group->name}}@endif</span></p></small>
 			</div>
 		</div>
 		<div class="modal fade types_of_service_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
@@ -137,7 +137,7 @@
 	@if($transaction->status == 'draft' && !empty($pos_settings['show_invoice_scheme']))
 		<div class="col-sm-3">
 			<div class="form-group">
-				{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme')]); !!}
+				{!! Form::select('invoice_scheme_uid', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme')]); !!}
 			</div>
 		</div>
 	@endif

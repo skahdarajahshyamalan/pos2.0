@@ -21,7 +21,7 @@ class RestaurantUtil extends Util
      */
     public function getAllOrders($business_uid, $filter = [])
     {
-        $query = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+        $query = Transaction::leftJoin('contacts', 'transactions.contact_uid', '=', 'contacts.uid')
                 ->leftjoin(
                     'business_locations AS bl',
                     'transactions.location_uid',
@@ -30,7 +30,7 @@ class RestaurantUtil extends Util
                 )
                 ->leftjoin(
                     'res_tables AS rt',
-                    'transactions.res_table_id',
+                    'transactions.res_table_uid',
                     '=',
                     'rt.uid'
                 )
@@ -72,8 +72,8 @@ class RestaurantUtil extends Util
             }
         }
 
-        if (! empty($filter['waiter_id'])) {
-            $query->where('transactions.res_waiter_id', $filter['waiter_id']);
+        if (! empty($filter['waiter_uid'])) {
+            $query->where('transactions.res_waiter_uid', $filter['waiter_uid']);
         }
 
         //  for kitchen order
@@ -140,12 +140,12 @@ class RestaurantUtil extends Util
     {
         $query = TransactionSellLine::with(['modifiers', 'modifiers.product', 'modifiers.variations'])
                 ->leftJoin('transactions as t', 't.uid', '=', 'transaction_sell_lines.transaction_uid')
-                ->leftJoin('contacts as c', 't.contact_id', '=', 'c.uid')
+                ->leftJoin('contacts as c', 't.contact_uid', '=', 'c.uid')
                 ->leftJoin('variations as v', 'transaction_sell_lines.variation_uid', '=', 'v.uid')
                 ->leftJoin('products as p', 'v.product_uid', '=', 'p.uid')
                 ->leftJoin('units as u', 'p.unit_uid', '=', 'u.uid')
-                ->leftJoin('product_variations as pv', 'v.product_variation_id', '=', 'pv.uid')
-                ->leftJoin('users as line_service_staff', 'transaction_sell_lines.res_service_staff_id', '=', 'line_service_staff.uid')
+                ->leftJoin('product_variations as pv', 'v.product_variation_uid', '=', 'pv.uid')
+                ->leftJoin('users as line_service_staff', 'transaction_sell_lines.res_service_staff_uid', '=', 'line_service_staff.uid')
                 ->leftjoin(
                     'business_locations AS bl',
                     't.location_uid',
@@ -154,7 +154,7 @@ class RestaurantUtil extends Util
                 )
                 ->leftjoin(
                     'res_tables AS rt',
-                    't.res_table_id',
+                    't.res_table_uid',
                     '=',
                     'rt.uid'
                 )
@@ -169,8 +169,8 @@ class RestaurantUtil extends Util
             });
         }
 
-        if (! empty($filter['waiter_id'])) {
-            $query->where('transaction_sell_lines.res_service_staff_id', $filter['waiter_id']);
+        if (! empty($filter['waiter_uid'])) {
+            $query->where('transaction_sell_lines.res_service_staff_uid', $filter['waiter_uid']);
         }
 
         if (! empty($filter['line_id'])) {
@@ -225,8 +225,8 @@ class RestaurantUtil extends Util
 
             $query->where(function ($q) use ($filters) {
                 $q->where('created_by_uid', $filters['user_uid'])
-                    ->orWhere('correspondent_id', $filters['user_uid'])
-                    ->orWhere('waiter_id', $filters['user_uid']);
+                    ->orWhere('correspondent_uid', $filters['user_uid'])
+                    ->orWhere('waiter_uid', $filters['user_uid']);
             });
         }
 

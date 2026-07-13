@@ -628,13 +628,13 @@ class Util
         return $sub_units;
     }
 
-    public function getMultiplierOf2Units($base_unit_id, $unit_uid)
+    public function getMultiplierOf2Units($base_unit_uid, $unit_uid)
     {
-        if ($base_unit_id == $unit_uid || is_null($base_unit_id) || is_null($unit_uid)) {
+        if ($base_unit_uid == $unit_uid || is_null($base_unit_uid) || is_null($unit_uid)) {
             return 1;
         }
 
-        $unit = Unit::where('base_unit_id', $base_unit_id)
+        $unit = Unit::where('base_unit_uid', $base_unit_uid)
             ->where('uid', $unit_uid)
             ->first();
         if (empty($unit)) {
@@ -891,7 +891,7 @@ class Util
             }
 
             if (strpos($value, '{cumulative_due_amount}') !== false) {
-                $due = $this->getContactDue($transaction->contact_id);
+                $due = $this->getContactDue($transaction->contact_uid);
                 $data[$key] = str_replace('{cumulative_due_amount}', $due, $data[$key]);
             }
 
@@ -1225,8 +1225,8 @@ class Util
 
             //Recalculate the price.
             if (is_null($change_percent)) {
-                $parent = TransactionSellLine::findOrFail($prev_line->parent_sell_line_id);
-                $child_sum = TransactionSellLine::where('parent_sell_line_id', $prev_line->parent_sell_line_id)
+                $parent = TransactionSellLine::findOrFail($prev_line->parent_sell_line_uid);
+                $child_sum = TransactionSellLine::where('parent_sell_line_uid', $prev_line->parent_sell_line_uid)
                     ->select(DB::raw('SUM(unit_price_inc_tax * quantity) as total_price'))
                     ->first()
                     ->total_price;
@@ -1270,14 +1270,14 @@ class Util
     /**
      * Retrieves sum of due amount of a contact
      *
-     * @param  int  $contact_id
+     * @param  int  $contact_uid
      * @return mixed
      */
-    public function getContactDue($contact_id, $business_uid = null)
+    public function getContactDue($contact_uid, $business_uid = null)
     {
         // aad type sell_return for to calculate total_sell_return 
-        $query = Contact::where('contacts.uid', $contact_id)
-            ->join('transactions AS t', 'contacts.uid', '=', 't.contact_id')
+        $query = Contact::where('contacts.uid', $contact_uid)
+            ->join('transactions AS t', 'contacts.uid', '=', 't.contact_uid')
             ->whereIn('t.type', ['sell', 'opening_balance', 'purchase', 'sell_return'])
             ->select(
                 DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', final_total, 0)) as total_invoice"),

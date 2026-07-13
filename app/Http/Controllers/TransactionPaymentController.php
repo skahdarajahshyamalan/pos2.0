@@ -83,7 +83,7 @@ class TransactionPaymentController extends Controller
                 $inputs['transaction_uid'] = $transaction->id;
                 $inputs['amount'] = $this->transactionUtil->num_uf($inputs['amount']);
                 $inputs['created_by_uid'] = auth()->user()->id;
-                $inputs['payment_for'] = $transaction->contact_id;
+                $inputs['payment_for'] = $transaction->contact_uid;
 
                 if ($inputs['method'] == 'custom_pay_1') {
                     $inputs['transaction_no'] = $request->input('transaction_no_1');
@@ -93,8 +93,8 @@ class TransactionPaymentController extends Controller
                     $inputs['transaction_no'] = $request->input('transaction_no_3');
                 }
 
-                if (! empty($request->input('account_id')) && $inputs['method'] != 'advance') {
-                    $inputs['account_id'] = $request->input('account_id');
+                if (! empty($request->input('account_uid')) && $inputs['method'] != 'advance') {
+                    $inputs['account_uid'] = $request->input('account_uid');
                 }
 
                 $prefix_type = 'purchase_payment';
@@ -256,8 +256,8 @@ class TransactionPaymentController extends Controller
                 $inputs['transaction_no'] = $request->input('transaction_no_3');
             }
 
-            if (! empty($request->input('account_id'))) {
-                $inputs['account_id'] = $request->input('account_id');
+            if (! empty($request->input('account_uid'))) {
+                $inputs['account_uid'] = $request->input('account_uid');
             }
 
             $payment = TransactionPayment::where('method', '!=', 'advance')->findOrFail($id);
@@ -267,8 +267,8 @@ class TransactionPaymentController extends Controller
             }
 
             //Update parent payment if exists
-            if (! empty($payment->parent_id)) {
-                $parent_payment = TransactionPayment::find($payment->parent_id);
+            if (! empty($payment->parent_uid)) {
+                $parent_payment = TransactionPayment::find($payment->parent_uid);
                 $parent_payment->amount = $parent_payment->amount - ($payment->amount - $inputs['amount']);
 
                 $parent_payment->save();
@@ -336,7 +336,7 @@ class TransactionPaymentController extends Controller
                 if (! empty($payment->transaction_uid)) {
                     TransactionPayment::deletePayment($payment);
                 } else { //advance payment
-                    $adjusted_payments = TransactionPayment::where('parent_id',
+                    $adjusted_payments = TransactionPayment::where('parent_uid',
                                                 $payment->id)
                                                 ->get();
 
@@ -351,7 +351,7 @@ class TransactionPaymentController extends Controller
                     //Delete all child payments
                     foreach ($adjusted_payments as $adjusted_payment) {
                         //Make parent payment null as it will get deleted
-                        $adjusted_payment->parent_id = null;
+                        $adjusted_payment->parent_uid = null;
                         TransactionPayment::deletePayment($adjusted_payment);
                     }
 
@@ -434,10 +434,10 @@ class TransactionPaymentController extends Controller
     /**
      * Shows contact's payment due modal
      *
-     * @param  int  $contact_id
+     * @param  int  $contact_uid
      * @return \Illuminate\Http\Response
      */
-    public function getPayContactDue($contact_id)
+    public function getPayContactDue($contact_uid)
     {
         if (! (auth()->user()->can('sell.payments') || auth()->user()->can('purchase.payments'))) {
             abort(403, 'Unauthorized action.');
@@ -447,15 +447,15 @@ class TransactionPaymentController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $due_payment_type = request()->input('type');
-            $query = Contact::where('contacts.uid', $contact_id)
-                            ->leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_id');
+            $query = Contact::where('contacts.uid', $contact_uid)
+                            ->leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_uid');
             if ($due_payment_type == 'purchase') {
                 $query->select(
                     DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
                     DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.uid as contact_id'
+                    'contacts.uid as contact_uid'
                     );
             } elseif ($due_payment_type == 'purchase_return') {
                 $query->select(
@@ -463,7 +463,7 @@ class TransactionPaymentController extends Controller
                     DB::raw("SUM(IF(t.type = 'purchase_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_return_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.uid as contact_id'
+                    'contacts.uid as contact_uid'
                     );
             } elseif ($due_payment_type == 'sell') {
                 $query->select(
@@ -471,7 +471,7 @@ class TransactionPaymentController extends Controller
                     DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.uid as contact_id'
+                    'contacts.uid as contact_uid'
                 );
             } elseif ($due_payment_type == 'sell_return') {
                 $query->select(
@@ -479,7 +479,7 @@ class TransactionPaymentController extends Controller
                     DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.uid), 0)) as total_return_paid"),
                     'contacts.name',
                     'contacts.supplier_business_name',
-                    'contacts.uid as contact_id'
+                    'contacts.uid as contact_uid'
                     );
             }
 
@@ -629,7 +629,7 @@ class TransactionPaymentController extends Controller
                                 ->first();
             } else {
                 $child_payment = TransactionPayment::where('business_uid', $business_uid)
-                        ->where('parent_id', $payment_id)
+                        ->where('parent_uid', $payment_id)
                         ->with(['transaction', 'transaction.contact', 'transaction.location', 'transaction.transaction_for'])
                         ->first();
                 $transaction = ! empty($child_payment) ? $child_payment->transaction : null;
@@ -665,7 +665,7 @@ class TransactionPaymentController extends Controller
             $business_uid = request()->session()->get('business.uid');
 
             $child_payments = TransactionPayment::where('business_uid', $business_uid)
-                                                    ->where('parent_id', $payment_id)
+                                                    ->where('parent_uid', $payment_id)
                                                     ->with(['transaction', 'transaction.contact'])
                                                     ->get();
 
@@ -679,10 +679,10 @@ class TransactionPaymentController extends Controller
     /**
      * Retrieves list of all opening balance payments.
      *
-     * @param  int  $contact_id
+     * @param  int  $contact_uid
      * @return \Illuminate\Http\Response
      */
-    public function getOpeningBalancePayments($contact_id)
+    public function getOpeningBalancePayments($contact_uid)
     {
         if (! (auth()->user()->can('sell.payments') ||
                 auth()->user()->can('purchase.payments') ||
@@ -699,7 +699,7 @@ class TransactionPaymentController extends Controller
             $query = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.uid')
                 ->where('t.business_uid', $business_uid)
                 ->where('t.type', 'opening_balance')
-                ->where('t.contact_id', $contact_id)
+                ->where('t.contact_uid', $contact_uid)
                 ->where('transaction_payments.business_uid', $business_uid)
                 ->select(
                     'transaction_payments.amount',

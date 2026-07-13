@@ -119,7 +119,7 @@
                                         <th id="psr_product_custom_field1">{{$product_custom_field1}}</th>
                                         <th id="psr_product_custom_field2">{{$product_custom_field2}}</th>
                                         <th>@lang('sale.customer_name')</th>
-                                        <th>@lang('lang_v1.contact_id')</th>
+                                        <th>@lang('lang_v1.contact_uid')</th>
                                         <th>@lang('lang_v1.contact_no')</th>
                                         <th>@lang('business.email')</th>
                                         <th>@lang('sale.invoice_no')</th>
@@ -255,7 +255,7 @@
                                         d.brand_uid = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
                                         d.location_uid = $('select#location_uid').val();
-                                        d.customer_group_id = $('#psr_customer_group_id').val();
+                                        d.customer_group_uid = $('#psr_customer_group_id').val();
                                     },
                                 },
                                 columns: [
@@ -312,7 +312,7 @@
                                         d.brand_uid = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
                                         d.location_uid = $('select#location_uid').val();
-                                        d.customer_group_id = $('#psr_customer_group_id').val();
+                                        d.customer_group_uid = $('#psr_customer_group_id').val();
                                     },
                                 },
                                 columns: [

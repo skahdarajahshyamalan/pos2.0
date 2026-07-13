@@ -20,8 +20,8 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label('account_type_id', __( 'account.account_type' ) .":") !!}
-                <select name="account_type_id" class="form-control select2">\
+                {!! Form::label('account_type_uid', __( 'account.account_type' ) .":") !!}
+                <select name="account_type_uid" class="form-control select2">\
                     <option>@lang('messages.please_select')</option>
                     @foreach($account_types as $account_type)
                         <optgroup label="{{$account_type->name}}">

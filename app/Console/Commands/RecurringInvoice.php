@@ -149,7 +149,7 @@ class RecurringInvoice extends Command
 
                         $this->transactionUtil->mapPurchaseSell($business, $recurring_invoice->sell_lines, 'purchase');
 
-                        $contact = Contact::find($recurring_invoice->contact_id);
+                        $contact = Contact::find($recurring_invoice->contact_uid);
 
                         //Auto send notification
                         $this->notificationUtil->autoSendNotification($transaction->business_uid, 'new_sale', $recurring_invoice, $contact);
@@ -163,8 +163,8 @@ class RecurringInvoice extends Command
                     $this->notificationUtil->recurringInvoiceNotification($created_by_uid, $recurring_invoice);
 
                     //if admin is different
-                    if ($created_by_uid->id != $transaction->business->owner_id) {
-                        $admin = User::find($transaction->business->owner_id);
+                    if ($created_by_uid->id != $transaction->business->owner_uid) {
+                        $admin = User::find($transaction->business->owner_uid);
                         $this->notificationUtil->recurringInvoiceNotification($admin, $recurring_invoice);
                     }
                     DB::commit();

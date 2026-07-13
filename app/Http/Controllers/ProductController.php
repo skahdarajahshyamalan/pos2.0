@@ -78,7 +78,7 @@ class ProductController extends Controller
                 ->leftJoin('brands', 'products.brand_uid', '=', 'brands.uid')
                 ->join('units', 'products.unit_uid', '=', 'units.uid')
                 ->leftJoin('categories as c1', 'products.category_uid', '=', 'c1.uid')
-                ->leftJoin('categories as c2', 'products.sub_category_id', '=', 'c2.uid')
+                ->leftJoin('categories as c2', 'products.sub_category_uid', '=', 'c2.uid')
                 ->leftJoin('tax_rates', 'products.tax', '=', 'tax_rates.uid')
                 ->join('variations as v', 'v.product_uid', '=', 'products.uid')
                 ->leftJoin('variation_location_details as vld', function ($join) use ($permitted_locations) {
@@ -164,9 +164,9 @@ class ProductController extends Controller
                 $products->where('products.unit_uid', $unit_uid);
             }
 
-            $tax_id = request()->get('tax_id', null);
-            if (! empty($tax_id)) {
-                $products->where('products.tax', $tax_id);
+            $tax_uid = request()->get('tax_uid', null);
+            if (! empty($tax_uid)) {
+                $products->where('products.tax', $tax_uid);
             }
 
             $active_state = request()->get('active_state', null);
@@ -398,7 +398,7 @@ class ProductController extends Controller
 
             if (! empty($duplicate_product->category_uid)) {
                 $sub_categories = Category::where('business_uid', $business_uid)
-                        ->where('parent_id', $duplicate_product->category_uid)
+                        ->where('parent_uid', $duplicate_product->category_uid)
                         ->pluck('name', 'id')
                         ->toArray();
             }
@@ -460,12 +460,12 @@ class ProductController extends Controller
             $product_details['enable_stock'] = (! empty($request->input('enable_stock')) && $request->input('enable_stock') == 1) ? 1 : 0;
             $product_details['not_for_selling'] = (! empty($request->input('not_for_selling')) && $request->input('not_for_selling') == 1) ? 1 : 0;
 
-            if (! empty($request->input('sub_category_id'))) {
-                $product_details['sub_category_id'] = $request->input('sub_category_id');
+            if (! empty($request->input('sub_category_uid'))) {
+                $product_details['sub_category_uid'] = $request->input('sub_category_uid');
             }
 
-            if (! empty($request->input('secondary_unit_id'))) {
-                $product_details['secondary_unit_id'] = $request->input('secondary_unit_id');
+            if (! empty($request->input('secondary_unit_uid'))) {
+                $product_details['secondary_unit_uid'] = $request->input('secondary_unit_uid');
             }
 
             if (empty($product_details['sku'])) {
@@ -490,7 +490,7 @@ class ProductController extends Controller
             $product_details['image'] = $this->productUtil->uploadFile($request, 'image', config('constants.product_img_path'), 'image');
             $common_settings = session()->get('business.common_settings');
 
-            $product_details['warranty_id'] = ! empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
+            $product_details['warranty_uid'] = ! empty($request->input('warranty_uid')) ? $request->input('warranty_uid') : null;
 
             DB::beginTransaction();
 
@@ -631,7 +631,7 @@ class ProductController extends Controller
         //Sub-category
         $sub_categories = [];
         $sub_categories = Category::where('business_uid', $business_uid)
-                        ->where('parent_id', $product->category_uid)
+                        ->where('parent_uid', $product->category_uid)
                         ->pluck('name', 'id')
                         ->toArray();
         $sub_categories = ['' => 'None'] + $sub_categories;
@@ -728,8 +728,8 @@ class ProductController extends Controller
             $product->product_description = $product_details['product_description'];
             $product->sub_unit_ids = ! empty($product_details['sub_unit_ids']) ? $product_details['sub_unit_ids'] : null;
             $product->preparation_time_in_minutes = $product_details['preparation_time_in_minutes'];
-            $product->warranty_id = ! empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
-            $product->secondary_unit_id = ! empty($request->input('secondary_unit_id')) ? $request->input('secondary_unit_id') : null;
+            $product->warranty_uid = ! empty($request->input('warranty_uid')) ? $request->input('warranty_uid') : null;
+            $product->secondary_unit_uid = ! empty($request->input('secondary_unit_uid')) ? $request->input('secondary_unit_uid') : null;
 
             if (! empty($request->input('enable_stock')) && $request->input('enable_stock') == 1) {
                 $product->enable_stock = 1;
@@ -739,10 +739,10 @@ class ProductController extends Controller
 
             $product->not_for_selling = (! empty($request->input('not_for_selling')) && $request->input('not_for_selling') == 1) ? 1 : 0;
 
-            if (! empty($request->input('sub_category_id'))) {
-                $product->sub_category_id = $request->input('sub_category_id');
+            if (! empty($request->input('sub_category_uid'))) {
+                $product->sub_category_uid = $request->input('sub_category_uid');
             } else {
-                $product->sub_category_id = null;
+                $product->sub_category_uid = null;
             }
 
             $expiry_enabled = $request->session()->get('business.enable_product_expiry');
@@ -1053,7 +1053,7 @@ class ProductController extends Controller
             $category_uid = $request->input('cat_id');
             $business_uid = $request->session()->get('user.business_uid');
             $sub_categories = Category::where('business_uid', $business_uid)
-                        ->where('parent_id', $category_uid)
+                        ->where('parent_uid', $category_uid)
                         ->select(['name', 'id'])
                         ->get();
             $html = '<option value="">None</option>';
@@ -1249,10 +1249,10 @@ class ProductController extends Controller
             $search_term = request()->input('term', '');
             $location_uid = request()->input('location_uid', null);
             $check_qty = request()->input('check_qty', false);
-            $price_group_id = request()->input('price_group', null);
+            $price_group_uid = request()->input('price_group', null);
             $business_uid = request()->session()->get('user.business_uid');
             $not_for_selling = request()->get('not_for_selling', null);
-            $price_group_id = request()->input('price_group', '');
+            $price_group_uid = request()->input('price_group', '');
             $product_types = request()->get('product_types', []);
 
             $search_fields = request()->get('search_fields', ['name', 'sku']);
@@ -1260,7 +1260,7 @@ class ProductController extends Controller
                 $search_fields[] = 'sub_sku';
             }
 
-            $result = $this->productUtil->filterProduct($business_uid, $search_term, $location_uid, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
+            $result = $this->productUtil->filterProduct($business_uid, $search_term, $location_uid, $not_for_selling, $price_group_uid, $product_types, $search_fields, $check_qty);
 
             // If only one result and location_uid is provided (POS context), auto-fetch the product row
             if (count($result) == 1 && !empty($location_uid) && request()->get('auto_add_single', false)) {
@@ -1557,7 +1557,7 @@ class ProductController extends Controller
 
         try {
             $form_fields = ['name', 'brand_uid', 'unit_uid', 'category_uid', 'tax', 'barcode_type', 'tax_type', 'sku',
-                'alert_quantity', 'type', 'sub_unit_ids', 'sub_category_id', 'weight', 'product_description', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20'];
+                'alert_quantity', 'type', 'sub_unit_ids', 'sub_category_uid', 'weight', 'product_description', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20'];
 
             $module_form_fields = $this->moduleUtil->getModuleData('product_form_fields');
             if (! empty($module_form_fields)) {
@@ -1598,7 +1598,7 @@ class ProductController extends Controller
                 $product_details['enable_sr_no'] = 1;
             }
 
-            $product_details['warranty_id'] = ! empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
+            $product_details['warranty_uid'] = ! empty($request->input('warranty_uid')) ? $request->input('warranty_uid') : null;
 
             DB::beginTransaction();
 
@@ -1688,7 +1688,7 @@ class ProductController extends Controller
 
             foreach ($product->variations as $variation) {
                 foreach ($variation->group_prices as $group_price) {
-                    $group_price_details[$variation->id][$group_price->price_group_id] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type, 'calculated_price' => $group_price->calculated_price];
+                    $group_price_details[$variation->id][$group_price->price_group_uid] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type, 'calculated_price' => $group_price->calculated_price];
                 }
             }
 
@@ -1814,7 +1814,7 @@ class ProductController extends Controller
         $variation_prices = [];
         foreach ($product->variations as $variation) {
             foreach ($variation->group_prices as $group_price) {
-                $variation_prices[$variation->id][$group_price->price_group_id] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type];
+                $variation_prices[$variation->id][$group_price->price_group_uid] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type];
             }
         }
 
@@ -1845,12 +1845,12 @@ class ProductController extends Controller
                     if (isset($value[$variation->id])) {
                         $variation_group_price =
                         VariationGroupPrice::where('variation_uid', $variation->id)
-                                            ->where('price_group_id', $key)
+                                            ->where('price_group_uid', $key)
                                             ->first();
                         if (empty($variation_group_price)) {
                             $variation_group_price = new VariationGroupPrice([
                                 'variation_uid' => $variation->id,
-                                'price_group_id' => $key,
+                                'price_group_uid' => $key,
                             ]);
                         }
 
@@ -1918,7 +1918,7 @@ class ProductController extends Controller
 
         foreach ($product->variations as $variation) {
             foreach ($variation->group_prices as $group_price) {
-                $group_price_details[$variation->id][$group_price->price_group_id] = $group_price->price_inc_tax;
+                $group_price_details[$variation->id][$group_price->price_group_uid] = $group_price->price_inc_tax;
             }
         }
 
@@ -2069,7 +2069,7 @@ class ProductController extends Controller
             }
 
             if (! empty($filters['sub_category'])) {
-                $query->where('sub_category_id', $filters['sub_category']);
+                $query->where('sub_category_uid', $filters['sub_category']);
             }
 
             if ($order_by == 'name') {
@@ -2207,7 +2207,7 @@ class ProductController extends Controller
             foreach ($products as $id => $product_data) {
                 $update_data = [
                     'category_uid' => $product_data['category_uid'],
-                    'sub_category_id' => $product_data['sub_category_id'],
+                    'sub_category_uid' => $product_data['sub_category_uid'],
                     'brand_uid' => $product_data['brand_uid'],
                     'tax' => $product_data['tax'],
                 ];
@@ -2239,7 +2239,7 @@ class ProductController extends Controller
                     if (! empty($value['group_prices'])) {
                         foreach ($value['group_prices'] as $k => $v) {
                             VariationGroupPrice::updateOrCreate(
-                                ['price_group_id' => $k, 'variation_uid' => $variation->id],
+                                ['price_group_uid' => $k, 'variation_uid' => $variation->id],
                                 ['price_inc_tax' => $this->productUtil->num_uf($v)]
                             );
                         }

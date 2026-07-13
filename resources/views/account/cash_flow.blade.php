@@ -16,8 +16,8 @@
             @component('components.filters', ['title' => __('report.filters')])
             <div class="col-sm-4">
                 <div class="form-group">
-                    {!! Form::label('account_id', __('account.account') . ':') !!}
-                    {!! Form::select('account_id', $accounts, '', ['class' => 'form-control', 'placeholder' => __('messages.all')]) !!}
+                    {!! Form::label('account_uid', __('account.account') . ':') !!}
+                    {!! Form::select('account_uid', $accounts, '', ['class' => 'form-control', 'placeholder' => __('messages.all')]) !!}
                 </div>
             </div>
             <div class="col-md-4">
@@ -119,7 +119,7 @@
                             end = $('#transaction_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
                         }
                         
-                        d.account_id = $('#account_id').val();
+                        d.account_uid = $('#account_uid').val();
                         d.type = $('#transaction_type').val();
                         d.start_date = start,
                         d.end_date = end
@@ -155,7 +155,7 @@
                 $('.footer_total_credit').html(__currency_trans_from_en(footer_total_credit));
             }
         });
-        $('#transaction_type, #account_id, #cash_flow_location_id').change( function(){
+        $('#transaction_type, #account_uid, #cash_flow_location_id').change( function(){
             cash_flow_table.ajax.reload();
         });
         $('#transaction_date_range').on('cancel.daterangepicker', function(ev, picker) {

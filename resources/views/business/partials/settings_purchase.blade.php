@@ -15,12 +15,12 @@
     </div>
     <div class="col-sm-4 @if($business->purchase_in_diff_currency != 1) hide @endif" id="settings_purchase_currency_div">
         <div class="form-group">
-            {!! Form::label('purchase_currency_id', __('purchase.purchase_currency') . ':') !!}
+            {!! Form::label('purchase_currency_uid', __('purchase.purchase_currency') . ':') !!}
             <div class="input-group">
                 <span class="input-group-addon">
                     <i class="fas fa-money-bill-alt"></i>
                 </span>
-                {!! Form::select('purchase_currency_id', $currencies, $business->purchase_currency_id, ['class' => 'form-control select2', 'placeholder' => __('business.currency'), 'required', 'style' => 'width:100% !important']); !!}
+                {!! Form::select('purchase_currency_uid', $currencies, $business->purchase_currency_uid, ['class' => 'form-control select2', 'placeholder' => __('business.currency'), 'required', 'style' => 'width:100% !important']); !!}
             </div>
         </div>
     </div>

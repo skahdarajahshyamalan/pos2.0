@@ -15,9 +15,9 @@
 				value="{{ $walk_in_customer['shipping_address'] ?? ''}}" >
 				@if(!empty($walk_in_customer['price_calculation_type']) && $walk_in_customer['price_calculation_type'] == 'selling_price_group')
 					<input type="hidden" id="default_selling_price_group" 
-				value="{{ $walk_in_customer['selling_price_group_id'] ?? ''}}" >
+				value="{{ $walk_in_customer['selling_price_group_uid'] ?? ''}}" >
 				@endif
-				{!! Form::select('contact_id', 
+				{!! Form::select('contact_uid', 
 					[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
 				<span class="input-group-btn">
 					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
@@ -59,8 +59,8 @@
 	@if(!empty($pos_settings['show_invoice_layout']))
 	<div class="col-md-4">
 		<div class="form-group">
-		{!! Form::select('invoice_layout_id', 
-					$invoice_layouts, $default_location->invoice_layout_id, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_invoice_layout'), 'id' => 'invoice_layout_id']); !!}
+		{!! Form::select('invoice_layout_uid', 
+					$invoice_layouts, $default_location->invoice_layout_uid, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_invoice_layout'), 'id' => 'invoice_layout_uid']); !!}
 		</div>
 	</div>
 	@endif
@@ -138,7 +138,7 @@
 					<span class="input-group-addon">
 						<i class="fa fa-external-link-square-alt text-primary service_modal_btn"></i>
 					</span>
-					{!! Form::select('types_of_service_id', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_id', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
+					{!! Form::select('types_of_service_uid', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_uid', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
 
 					{!! Form::hidden('types_of_service_price_group', null, ['id' => 'types_of_service_price_group']) !!}
 
@@ -154,16 +154,16 @@
 
 	@if(!empty($pos_settings['show_invoice_scheme']))
 		@php
-			$invoice_scheme_id = $default_invoice_schemes->id;
-			if(!empty($default_location->invoice_scheme_id)) {
-				$invoice_scheme_id = $default_location->invoice_scheme_id;
+			$invoice_scheme_uid = $default_invoice_schemes->id;
+			if(!empty($default_location->invoice_scheme_uid)) {
+				$invoice_scheme_uid = $default_location->invoice_scheme_uid;
 			}
 		@endphp
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
-				{!! Form::select('invoice_scheme_id', $invoice_schemes, $invoice_scheme_id, 
+				{!! Form::select('invoice_scheme_uid', $invoice_schemes, $invoice_scheme_uid, 
 					['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme'), 
-					'id' => 'invoice_scheme_id']); !!}
+					'id' => 'invoice_scheme_uid']); !!}
 			</div>
 		</div>
 	@endif

@@ -20,11 +20,11 @@ class AccountType extends Model
 
     public function sub_types()
     {
-        return $this->hasMany(\App\AccountType::class, 'parent_account_type_id');
+        return $this->hasMany(\App\AccountType::class, 'parent_account_type_uid');
     }
 
     public function parent_account()
     {
-        return $this->belongsTo(\App\AccountType::class, 'parent_account_type_id');
+        return $this->belongsTo(\App\AccountType::class, 'parent_account_type_uid');
     }
 }

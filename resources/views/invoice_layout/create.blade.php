@@ -380,7 +380,7 @@
           <div class="form-group">
             <div class="checkbox">
               <label>
-                {!! Form::checkbox('show_client_id', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_client_id')</label>
+                {!! Form::checkbox('show_client_uid', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_client_uid')</label>
               </div>
           </div>
         </div>

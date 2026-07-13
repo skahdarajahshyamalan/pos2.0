@@ -43,8 +43,8 @@
             </div>
         </div>
         <div class="form-group hide" id="parent_cat_div">
-          {!! Form::label('parent_id', __( 'category.select_parent_category' ) . ':') !!}
-          {!! Form::select('parent_id', $parent_categories, null, ['class' => 'form-control']); !!}
+          {!! Form::label('parent_uid', __( 'category.select_parent_category' ) . ':') !!}
+          {!! Form::select('parent_uid', $parent_categories, null, ['class' => 'form-control']); !!}
         </div>
       @endif
     </div>

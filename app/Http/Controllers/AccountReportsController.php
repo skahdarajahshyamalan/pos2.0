@@ -154,7 +154,7 @@ class AccountReportsController extends Controller
     {
         $query = Account::leftjoin(
             'account_transactions as AT',
-            'AT.account_id',
+            'AT.account_uid',
             '=',
             'accounts.uid'
         )
@@ -238,9 +238,9 @@ class AccountReportsController extends Controller
                 '=',
                 'T.uid'
             )
-                                    ->leftjoin('accounts as A', 'transaction_payments.account_id', '=', 'A.uid')
+                                    ->leftjoin('accounts as A', 'transaction_payments.account_uid', '=', 'A.uid')
                                     ->where('transaction_payments.business_uid', $business_uid)
-                                    ->whereNull('transaction_payments.parent_id')
+                                    ->whereNull('transaction_payments.parent_uid')
                                     ->where('transaction_payments.method', '!=', 'advance')
                                     ->leftjoin('contacts as c', 'transaction_payments.payment_for', '=', 'c.uid')
                                     ->select([
@@ -253,7 +253,7 @@ class AccountReportsController extends Controller
                                         'A.name as account_name',
                                         'A.account_number',
                                         'transaction_payments.uid as payment_id',
-                                        'transaction_payments.account_id',
+                                        'transaction_payments.account_uid',
                                         'c.name as contact_name',
                                         'c.type as contact_type',
                                         'transaction_payments.is_advance',
@@ -272,12 +272,12 @@ class AccountReportsController extends Controller
                 $query->whereBetween(DB::raw('date(paid_on)'), [$start_date, $end_date]);
             }
 
-            $account_id = ! empty(request()->input('account_id')) ? request()->input('account_id') : '';
+            $account_uid = ! empty(request()->input('account_uid')) ? request()->input('account_uid') : '';
 
-            if ($account_id == 'none') {
-                $query->whereNull('account_id');
-            } elseif (! empty($account_id)) {
-                $query->where('account_id', $account_id);
+            if ($account_uid == 'none') {
+                $query->whereNull('account_uid');
+            } elseif (! empty($account_uid)) {
+                $query->where('account_uid', $account_uid);
             }
 
             return DataTables::of($query)
@@ -308,7 +308,7 @@ class AccountReportsController extends Controller
                     })
                     ->addColumn('account', function ($row) {
                         $account = '';
-                        if (! empty($row->account_id)) {
+                        if (! empty($row->account_uid)) {
                             $account = $row->account_name.' - '.$row->account_number;
                         }
 
@@ -395,16 +395,16 @@ class AccountReportsController extends Controller
         try {
             $business_uid = session()->get('user.business_uid');
             if (request()->ajax()) {
-                $payment_id = $request->input('transaction_payment_id');
-                $account_id = $request->input('account_id');
+                $payment_id = $request->input('transaction_payment_uid');
+                $account_uid = $request->input('account_uid');
 
                 $payment = TransactionPayment::with(['transaction'])->where('business_uid', $business_uid)->findOrFail($payment_id);
-                $payment->account_id = $account_id;
+                $payment->account_uid = $account_uid;
                 $payment->save();
 
                 $payment_type = ! empty($payment->transaction->type) ? $payment->transaction->type : null;
                 if (empty($payment_type)) {
-                    $child_payment = TransactionPayment::where('parent_id', $payment->id)->first();
+                    $child_payment = TransactionPayment::where('parent_uid', $payment->id)->first();
                     $payment_type = ! empty($child_payment->transaction->type) ? $child_payment->transaction->type : null;
                 }
 

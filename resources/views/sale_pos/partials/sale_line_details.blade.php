@@ -105,8 +105,8 @@
                 @else
                     <span class="display_currency" data-currency_symbol="true">{{ $sell_line->item_tax }}</span> 
                 @endif
-                @if(!empty($taxes[$sell_line->tax_id]))
-                ( {{ $taxes[$sell_line->tax_id]}} )
+                @if(!empty($taxes[$sell_line->tax_uid]))
+                ( {{ $taxes[$sell_line->tax_uid]}} )
                 @endif
             </td>
             <td>
@@ -157,8 +157,8 @@
                     @else
                         <span class="display_currency" data-currency_symbol="true">{{ $modifier->item_tax }}</span> 
                     @endif
-                    @if(!empty($taxes[$modifier->tax_id]))
-                    ( {{ $taxes[$modifier->tax_id]}} )
+                    @if(!empty($taxes[$modifier->tax_uid]))
+                    ( {{ $taxes[$modifier->tax_uid]}} )
                     @endif
                 </td>
                 <td>

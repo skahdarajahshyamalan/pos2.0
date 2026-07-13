@@ -12,7 +12,7 @@
 			name="products[{{$index}}][modifier_quantity][]" 
 			value="{{$quantity}}">
 		<input type="hidden" 
-			name="products[{{$index}}][modifier_set_id][]" 
+			name="products[{{$index}}][modifier_set_uid][]" 
 			value="{{$modifier->product_uid}}">
 		</div>
 	@endforeach
@@ -30,7 +30,7 @@
 			name="products[{{$index}}][modifier_quantity][]" 
 			value="{{$modifier->quantity}}">
 		<input type="hidden" 
-			name="products[{{$index}}][modifier_set_id][]" 
+			name="products[{{$index}}][modifier_set_uid][]" 
 			value="{{$modifier->product_uid}}">
 		<input type="hidden" 
 			name="products[{{$index}}][modifier_sell_line_id][]" 

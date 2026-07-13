@@ -3,7 +3,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             {!! Form::open(['url' => action([\App\Http\Controllers\LedgerDiscountController::class, 'store']), 'method' => 'post', 'id' => 'add_discount_form' ]) !!}
-            <input type="hidden" name="contact_id" value="{{$contact->id}}">
+            <input type="hidden" name="contact_uid" value="{{$contact->id}}">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">@lang('lang_v1.add_discount')</h4>

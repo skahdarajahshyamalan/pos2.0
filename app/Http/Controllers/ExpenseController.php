@@ -52,17 +52,17 @@ class ExpenseController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_uid', '=', 'ec.uid')
-                        ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.uid')
+                        ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_uid', '=', 'esc.uid')
                         ->join(
                             'business_locations AS bl',
                             'transactions.location_uid',
                             '=',
                             'bl.uid'
                         )
-                        ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.uid')
+                        ->leftJoin('tax_rates as tr', 'transactions.tax_uid', '=', 'tr.uid')
                         ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.uid')
                         ->leftJoin('users AS usr', 'transactions.created_by_uid', '=', 'usr.uid')
-                        ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.uid')
+                        ->leftJoin('contacts AS c', 'transactions.contact_uid', '=', 'c.uid')
                         ->leftJoin(
                             'transaction_payments AS TP',
                             'transactions.uid',
@@ -73,7 +73,7 @@ class ExpenseController extends Controller
                         ->whereIn('transactions.type', ['expense', 'expense_refund'])
                         ->select(
                             'transactions.uid',
-                            'transactions.contact_id as c_id',
+                            'transactions.contact_uid as c_id',
                             'transactions.document',
                             'transaction_date',
                             'ref_no',
@@ -92,9 +92,9 @@ class ExpenseController extends Controller
                             DB::raw("CONCAT(tr.name ,' (', tr.amount ,' )') as tax"),
                             DB::raw('SUM(TP.amount) as amount_paid'),
                             DB::raw("CONCAT(COALESCE(usr.surname, ''),' ',COALESCE(usr.first_name, ''),' ',COALESCE(usr.last_name,'')) as added_by"),
-                            'transactions.recur_parent_id',
+                            'transactions.recur_parent_uid',
                             'c.name as contact_name',
-                            'c.contact_id as contact_id', 
+                            'c.contact_uid as contact_uid', 
                             'c.supplier_business_name as supplier_business_name', 
                             'transactions.type'
                         )
@@ -116,10 +116,10 @@ class ExpenseController extends Controller
                 }
             }
 
-            if (request()->has('contact_id')) {
-                $contact_id = request()->get('contact_id');
-                if (! empty($contact_id)) {
-                    $expenses->where('transactions.contact_id', $contact_id);
+            if (request()->has('contact_uid')) {
+                $contact_uid = request()->get('contact_uid');
+                if (! empty($contact_uid)) {
+                    $expenses->where('transactions.contact_uid', $contact_uid);
                 }
             }
 
@@ -140,10 +140,10 @@ class ExpenseController extends Controller
             }
 
             //Add condition for expense sub category, used in list of expense,
-            if (request()->has('expense_sub_category_id')) {
-                $expense_sub_category_id = request()->get('expense_sub_category_id');
-                if (! empty($expense_sub_category_id)) {
-                    $expenses->where('transactions.expense_sub_category_id', $expense_sub_category_id);
+            if (request()->has('expense_sub_category_uid')) {
+                $expense_sub_category_uid = request()->get('expense_sub_category_uid');
+                if (! empty($expense_sub_category_uid)) {
+                    $expenses->where('transactions.expense_sub_category_uid', $expense_sub_category_uid);
                 }
             }
 
@@ -218,7 +218,7 @@ class ExpenseController extends Controller
                         if (!empty($row->c_id)) {
                             return '<span class="">' 
                                 . (!empty($row->contact_name) ? $row->contact_name . ' / ' : '')
-                                . (!empty($row->contact_id) ? '('. $row->contact_id . ')' : '')
+                                . (!empty($row->contact_uid) ? '('. $row->contact_uid . ')' : '')
                                 . (!empty($row->supplier_business_name) ? '/'. $row->supplier_business_name  : '') . '</span>';
                         }
                     }
@@ -252,7 +252,7 @@ class ExpenseController extends Controller
                             $details .= '<br><small class="text-muted">'.
                             __('lang_v1.repeat_on').': '.str_ordinal($row->subscription_repeat_on);
                         }
-                    } elseif (! empty($row->recur_parent_id)) {
+                    } elseif (! empty($row->recur_parent_uid)) {
                         $details .= __('lang_v1.recurred_from').': '.$row->recurring_parent->ref_no;
                     }
                     $details .= '</small>';
@@ -265,7 +265,7 @@ class ExpenseController extends Controller
                         $ref_no .= ' &nbsp;<small class="label bg-red label-round no-print" title="'.__('lang_v1.recurring_expense').'"><i class="fas fa-recycle"></i></small>';
                     }
 
-                    if (! empty($row->recur_parent_id)) {
+                    if (! empty($row->recur_parent_uid)) {
                         $ref_no .= ' &nbsp;<small class="label bg-info label-round no-print" title="'.__('lang_v1.generated_recurring_expense').'"><i class="fas fa-recycle"></i></small>';
                     }
 
@@ -282,7 +282,7 @@ class ExpenseController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         $categories = ExpenseCategory::where('business_uid', $business_uid)
-                            ->whereNull('parent_id')
+                            ->whereNull('parent_uid')
                             ->pluck('name', 'id');
 
         $users = User::forDropdown($business_uid, false, true, true);
@@ -292,7 +292,7 @@ class ExpenseController extends Controller
         $contacts = Contact::contactDropdown($business_uid, false, false);
 
         $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
-                        ->whereNotNull('parent_id')
+                        ->whereNotNull('parent_uid')
                         ->pluck('name', 'id')
                         ->toArray();
 
@@ -324,7 +324,7 @@ class ExpenseController extends Controller
         $business_locations = $business_locations['locations'];
 
         $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
-                                ->whereNull('parent_id')
+                                ->whereNull('parent_uid')
                                 ->pluck('name', 'id');
 
         $users = User::forDropdown($business_uid, true, true);
@@ -447,7 +447,7 @@ class ExpenseController extends Controller
         $business_locations = BusinessLocation::forDropdown($business_uid);
 
         $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
-                                ->whereNull('parent_id')
+                                ->whereNull('parent_uid')
                                 ->pluck('name', 'id');
         $expense = Transaction::where('business_uid', $business_uid)
                                 ->where('uid', $id)
@@ -464,7 +464,7 @@ class ExpenseController extends Controller
 
         if (!empty($expense->expense_category_uid)) {
             $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
-                ->where('parent_id', $expense->expense_category_uid)
+                ->where('parent_uid', $expense->expense_category_uid)
                 ->pluck('name', 'id')
                 ->toArray();
         }
@@ -661,16 +661,16 @@ class ExpenseController extends Controller
                 if (!empty($sub_category_name)) {
                     $sub_category = ExpenseCategory::where('business_uid', $business_uid)
                         ->where('name', $sub_category_name)
-                        ->where('parent_id', $category->id)
+                        ->where('parent_uid', $category->id)
                         ->first();
                     if (empty($sub_category)) {
                         $sub_category = new ExpenseCategory;
                         $sub_category->business_uid = $business_uid;
                         $sub_category->name = $sub_category_name;
-                        $sub_category->parent_id = $category->id;
+                        $sub_category->parent_uid = $category->id;
                         $sub_category->save();
                     }
-                    $expense_array['expense_sub_category_id'] = $sub_category->id;
+                    $expense_array['expense_sub_category_uid'] = $sub_category->id;
                 }
 
                 //Update reference count
@@ -713,13 +713,13 @@ class ExpenseController extends Controller
                     }
                 }
 
-                $contact_id = trim($value[6]);
+                $contact_uid = trim($value[6]);
 
-                if (!empty($contact_id)) {
+                if (!empty($contact_uid)) {
 
-                    $contact = Contact::where('contact_id', $contact_id)->where('business_uid', $business_uid)->first();
+                    $contact = Contact::where('contact_uid', $contact_uid)->where('business_uid', $business_uid)->first();
                     if (!empty($contact)) {
-                        $expense_array['contact_id'] = $contact->id;
+                        $expense_array['contact_uid'] = $contact->id;
                     } else {
                         $is_valid = false;
                         $error_msg = "Invalid contact id in row no. $row_no";
@@ -752,7 +752,7 @@ class ExpenseController extends Controller
                         ->where('name', $tax_name)
                         ->first();
                     if (!empty($tax)) {
-                        $expense_array['tax_id'] = $tax->id;
+                        $expense_array['tax_uid'] = $tax->id;
                         $tax_amount = $tax->amount;
                         $expense_array['total_before_tax'] = $this->transactionUtil->calc_percentage_base($expense_array['final_total'], $tax_amount);
                         $expense_array['tax_amount'] = $expense_array['final_total'] - $expense_array['total_before_tax'];
@@ -829,12 +829,12 @@ class ExpenseController extends Controller
                 }
 
                 $account_number = trim($value[14]);
-                $account_id = null;
+                $account_uid = null;
                 if (!empty($account_number)) {
 
                     $account = Account::where('account_number', $account_number)->where('business_uid', $business_uid)->first();
                     if (!empty($account)) {
-                        $account_id = $account->id;
+                        $account_uid = $account->id;
                     } else {
                         $is_valid = false;
                         $error_msg = "Invalid Account Number id in row no. $row_no";
@@ -853,7 +853,7 @@ class ExpenseController extends Controller
                     'amount' => $paid_amount,
                     'paid_on' => $paid_on,
                     'method' => $payment_method,
-                    'account_id' => $account_id,
+                    'account_uid' => $account_uid,
                     'note' =>  trim($value[15]),
                     "transaction_no_{$t_no}" => null
                 ];

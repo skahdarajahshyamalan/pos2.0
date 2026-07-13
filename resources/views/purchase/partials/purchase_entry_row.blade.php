@@ -15,11 +15,11 @@
         </td>
         <td>
             @if(!empty($purchase_order_line))
-                {!! Form::hidden('purchases[' . $row_count . '][purchase_order_line_id]', $purchase_order_line->id ); !!}
+                {!! Form::hidden('purchases[' . $row_count . '][purchase_order_line_uid]', $purchase_order_line->id ); !!}
             @endif
 
             @if(!empty($purchase_requisition_line))
-                {!! Form::hidden('purchases[' . $row_count . '][purchase_requisition_line_id]', $purchase_requisition_line->id ); !!}
+                {!! Form::hidden('purchases[' . $row_count . '][purchase_requisition_line_uid]', $purchase_requisition_line->id ); !!}
             @endif
 
             {!! Form::hidden('purchases[' . $row_count . '][product_uid]', $product->id ); !!}
@@ -63,7 +63,7 @@
             <input type="hidden" name="purchases[{{$row_count}}][product_unit_id]" value="{{$product->unit->id}}">
             @if(!empty($sub_units))
                 <br>
-                <select name="purchases[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
+                <select name="purchases[{{$row_count}}][sub_unit_uid]" class="form-control input-sm sub_unit">
                     @foreach($sub_units as $key => $value)
                         <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}">
                             {{$value['name']}}
@@ -96,9 +96,9 @@
 
                 $purchase_price = !empty($purchase_order_line) ? $purchase_order_line->purchase_price/$purchase_order->exchange_rate : $variation->default_purchase_price;
 
-                $tax_id = !empty($purchase_order_line) ? $purchase_order_line->tax_id : $product->tax;
+                $tax_uid = !empty($purchase_order_line) ? $purchase_order_line->tax_uid : $product->tax;
 
-                $tax_id = !empty($imported_data['tax_id']) ? $imported_data['tax_id'] : $tax_id;
+                $tax_uid = !empty($imported_data['tax_uid']) ? $imported_data['tax_uid'] : $tax_uid;
 
                 $pp_without_discount = !empty($imported_data['unit_cost_before_discount']) ? $imported_data['unit_cost_before_discount'] : $pp_without_discount;
 
@@ -137,7 +137,7 @@
                     <option value="" data-tax_amount="0" @if( $hide_tax == 'hide' )
                     selected @endif >@lang('lang_v1.none')</option>
                     @foreach($taxes as $tax)
-                        <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $tax_id == $tax->id && $hide_tax != 'hide') selected @endif >{{ $tax->name }}</option>
+                        <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $tax_uid == $tax->id && $hide_tax != 'hide') selected @endif >{{ $tax->name }}</option>
                     @endforeach
                 </select>
                 {!! Form::hidden('purchases[' . $row_count . '][item_tax]', 0, ['class' => 'purchase_product_unit_tax']); !!}

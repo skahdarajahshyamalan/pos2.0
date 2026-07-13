@@ -383,7 +383,7 @@
           <div class="form-group">
             <div class="checkbox">
               <label>
-                {!! Form::checkbox('show_client_id', 1, $invoice_layout->show_client_id, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_client_id')</label>
+                {!! Form::checkbox('show_client_uid', 1, $invoice_layout->show_client_uid, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_client_uid')</label>
               </div>
           </div>
         </div>

@@ -167,7 +167,7 @@
 	        data: { cat_id: cat },
 	        success: function(result) {
 	            if (result) {
-	                tr.find('select.sub_category_id').html(result);
+	                tr.find('select.sub_category_uid').html(result);
 	            }
 	        },
 	    });

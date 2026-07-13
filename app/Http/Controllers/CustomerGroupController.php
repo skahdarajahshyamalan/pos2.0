@@ -36,7 +36,7 @@ class CustomerGroupController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $customer_group = CustomerGroup::where('customer_groups.business_uid', $business_uid)
-                                    ->leftjoin('selling_price_groups as spg', 'spg.uid', '=', 'customer_groups.selling_price_group_id')
+                                    ->leftjoin('selling_price_groups as spg', 'spg.uid', '=', 'customer_groups.selling_price_group_uid')
                                 ->select(['customer_groups.name', 'customer_groups.amount', 'spg.name as selling_price_group', 'customer_groups.uid', 'price_calculation_type']);
 
             return Datatables::of($customer_group)
@@ -92,7 +92,7 @@ class CustomerGroupController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
+            $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_uid']);
             $input['business_uid'] = $request->session()->get('user.business_uid');
             $input['created_by_uid'] = $request->session()->get('user.uid');
             $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
@@ -152,7 +152,7 @@ class CustomerGroupController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
+                $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_uid']);
                 $business_uid = $request->session()->get('user.business_uid');
 
                 $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;

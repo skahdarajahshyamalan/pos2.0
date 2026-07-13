@@ -20,14 +20,14 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label('account_type_id', __( 'account.account_type' ) .":") !!}
-                <select name="account_type_id" class="form-control select2">
+                {!! Form::label('account_type_uid', __( 'account.account_type' ) .":") !!}
+                <select name="account_type_uid" class="form-control select2">
                     <option>@lang('messages.please_select')</option>
                     @foreach($account_types as $account_type)
                         <optgroup label="{{$account_type->name}}">
-                            <option value="{{$account_type->id}}" @if($account->account_type_id == $account_type->id) selected @endif >{{$account_type->name}}</option>
+                            <option value="{{$account_type->id}}" @if($account->account_type_uid == $account_type->id) selected @endif >{{$account_type->name}}</option>
                             @foreach($account_type->sub_types as $sub_type)
-                                <option value="{{$sub_type->id}}" @if($account->account_type_id == $sub_type->id) selected @endif >{{$sub_type->name}}</option>
+                                <option value="{{$sub_type->id}}" @if($account->account_type_uid == $sub_type->id) selected @endif >{{$sub_type->name}}</option>
                             @endforeach
                         </optgroup>
                     @endforeach

@@ -74,8 +74,8 @@ class UpdateRewardPoints extends Command
                                         ->with(['contact'])
                                         ->select(
                                             DB::raw('SUM(COALESCE(rp_earned, 0)) as total_rp_expired'),
-                                            'contact_id'
-                                        )->groupBy('contact_id')
+                                            'contact_uid'
+                                        )->groupBy('contact_uid')
                                         ->get();
 
                 foreach ($transactions as $transaction) {

@@ -56,7 +56,7 @@ class ProductModifierSetController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function update($modifier_set_id, Request $request)
+    public function update($modifier_set_uid, Request $request)
     {
         try {
             DB::beginTransaction();
@@ -66,7 +66,7 @@ class ProductModifierSetController extends Controller
             $user_uid = $request->session()->get('user.uid');
 
             $modifer_set = Product::where('business_uid', $business_uid)
-                    ->where('uid', $modifier_set_id)
+                    ->where('uid', $modifier_set_uid)
                     ->where('type', 'modifier')
                     ->first();
 

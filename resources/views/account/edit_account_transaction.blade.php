@@ -19,8 +19,8 @@
               $label = !empty($account_transaction->type == 'debit') ? __( 'account.deposit_from' ) :  __('lang_v1.deposit_to');
             @endphp 
             <div class="form-group">  
-                {!! Form::label('account_id', $label .":") !!}
-                {!! Form::select('account_id', $accounts, $account_transaction->account_id, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
+                {!! Form::label('account_uid', $label .":") !!}
+                {!! Form::select('account_uid', $accounts, $account_transaction->account_uid, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
             </div>
             @endif
 
@@ -29,8 +29,8 @@
               $label = !empty($account_transaction->type == 'credit') ? __( 'account.transfer_to' ) :__('lang_v1.transfer_from')  ;
             @endphp 
             <div class="form-group">  
-                {!! Form::label('account_id', $label .":") !!}
-                {!! Form::select('account_id', $accounts, $account_transaction->account_id, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
+                {!! Form::label('account_uid', $label .":") !!}
+                {!! Form::select('account_uid', $accounts, $account_transaction->account_uid, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
             </div>
             @endif
 
@@ -44,7 +44,7 @@
             @endphp 
             <div class="form-group">  
                 {!! Form::label('from_account', $label .":") !!}
-                {!! Form::select('from_account', $accounts, $account_transaction->transfer_transaction->account_id ?? null, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
+                {!! Form::select('from_account', $accounts, $account_transaction->transfer_transaction->account_uid ?? null, ['class' => 'form-control', 'placeholder' => __('messages.please_select') ]); !!}
             </div>
             @endif
             @if($account_transaction->sub_type == 'fund_transfer') 
@@ -53,7 +53,7 @@
             @endphp 
             <div class="form-group">
                 {!! Form::label('to_account', $label .":*") !!}
-                {!! Form::select('to_account', $accounts, $account_transaction->transfer_transaction->account_id ?? null, ['class' => 'form-control', 'required' ]); !!}
+                {!! Form::select('to_account', $accounts, $account_transaction->transfer_transaction->account_uid ?? null, ['class' => 'form-control', 'required' ]); !!}
             </div>
             @endif
  

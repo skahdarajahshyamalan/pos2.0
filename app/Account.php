@@ -59,12 +59,12 @@ class Account extends Model
         $can_access_account = auth()->user()->can('account.access');
         if ($can_access_account && $show_balance) {
             // $query->leftjoin('account_transactions as AT', function ($join) {
-            //     $join->on('AT.account_id', '=', 'accounts.uid');
+            //     $join->on('AT.account_uid', '=', 'accounts.uid');
             //     $join->whereNull('AT.deleted_at');
             // })
             $query->select('accounts.name',
                     'accounts.uid',
-                    DB::raw("(SELECT SUM( IF(account_transactions.type='credit', amount, -1*amount) ) as balance from account_transactions where account_transactions.account_id = accounts.uid AND deleted_at is NULL) as balance")
+                    DB::raw("(SELECT SUM( IF(account_transactions.type='credit', amount, -1*amount) ) as balance from account_transactions where account_transactions.account_uid = accounts.uid AND deleted_at is NULL) as balance")
                 );
         }
 
@@ -129,6 +129,6 @@ class Account extends Model
 
     public function account_type()
     {
-        return $this->belongsTo(\App\AccountType::class, 'account_type_id');
+        return $this->belongsTo(\App\AccountType::class, 'account_type_uid');
     }
 }

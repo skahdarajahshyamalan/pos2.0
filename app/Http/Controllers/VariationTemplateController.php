@@ -24,7 +24,7 @@ class VariationTemplateController extends Controller
 
             $variations = VariationTemplate::where('business_uid', $business_uid)
                         ->with(['values'])
-                        ->select('id', 'name', DB::raw('(SELECT COUNT(id) FROM product_variations WHERE product_variations.variation_template_id=variation_templates.uid) as total_pv'));
+                        ->select('id', 'name', DB::raw('(SELECT COUNT(id) FROM product_variations WHERE product_variations.variation_template_uid=variation_templates.uid) as total_pv'));
 
             return Datatables::of($variations)
                 ->addColumn(
@@ -151,7 +151,7 @@ class VariationTemplateController extends Controller
                     $variation->name = $input['name'];
                     $variation->save();
 
-                    ProductVariation::where('variation_template_id', $variation->id)
+                    ProductVariation::where('variation_template_uid', $variation->id)
                                 ->update(['name' => $variation->name]);
                 }
 
@@ -166,7 +166,7 @@ class VariationTemplateController extends Controller
                             if ($variation_val->name != $value) {
                                 $variation_val->name = $value;
                                 $data[] = $variation_val;
-                                Variation::where('variation_value_id', $key)
+                                Variation::where('variation_value_uid', $key)
                                     ->update(['name' => $value]);
                             }
                         }

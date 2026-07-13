@@ -79,7 +79,7 @@ class HomeController extends Controller
 
         $fy = $this->businessUtil->getCurrentFinancialYear($business_uid);
 
-        $currency = Currency::where('uid', request()->session()->get('business.currency_id'))->first();
+        $currency = Currency::where('uid', request()->session()->get('business.currency_uid'))->first();
         //ensure start date starts from at least 30 days before to get sells last 30 days
         $least_30_days = \Carbon::parse($fy['start'])->subDays(30)->format('Y-m-d');
 
@@ -324,7 +324,7 @@ class HomeController extends Controller
 
             $query = Transaction::join(
                 'contacts as c',
-                'transactions.contact_id',
+                'transactions.contact_uid',
                 '=',
                 'c.uid'
             )
@@ -399,7 +399,7 @@ class HomeController extends Controller
 
             $query = Transaction::join(
                 'contacts as c',
-                'transactions.contact_id',
+                'transactions.contact_uid',
                 '=',
                 'c.uid'
             )
@@ -590,7 +590,7 @@ class HomeController extends Controller
             try {
                 $business_uid = request()->session()->get('user.business_uid');
 
-                $model_id = $request->input('model_id');
+                $model_uid = $request->input('model_uid');
                 $model = $request->input('model_type');
                 $model_media_type = $request->input('model_media_type');
 
@@ -598,7 +598,7 @@ class HomeController extends Controller
 
                 //find model to which medias are to be attached
                 $model_to_be_attached = $model::where('business_uid', $business_uid)
-                                        ->findOrFail($model_id);
+                                        ->findOrFail($model_uid);
 
                 Media::uploadMedia($business_uid, $model_to_be_attached, $request, 'file', false, $model_media_type);
 

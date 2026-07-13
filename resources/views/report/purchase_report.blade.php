@@ -49,7 +49,7 @@
     <table class="table table-bordered table-striped ajax_view" id="purchase_report_table">
         <thead>
             <tr>
-                <th>@lang('lang_v1.contact_id')</th>
+                <th>@lang('lang_v1.contact_uid')</th>
                 <th>@lang('purchase.supplier')</th>
                 <th>@lang('purchase.ref_no')</th>
                 <th>@lang('purchase.purchase_date') (@lang('lang_v1.year_month'))</th>
@@ -115,7 +115,7 @@
                 },
             },
             columns: [
-                { data: 'contact_id', name: 'contacts.contact_id' },
+                { data: 'contact_uid', name: 'contacts.contact_uid' },
                 { data: 'name', name: 'contacts.name' },
                 { data: 'ref_no', name: 'ref_no' },
                 { data: 'purchase_year_month', name: 'transaction_date' },

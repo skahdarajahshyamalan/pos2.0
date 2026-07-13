@@ -67,8 +67,8 @@
         @if(!empty($common_settings['enable_secondary_unit']))
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('secondary_unit_id', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
-                {!! Form::select('secondary_unit_id', $units, !empty($duplicate_product->secondary_unit_id) ? $duplicate_product->secondary_unit_id : null, ['class' => 'form-control select2']); !!}
+                {!! Form::label('secondary_unit_uid', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
+                {!! Form::select('secondary_unit_uid', $units, !empty($duplicate_product->secondary_unit_uid) ? $duplicate_product->secondary_unit_uid : null, ['class' => 'form-control select2']); !!}
             </div>
         </div>
         @endif
@@ -93,8 +93,8 @@
 
         <div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
             <div class="form-group">
-                {!! Form::label('sub_category_id', __('product.sub_category') . ':') !!}
-                {!! Form::select('sub_category_id', $sub_categories, !empty($duplicate_product->sub_category_id) ? $duplicate_product->sub_category_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+                {!! Form::label('sub_category_uid', __('product.sub_category') . ':') !!}
+                {!! Form::select('sub_category_uid', $sub_categories, !empty($duplicate_product->sub_category_uid) ? $duplicate_product->sub_category_uid : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
             </div>
         </div>
 
@@ -132,8 +132,8 @@
         @if(!empty($common_settings['enable_product_warranty']))
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('warranty_id', __('lang_v1.warranty') . ':') !!}
-                {!! Form::select('warranty_id', $warranties, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+                {!! Form::label('warranty_uid', __('lang_v1.warranty') . ':') !!}
+                {!! Form::select('warranty_uid', $warranties, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
             </div>
         </div>
         @endif

@@ -20,7 +20,7 @@
     <table class="table table-bordered table-striped ajax_view" id="sale_report_table">
         <thead>
             <tr>
-                <th>@lang('lang_v1.contact_id')</th>
+                <th>@lang('lang_v1.contact_uid')</th>
                 <th>@lang('sale.customer_name')</th>
                 <th>@lang('sale.invoice_no')</th>
                 <th>@lang('messages.date')</th>
@@ -78,7 +78,7 @@
                 }
             },
             columns: [
-                { data: 'contact_id', name: 'contacts.contact_id' },
+                { data: 'contact_uid', name: 'contacts.contact_uid' },
                 { data: 'name', name: 'contacts.name' },
                 { data: 'invoice_no_text', name: 'transactions.invoice_no' },
                 { data: 'sale_date', name: 'transactions.transaction_date' },

@@ -67,12 +67,12 @@
                         <div class="col-sm-4" 
                             id="location_printer_div">
                             <div class="form-group">
-                                {!! Form::label('printer_id', __('printer.receipt_printers') . ':*') !!}
+                                {!! Form::label('printer_uid', __('printer.receipt_printers') . ':*') !!}
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-share-alt"></i>
                                     </span>
-                                    {!! Form::select('printer_id', $printers, $location->printer_id, ['class' => 'form-control select2', 'required']); !!}
+                                    {!! Form::select('printer_uid', $printers, $location->printer_uid, ['class' => 'form-control select2', 'required']); !!}
                                 </div>
                             </div>
                         </div>
@@ -81,24 +81,24 @@
 
                         <div class="col-sm-4">
                             <div class="form-group">
-                                {!! Form::label('invoice_layout_id', __('invoice.invoice_layout') . ':*') !!} @show_tooltip(__('tooltip.invoice_layout'))
+                                {!! Form::label('invoice_layout_uid', __('invoice.invoice_layout') . ':*') !!} @show_tooltip(__('tooltip.invoice_layout'))
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-info"></i>
                                     </span>
-                                    {!! Form::select('invoice_layout_id', $invoice_layouts, $location->invoice_layout_id, ['class' => 'form-control select2', 'required']); !!}
+                                    {!! Form::select('invoice_layout_uid', $invoice_layouts, $location->invoice_layout_uid, ['class' => 'form-control select2', 'required']); !!}
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-sm-4">
                             <div class="form-group">
-                                {!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':*') !!} @show_tooltip(__('tooltip.invoice_scheme'))
+                                {!! Form::label('invoice_scheme_uid', __('invoice.invoice_scheme') . ':*') !!} @show_tooltip(__('tooltip.invoice_scheme'))
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-info"></i>
                                     </span>
-                                    {!! Form::select('invoice_scheme_id', $invoice_schemes, $location->invoice_scheme_id, ['class' => 'form-control select2', 'required']); !!}
+                                    {!! Form::select('invoice_scheme_uid', $invoice_schemes, $location->invoice_scheme_uid, ['class' => 'form-control select2', 'required']); !!}
                                 </div>
                             </div>
                         </div>

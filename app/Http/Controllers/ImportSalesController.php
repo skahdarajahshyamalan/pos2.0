@@ -247,7 +247,7 @@ class ImportSalesController extends Controller
                     throw new \Exception(__('lang_v1.import_sale_product_not_found', ['row' => $row_index, 'product_name' => $line_data['product'], 'sku' => $line_data['sku']]));
                 }
 
-                $tax_id = null;
+                $tax_uid = null;
                 $item_tax = 0;
                 $line_discount = ! empty($line_data['item_discount']) ? $line_data['item_discount'] : 0;
 
@@ -263,7 +263,7 @@ class ImportSalesController extends Controller
                     if (empty($tax)) {
                         throw new \Exception(__('lang_v1.import_sale_tax_not_found', ['row' => $row_index, 'tax_name' => $line_data['item_tax']]));
                     }
-                    $tax_id = $tax->id;
+                    $tax_uid = $tax->id;
                     $item_tax = $this->transactionUtil->calc_percentage($price_before_tax, $tax->amount);
                     $price_inc_tax = $price_before_tax + $item_tax;
                 }
@@ -286,7 +286,7 @@ class ImportSalesController extends Controller
                     'line_discount_type' => 'fixed',
                     'line_discount_amount' => $line_discount,
                     'item_tax' => $item_tax,
-                    'tax_id' => $tax_id,
+                    'tax_uid' => $tax_uid,
                     'sell_line_note' => $line_data['item_description'],
                     'product_unit_id' => $product->unit_uid,
                     'enable_stock' => $product->enable_stock,
@@ -307,7 +307,7 @@ class ImportSalesController extends Controller
 
                     //Check if sub unit
                     if ($unit->id != $product->unit_uid) {
-                        $temp['sub_unit_id'] = $unit->id;
+                        $temp['sub_unit_uid'] = $unit->id;
                         $temp['base_unit_multiplier'] = $unit->base_unit_multiplier;
                         $line_quantity = ($line_quantity * $unit->base_unit_multiplier);
                     }
@@ -346,7 +346,7 @@ class ImportSalesController extends Controller
                 'invoice_no' => $first_sell_line['invoice_no'],
                 'location_uid' => $location_uid,
                 'status' => 'final',
-                'contact_id' => $contact->id,
+                'contact_uid' => $contact->id,
                 'final_total' => ! empty($first_sell_line['order_total']) ? $first_sell_line['order_total'] : $order_total,
                 'transaction_date' => ! empty($first_sell_line['date']) ? $first_sell_line['date'] : $now,
                 'discount_amount' => 0,
@@ -365,7 +365,7 @@ class ImportSalesController extends Controller
                     throw new \Exception(__('lang_v1.types_of_servicet_not_found', ['row' => $row_index, 'types_of_service_name' => $first_sell_line['types_of_service']]));
                 }
 
-                $sale_data['types_of_service_id'] = $types_of_service->id;
+                $sale_data['types_of_service_uid'] = $types_of_service->id;
                 $sale_data['service_custom_field_1'] = ! empty($first_sell_line['service_custom_field1']) ? $first_sell_line['service_custom_field1'] : null;
                 $sale_data['service_custom_field_2'] = ! empty($first_sell_line['service_custom_field2']) ? $first_sell_line['service_custom_field2'] : null;
                 $sale_data['service_custom_field_3'] = ! empty($first_sell_line['service_custom_field3']) ? $first_sell_line['service_custom_field3'] : null;

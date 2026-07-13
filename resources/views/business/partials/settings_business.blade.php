@@ -33,12 +33,12 @@
         <div class="clearfix"></div>
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('currency_id', __('business.currency') . ':') !!}
+                {!! Form::label('currency_uid', __('business.currency') . ':') !!}
                 <div class="input-group">
                     <span class="input-group-addon">
                         <i class="fas fa-money-bill-alt"></i>
                     </span>
-                    {!! Form::select('currency_id', $currencies, $business->currency_id, ['class' => 'form-control select2','placeholder' => __('business.currency'), 'required']); !!}
+                    {!! Form::select('currency_uid', $currencies, $business->currency_uid, ['class' => 'form-control select2','placeholder' => __('business.currency'), 'required']); !!}
                 </div>
             </div>
         </div>

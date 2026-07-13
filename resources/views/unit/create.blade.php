@@ -42,7 +42,7 @@
                 <td style="vertical-align: middle;">
                   {!! Form::text('base_unit_multiplier', null, ['class' => 'form-control input_number', 'placeholder' => __( 'lang_v1.times_base_unit' )]); !!}</td>
                 <td style="vertical-align: middle;">
-                  {!! Form::select('base_unit_id', $units, null, ['placeholder' => __( 'lang_v1.select_base_unit' ), 'class' => 'form-control']); !!}
+                  {!! Form::select('base_unit_uid', $units, null, ['placeholder' => __( 'lang_v1.select_base_unit' ), 'class' => 'form-control']); !!}
                 </td>
               </tr>
             </table>

@@ -326,10 +326,10 @@ class ManageUserController extends Controller
                           ->findOrFail($id);
 
             $user->update($user_data);
-            $role_id = $request->input('role');
+            $role_uid = $request->input('role');
             $user_role = $user->roles->first();
             $previous_role = ! empty($user_role->id) ? $user_role->id : 0;
-            if ($previous_role != $role_id) {
+            if ($previous_role != $role_uid) {
                 $is_admin = $this->moduleUtil->is_admin($user);
                 $all_admins = $this->getAdmins();
                 //If only one admin then can not change role
@@ -340,7 +340,7 @@ class ManageUserController extends Controller
                     $user->removeRole($user_role->name);
                 }
 
-                $role = Role::findOrFail($role_id);
+                $role = Role::findOrFail($role_uid);
                 $user->assignRole($role->name);
             }
 

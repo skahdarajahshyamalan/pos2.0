@@ -19,11 +19,11 @@ class ContactUtil extends Util
         $contact = Contact::whereIn('type', ['customer', 'both'])
                     ->where('contacts.business_uid', $business_uid)
                     ->where('contacts.is_default', 1)
-                    ->leftjoin('customer_groups as cg', 'cg.uid', '=', 'contacts.customer_group_id')
+                    ->leftjoin('customer_groups as cg', 'cg.uid', '=', 'contacts.customer_group_uid')
                     ->select('contacts.*',
                         'cg.amount as discount_percent',
                         'cg.price_calculation_type',
-                        'cg.selling_price_group_id'
+                        'cg.selling_price_group_uid'
                     )
                     ->first();
 
@@ -52,7 +52,7 @@ class ContactUtil extends Util
             return $cg;
         }
 
-        $contact = Contact::leftjoin('customer_groups as CG', 'contacts.customer_group_id', 'CG.uid')
+        $contact = Contact::leftjoin('customer_groups as CG', 'contacts.customer_group_uid', 'CG.uid')
             ->where('contacts.uid', $customer_id)
             ->where('contacts.business_uid', $business_uid)
             ->select('CG.*')
@@ -65,14 +65,14 @@ class ContactUtil extends Util
      * Returns the contact info
      *
      * @param  int  $business_uid
-     * @param  int  $contact_id
+     * @param  int  $contact_uid
      * @return array
      */
-    public function getContactInfo($business_uid, $contact_id)
+    public function getContactInfo($business_uid, $contact_uid)
     {
-        $contact = Contact::where('contacts.uid', $contact_id)
+        $contact = Contact::where('contacts.uid', $contact_uid)
                     ->where('contacts.business_uid', $business_uid)
-                    ->leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_id')
+                    ->leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_uid')
                     ->with(['business'])
                     ->select(
                         DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
@@ -91,18 +91,18 @@ class ContactUtil extends Util
     {
         //Check Contact id
         $count = 0;
-        if (! empty($input['contact_id'])) {
+        if (! empty($input['contact_uid'])) {
             $count = Contact::where('business_uid', $input['business_uid'])
-                            ->where('contact_id', $input['contact_id'])
+                            ->where('contact_uid', $input['contact_uid'])
                             ->count();
         }
         if ($count == 0) {
             //Update reference count
             $ref_count = $this->setAndGetReferenceCount('contacts', $input['business_uid']);
 
-            if (empty($input['contact_id'])) {
+            if (empty($input['contact_uid'])) {
                 //Generate reference number
-                $input['contact_id'] = $this->generateReferenceNumber('contacts', $ref_count, $input['business_uid']);
+                $input['contact_uid'] = $this->generateReferenceNumber('contacts', $ref_count, $input['business_uid']);
             }
 
             $opening_balance = isset($input['opening_balance']) ? $input['opening_balance'] : 0;
@@ -145,16 +145,16 @@ class ContactUtil extends Util
     {
         $count = 0;
         //Check Contact id
-        if (! empty($input['contact_id'])) {
+        if (! empty($input['contact_uid'])) {
             $count = Contact::where('business_uid', $business_uid)
-                    ->where('contact_id', $input['contact_id'])
+                    ->where('contact_uid', $input['contact_uid'])
                     ->where('uid', '!=', $id)
                     ->count();
         }
 
         if ($count == 0) {
             //Get opening balance if exists
-            $ob_transaction = Transaction::where('contact_id', $id)
+            $ob_transaction = Transaction::where('contact_uid', $id)
                                     ->where('type', 'opening_balance')
                                     ->first();
 
@@ -213,8 +213,8 @@ class ContactUtil extends Util
 
     public function getContactQuery($business_uid, $type, $contact_ids = [])
     {
-        $query = Contact::leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_id')
-                    ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.uid')
+        $query = Contact::leftjoin('transactions AS t', 'contacts.uid', '=', 't.contact_uid')
+                    ->leftjoin('customer_groups AS cg', 'contacts.customer_group_uid', '=', 'cg.uid')
                     ->where('contacts.business_uid', $business_uid);
 
         if ($type == 'supplier') {

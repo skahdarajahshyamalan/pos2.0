@@ -33,7 +33,7 @@
             name="products[{{$loop->index + $index}}][packing_date]" value="">
         </td>
         <td>
-            {!! Form::select('products[' . $row_index . '][price_group_id]', $price_groups, null, ['class' => 'form-control', 'placeholder' => __('lang_v1.none')]); !!}
+            {!! Form::select('products[' . $row_index . '][price_group_uid]', $price_groups, null, ['class' => 'form-control', 'placeholder' => __('lang_v1.none')]); !!}
         </td>
     </tr>
 @empty

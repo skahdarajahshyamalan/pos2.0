@@ -61,7 +61,7 @@ class SellReturnController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_uid', '=', 'contacts.uid')
 
                 ->join(
                     'business_locations AS bl',
@@ -71,7 +71,7 @@ class SellReturnController extends Controller
                 )
                 ->join(
                     'transactions as T1',
-                    'transactions.return_parent_id',
+                    'transactions.return_parent_uid',
                     '=',
                     'T1.uid'
                 )
@@ -349,7 +349,7 @@ class SellReturnController extends Controller
             ->find($id);
 
         foreach ($sell->sell_lines as $key => $value) {
-            if (!empty($value->sub_unit_id)) {
+            if (!empty($value->sub_unit_uid)) {
                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_uid, $value);
                 $sell->sell_lines[$key] = $formated_sell_line;
             }
@@ -454,7 +454,7 @@ class SellReturnController extends Controller
         $sell = $query->first();
 
         foreach ($sell->sell_lines as $key => $value) {
-            if (!empty($value->sub_unit_id)) {
+            if (!empty($value->sub_unit_uid)) {
                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_uid, $value);
                 $sell->sell_lines[$key] = $formated_sell_line;
             }
@@ -521,7 +521,7 @@ class SellReturnController extends Controller
                 $sell_return = $query->first();
 
                 $sell_lines = TransactionSellLine::where('transaction_uid',
-                    $sell_return->return_parent_id)
+                    $sell_return->return_parent_uid)
                     ->get();
 
                 if (!empty($sell_return)) {
@@ -602,7 +602,7 @@ class SellReturnController extends Controller
             //If enabled, get print type.
             $output['is_enabled'] = true;
 
-            $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $location_details->invoice_layout_id);
+            $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $location_details->invoice_layout_uid);
 
             //Check if printer setting is provided.
             $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
@@ -613,7 +613,7 @@ class SellReturnController extends Controller
             $output['print_title'] = $receipt_details->invoice_no;
             if ($receipt_printer_type == 'printer') {
                 $output['print_type'] = 'printer';
-                $output['printer_config'] = $this->businessUtil->printerConfig($business_uid, $location_details->printer_id);
+                $output['printer_config'] = $this->businessUtil->printerConfig($business_uid, $location_details->printer_uid);
                 $output['data'] = $receipt_details;
             } else {
                 $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();

@@ -53,17 +53,17 @@
             </td>
 
             <td>
-                @if(!empty($purchase_line->purchase_order_line_id) && !empty($common_settings['enable_purchase_order']))
-                    {!! Form::hidden('purchases[' . $loop->index . '][purchase_order_line_id]', $purchase_line->purchase_order_line_id ); !!}
+                @if(!empty($purchase_line->purchase_order_line_uid) && !empty($common_settings['enable_purchase_order']))
+                    {!! Form::hidden('purchases[' . $loop->index . '][purchase_order_line_uid]', $purchase_line->purchase_order_line_uid ); !!}
                 @endif
 
-                @if(!empty($purchase_line->purchase_requisition_line_id) && !empty($common_settings['enable_purchase_requisition']))
-                    {!! Form::hidden('purchases[' . $loop->index . '][purchase_requisition_line_id]', $purchase_line->purchase_requisition_line_id ); !!}
+                @if(!empty($purchase_line->purchase_requisition_line_uid) && !empty($common_settings['enable_purchase_requisition']))
+                    {!! Form::hidden('purchases[' . $loop->index . '][purchase_requisition_line_uid]', $purchase_line->purchase_requisition_line_uid ); !!}
                 @endif
 
                 {!! Form::hidden('purchases[' . $loop->index . '][product_uid]', $purchase_line->product_uid ); !!}
                 {!! Form::hidden('purchases[' . $loop->index . '][variation_uid]', $purchase_line->variation_uid ); !!}
-                {!! Form::hidden('purchases[' . $loop->index . '][purchase_line_id]',
+                {!! Form::hidden('purchases[' . $loop->index . '][purchase_line_uid]',
                 $purchase_line->id); !!}
 
                 @php
@@ -73,7 +73,7 @@
                     }
                     $max_quantity = 0;
 
-                    if(!empty($purchase_line->purchase_order_line_id) && !empty($common_settings['enable_purchase_order'])){
+                    if(!empty($purchase_line->purchase_order_line_uid) && !empty($common_settings['enable_purchase_order'])){
                         $max_quantity = $purchase_line->purchase_order_line->quantity - $purchase_line->purchase_order_line->po_quantity_purchased + $purchase_line->quantity;
                     }
                 @endphp
@@ -94,11 +94,11 @@
                 <input type="hidden" class="base_unit_cost" value="{{$purchase_line->variations->default_purchase_price}}">
                 @if(!empty($purchase_line->sub_units_options))
                     <br>
-                    <select name="purchases[{{$loop->index}}][sub_unit_id]" class="form-control input-sm sub_unit">
+                    <select name="purchases[{{$loop->index}}][sub_unit_uid]" class="form-control input-sm sub_unit">
                         @foreach($purchase_line->sub_units_options as $sub_units_key => $sub_units_value)
                             <option value="{{$sub_units_key}}" 
                                 data-multiplier="{{$sub_units_value['multiplier']}}"
-                                @if($sub_units_key == $purchase_line->sub_unit_id) selected @endif>
+                                @if($sub_units_key == $purchase_line->sub_unit_uid) selected @endif>
                                 {{$sub_units_value['name']}}
                             </option>
                         @endforeach
@@ -142,10 +142,10 @@
             <td class="{{$hide_tax}}">
                 <div class="input-group">
                     <select name="purchases[{{ $loop->index }}][purchase_line_tax_id]" class="form-control input-sm purchase_line_tax_id" placeholder="'Please Select'">
-                        <option value="" data-tax_amount="0" @if( empty( $purchase_line->tax_id ) )
+                        <option value="" data-tax_amount="0" @if( empty( $purchase_line->tax_uid ) )
                         selected @endif >@lang('lang_v1.none')</option>
                         @foreach($taxes as $tax)
-                            <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $purchase_line->tax_id == $tax->id) selected @endif >{{ $tax->name }}</option>
+                            <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $purchase_line->tax_uid == $tax->id) selected @endif >{{ $tax->name }}</option>
                         @endforeach
                     </select>
                     <span class="input-group-addon purchase_product_unit_tax_text">

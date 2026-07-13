@@ -199,7 +199,7 @@
                 <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity }}</span> @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->actual_name}} @else {{$purchase_line->product->unit->actual_name}} @endif 
                 @if($purchase_line->product->unit->sub_units)
                   @foreach($purchase_line->product->unit->sub_units as $sub_unit)
-                    @if($sub_unit->id == $purchase_line->sub_unit_id)
+                    @if($sub_unit->id == $purchase_line->sub_unit_uid)
                       ({{ (float) $sub_unit->base_unit_multiplier }}
                       {{ $purchase_line->product->unit->short_name }})
                     @endif
@@ -215,7 +215,7 @@
               <td class="text-right"><span class="display_currency">{{ $purchase_line->discount_percent}}</span> %</td>
               <td class="no-print text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price }}</span></td>
               <td class="no-print text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->quantity * $purchase_line->purchase_price }}</span></td>
-              <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->item_tax }} </span> <br/><small>@if(!empty($taxes[$purchase_line->tax_id])) ( {{ $taxes[$purchase_line->tax_id]}} ) </small>@endif</td>
+              <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->item_tax }} </span> <br/><small>@if(!empty($taxes[$purchase_line->tax_uid])) ( {{ $taxes[$purchase_line->tax_uid]}} ) </small>@endif</td>
               <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price_inc_tax }}</span></td>
               @if($purchase->type != 'purchase_order')
               @if(session('business.enable_lot_number'))

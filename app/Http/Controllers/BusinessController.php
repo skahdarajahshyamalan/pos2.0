@@ -132,7 +132,7 @@ class BusinessController extends Controller
             $validator = $request->validate(
                 [
                     'name' => 'required|max:255',
-                    'currency_id' => 'required|numeric',
+                    'currency_uid' => 'required|numeric',
                     'country' => 'required|max:255',
                     'state' => 'required|max:255',
                     'city' => 'required|max:255',
@@ -149,7 +149,7 @@ class BusinessController extends Controller
                 ],
                 [
                     'name.required' => __('validation.required', ['attribute' => __('business.business_name')]),
-                    'name.currency_id' => __('validation.required', ['attribute' => __('business.currency')]),
+                    'name.currency_uid' => __('validation.required', ['attribute' => __('business.currency')]),
                     'country.required' => __('validation.required', ['attribute' => __('business.country')]),
                     'state.required' => __('validation.required', ['attribute' => __('business.state')]),
                     'city.required' => __('validation.required', ['attribute' => __('business.city')]),
@@ -187,7 +187,7 @@ class BusinessController extends Controller
 
             $user = User::create_user($owner_details);
 
-            $business_details = $request->only(['name', 'start_date', 'currency_id', 'time_zone',
+            $business_details = $request->only(['name', 'start_date', 'currency_uid', 'time_zone',
                 'fy_start_month', 'accounting_method', 'tax_label_1', 'tax_number_1',
                 'tax_label_2', 'tax_number_2', ]);
 
@@ -195,7 +195,7 @@ class BusinessController extends Controller
                 'website', 'mobile', 'alternate_number', ]);
 
             //Create the business
-            $business_details['owner_id'] = $user->id;
+            $business_details['owner_uid'] = $user->id;
             if (! empty($business_details['start_date'])) {
                 $business_details['start_date'] = Carbon::createFromFormat(config('constants.default_date_format'), $business_details['start_date'])->toDateString();
             }
@@ -369,7 +369,7 @@ class BusinessController extends Controller
                 return $notAllowed;
             }
 
-            $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
+            $business_details = $request->only(['name', 'start_date', 'currency_uid', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
                 'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
                 'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
                 'sms_settings', 'rp_name', 'amount_for_unit_rp',
@@ -414,11 +414,11 @@ class BusinessController extends Controller
             //Check for Purchase currency
             if (! empty($request->input('purchase_in_diff_currency')) && $request->input('purchase_in_diff_currency') == 1) {
                 $business_details['purchase_in_diff_currency'] = 1;
-                $business_details['purchase_currency_id'] = $request->input('purchase_currency_id');
+                $business_details['purchase_currency_uid'] = $request->input('purchase_currency_uid');
                 $business_details['p_exchange_rate'] = $request->input('p_exchange_rate');
             } else {
                 $business_details['purchase_in_diff_currency'] = 0;
-                $business_details['purchase_currency_id'] = null;
+                $business_details['purchase_currency_uid'] = null;
                 $business_details['p_exchange_rate'] = 1;
             }
 
@@ -488,7 +488,7 @@ class BusinessController extends Controller
             $request->session()->put('business', $business);
 
             //Update Currency details
-            $currency = Currency::find($business->currency_id);
+            $currency = Currency::find($business->currency_uid);
             $request->session()->put('currency', [
                 'id' => $currency->id,
                 'code' => $currency->code,

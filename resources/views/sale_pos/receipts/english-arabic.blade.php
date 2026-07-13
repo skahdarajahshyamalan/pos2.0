@@ -50,8 +50,8 @@
                 <tr style="background: #2d2360;">
                     <td style="padding: 5px; font-weight: bold; width: 15%; text-align: right !important;">CUS ID:</td>
                     <td class="print-red" style="padding: 5px; width: 15%;">
-                        @if(!empty($receipt_details->contact_id))
-                            {{$receipt_details->contact_id}}
+                        @if(!empty($receipt_details->contact_uid))
+                            {{$receipt_details->contact_uid}}
                         @endif
                     </td>
                     <td style="padding: 5px; font-weight: bold; width: 15%;  direction: rtl; text-align: left !important;">رقم العميل:</td>

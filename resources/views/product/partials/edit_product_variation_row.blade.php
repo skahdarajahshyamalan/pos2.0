@@ -28,7 +28,7 @@
     <td>
         {!! Form::text($array_name . '[' . $row_index .'][name]', $product_variation->name, ['class' => 'form-control input-sm variation_name', 'required', 'readonly']); !!}
 
-        {!! Form::hidden($array_name . '[' . $row_index .'][variation_template_id]', $product_variation->variation_template_id); !!}
+        {!! Form::hidden($array_name . '[' . $row_index .'][variation_template_uid]', $product_variation->variation_template_uid); !!}
 
         <input type="hidden" class="row_index" value="@if($action == 'edit'){{$row_index}}@else{{$loop->index}}@endif">
         <input type="hidden" class="row_edit" value="edit">
@@ -77,7 +77,7 @@
                     <td>
                         {!! Form::text($array_name . '[' . $row_index .'][' . $variation_array_name . '][' . $variation_row_index . '][value]', $variation->name, ['class' => 'form-control input-sm variation_value_name', 'required', 'readonly']); !!}
 
-                        {!! Form::hidden($array_name . '[' . $row_index .'][' . $variation_array_name . '][' . $variation_row_index . '][variation_value_id]', $variation->variation_value_id); !!}
+                        {!! Form::hidden($array_name . '[' . $row_index .'][' . $variation_array_name . '][' . $variation_row_index . '][variation_value_uid]', $variation->variation_value_uid); !!}
                     </td>
                     <td class="{{$class}}">
                         <div class="width-50 f-left">

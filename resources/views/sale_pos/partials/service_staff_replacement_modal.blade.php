@@ -36,7 +36,7 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-user-secret"></i>
                                     </span>
-                                    {!! Form::select('res_waiter_id', $waiters, $transaction->res_waiter_id, [
+                                    {!! Form::select('res_waiter_uid', $waiters, $transaction->res_waiter_uid, [
                                         'class' => 'form-control',
                                         'required' => $is_service_staff_required,
                                         'placeholder' => __('restaurant.select_service_staff'),
@@ -72,9 +72,9 @@
                                                     value="{{ $sell_detail->id }}">
                                                 <div class="form-group">
                                                     {!! Form::select(
-                                                        'sell_details[' . $key . '][res_service_staff_id]',
+                                                        'sell_details[' . $key . '][res_service_staff_uid]',
                                                         $waiters,
-                                                        $sell_detail->res_service_staff_id,
+                                                        $sell_detail->res_service_staff_uid,
                                                         [
                                                             'class' => 'form-control select',
                                                             'placeholder' => __('restaurant.select_service_staff'),

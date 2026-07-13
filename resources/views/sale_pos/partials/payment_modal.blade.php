@@ -92,9 +92,9 @@
                                                             <i class="fas fa-money-bill-alt"></i>
                                                         </span>
                                                         {!! Form::select(
-                                                            'payment[change_return][account_id]',
+                                                            'payment[change_return][account_uid]',
                                                             $accounts,
-                                                            !empty($change_return['account_id']) ? $change_return['account_id'] : '',
+                                                            !empty($change_return['account_uid']) ? $change_return['account_uid'] : '',
                                                             ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;'],
                                                         ) !!}
                                                     </div>

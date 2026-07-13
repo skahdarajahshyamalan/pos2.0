@@ -49,12 +49,12 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}
+                    {!! Form::label('contact_uid', __('lang_v1.contact_uid') . ':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
                             <i class="fa fa-id-badge"></i>
                         </span>
-                        {!! Form::text('contact_id', null, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id')]); !!}
+                        {!! Form::text('contact_uid', null, ['class' => 'form-control','placeholder' => __('lang_v1.contact_uid')]); !!}
                     </div>
                     <p class="help-block">
                         @lang('lang_v1.leave_empty_to_autogenerate')
@@ -63,12 +63,12 @@
             </div>
             <div class="col-md-4 customer_fields">
                 <div class="form-group">
-                  {!! Form::label('customer_group_id', __('lang_v1.customer_group') . ':') !!}
+                  {!! Form::label('customer_group_uid', __('lang_v1.customer_group') . ':') !!}
                   <div class="input-group">
                       <span class="input-group-addon">
                           <i class="fa fa-users"></i>
                       </span>
-                      {!! Form::select('customer_group_id', $customer_groups, '', ['class' => 'form-control']); !!}
+                      {!! Form::select('customer_group_uid', $customer_groups, '', ['class' => 'form-control']); !!}
                   </div>
                 </div>
             </div>

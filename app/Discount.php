@@ -25,6 +25,6 @@ class Discount extends Model
 
     public function variations()
     {
-        return $this->belongsToMany(\App\Variation::class, 'discount_variations', 'discount_id', 'variation_uid');
+        return $this->belongsToMany(\App\Variation::class, 'discount_variations', 'discount_uid', 'variation_uid');
     }
 }

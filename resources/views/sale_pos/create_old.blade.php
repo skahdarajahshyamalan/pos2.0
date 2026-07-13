@@ -101,7 +101,7 @@
 										<span class="input-group-addon">
 											<i class="fa fa-external-link text-primary service_modal_btn"></i>
 										</span>
-										{!! Form::select('types_of_service_id', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_id', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
+										{!! Form::select('types_of_service_uid', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_uid', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
 
 										{!! Form::hidden('types_of_service_price_group', null, ['id' => 'types_of_service_price_group']) !!}
 
@@ -136,7 +136,7 @@
 									value="{{ $walk_in_customer['id']}}" >
 									<input type="hidden" id="default_customer_name" 
 									value="{{ $walk_in_customer['name']}}" >
-									{!! Form::select('contact_id', 
+									{!! Form::select('contact_uid', 
 										[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required', 'style' => 'width: 100%;']); !!}
 									<span class="input-group-btn">
 										<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-primary fa-lg"></i></button>

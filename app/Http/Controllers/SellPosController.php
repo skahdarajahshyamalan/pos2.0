@@ -234,7 +234,7 @@ class SellPosController extends Controller
         //Selling Price Group Dropdown
         $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
-        $default_price_group_id = !empty($default_location->selling_price_group_id) && array_key_exists($default_location->selling_price_group_id, $price_groups) ? $default_location->selling_price_group_id : null;
+        $default_price_group_id = !empty($default_location->selling_price_group_uid) && array_key_exists($default_location->selling_price_group_uid, $price_groups) ? $default_location->selling_price_group_uid : null;
 
         //Types of service
         $types_of_service = [];
@@ -409,15 +409,15 @@ class SellPosController extends Controller
                 }
 
                 //Customer group details
-                $contact_id = $request->get('contact_id', null);
-                $cg = $this->contactUtil->getCustomerGroup($business_uid, $contact_id);
-                $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+                $contact_uid = $request->get('contact_uid', null);
+                $cg = $this->contactUtil->getCustomerGroup($business_uid, $contact_uid);
+                $input['customer_group_uid'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
 
                 //set selling price group id
-                $price_group_id = $request->has('price_group') ? $request->input('price_group') : null;
+                $price_group_uid = $request->has('price_group') ? $request->input('price_group') : null;
 
                 //If default price group for the location exists
-                $price_group_id = $price_group_id == 0 && $request->has('default_price_group') ? $request->input('default_price_group') : $price_group_id;
+                $price_group_uid = $price_group_uid == 0 && $request->has('default_price_group') ? $request->input('default_price_group') : $price_group_uid;
 
                 $input['is_suspend'] = isset($input['is_suspend']) && 1 == $input['is_suspend'] ? 1 : 0;
                 if ($input['is_suspend']) {
@@ -431,14 +431,14 @@ class SellPosController extends Controller
                     $input['subscription_no'] = $this->transactionUtil->generateReferenceNumber('subscription', $ref_count);
                 }
 
-                if (!empty($request->input('invoice_scheme_id'))) {
-                    $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
+                if (!empty($request->input('invoice_scheme_uid'))) {
+                    $input['invoice_scheme_uid'] = $request->input('invoice_scheme_uid');
                 }
 
                 //Types of service
                 if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
-                    $input['types_of_service_id'] = $request->input('types_of_service_id');
-                    $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
+                    $input['types_of_service_uid'] = $request->input('types_of_service_uid');
+                    $price_group_uid = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_uid;
                     $input['packing_charge'] = !empty($request->input('packing_charge')) ?
                     $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
                     $input['packing_charge_type'] = $request->input('packing_charge_type');
@@ -476,13 +476,13 @@ class SellPosController extends Controller
                     $input['additional_expense_value_4'] = $request->input('additional_expense_value_4');
                 }
 
-                $input['selling_price_group_id'] = $price_group_id;
+                $input['selling_price_group_uid'] = $price_group_uid;
 
                 if ($this->transactionUtil->isModuleEnabled('tables')) {
-                    $input['res_table_id'] = request()->get('res_table_id');
+                    $input['res_table_uid'] = request()->get('res_table_uid');
                 }
                 if ($this->transactionUtil->isModuleEnabled('service_staff')) {
-                    $input['res_waiter_id'] = request()->get('res_waiter_id');
+                    $input['res_waiter_uid'] = request()->get('res_waiter_uid');
                 }
 
                 if ($this->transactionUtil->isModuleEnabled('kitchen')) {
@@ -515,11 +515,11 @@ class SellPosController extends Controller
                     if (!$is_direct_sale) {
                         //set service staff timer
                         foreach ($input['products'] as $product_line) {
-                            if (!empty($product_line['res_service_staff_id'])) {
+                            if (!empty($product_line['res_service_staff_uid'])) {
                                 $product = Product::find($product_line['product_uid']);
 
                                 if (!empty($product->preparation_time_in_minutes)) {
-                                    $service_staff = User::find($product_line['res_service_staff_id']);
+                                    $service_staff = User::find($product_line['res_service_staff_uid']);
 
                                     $base_time = \Carbon::parse($transaction->transaction_date);
 
@@ -575,7 +575,7 @@ class SellPosController extends Controller
 
                     if ($request->session()->get('business.enable_rp') == 1) {
                         $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
-                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
+                        $this->transactionUtil->updateCustomerRewardPoints($contact_uid, $transaction->rp_earned, 0, $redeemed);
                     }
 
                     //Allocate the quantity from purchase and add mapping of
@@ -625,7 +625,7 @@ class SellPosController extends Controller
 
                 $msg = trans('sale.pos_sale_added');
                 $receipt = '';
-                $invoice_layout_id = $request->input('invoice_layout_id');
+                $invoice_layout_uid = $request->input('invoice_layout_uid');
                 $print_invoice = false;
                 if (!$is_direct_sale) {
                     if ($input['status'] == 'draft') {
@@ -649,7 +649,7 @@ class SellPosController extends Controller
                 }
 
                 if ($print_invoice) {
-                    $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_id);
+                    $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_uid);
                 }
 
                 $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
@@ -731,7 +731,7 @@ class SellPosController extends Controller
         $printer_type = null,
         $is_package_slip = false,
         $from_pos_screen = true,
-        $invoice_layout_id = null,
+        $invoice_layout_uid = null,
         $is_delivery_note = false
     ) {
         $output = ['is_enabled' => false,
@@ -751,8 +751,8 @@ class SellPosController extends Controller
         //If enabled, get print type.
         $output['is_enabled'] = true;
 
-        $invoice_layout_id = !empty($invoice_layout_id) ? $invoice_layout_id : $location_details->invoice_layout_id;
-        $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $invoice_layout_id);
+        $invoice_layout_uid = !empty($invoice_layout_uid) ? $invoice_layout_uid : $location_details->invoice_layout_uid;
+        $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $invoice_layout_uid);
 
         //Check if printer setting is provided.
         $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
@@ -782,7 +782,7 @@ class SellPosController extends Controller
         //If print type browser - return the content, printer - return printer config data, and invoice format config
         if ($receipt_printer_type == 'printer') {
             $output['print_type'] = 'printer';
-            $output['printer_config'] = $this->businessUtil->printerConfig($business_uid, $location_details->printer_id);
+            $output['printer_config'] = $this->businessUtil->printerConfig($business_uid, $location_details->printer_uid);
             $output['data'] = $receipt_details;
         } else {
             $layout = !empty($receipt_details->design) ? 'sale_pos.receipts.' . $receipt_details->design : 'sale_pos.receipts.classic';
@@ -882,7 +882,7 @@ class SellPosController extends Controller
             )
             ->join(
                 'product_variations AS pv',
-                'variations.product_variation_id',
+                'variations.product_variation_uid',
                 '=',
                 'pv.uid'
             )
@@ -891,7 +891,7 @@ class SellPosController extends Controller
                     ->where('vld.location_uid', '=', $location_uid);
             })
             ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
-            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
+            ->leftjoin('units as u', 'p.secondary_unit_uid', '=', 'u.uid')
             ->where('transaction_sell_lines.transaction_uid', $id)
             ->with(['warranties'])
             ->select(
@@ -912,7 +912,7 @@ class SellPosController extends Controller
                 'units.allow_decimal as unit_allow_decimal',
                 'u.short_name as second_unit',
                 'transaction_sell_lines.secondary_unit_quantity',
-                'transaction_sell_lines.tax_id as tax_id',
+                'transaction_sell_lines.tax_uid as tax_uid',
                 'transaction_sell_lines.item_tax as item_tax',
                 'transaction_sell_lines.unit_price as default_sell_price',
                 'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
@@ -921,13 +921,13 @@ class SellPosController extends Controller
                 'transaction_sell_lines.uid',
                 'transaction_sell_lines.quantity as quantity_ordered',
                 'transaction_sell_lines.sell_line_note as sell_line_note',
-                'transaction_sell_lines.parent_sell_line_id',
-                'transaction_sell_lines.lot_no_line_id',
+                'transaction_sell_lines.parent_sell_line_uid',
+                'transaction_sell_lines.lot_no_line_uid',
                 'transaction_sell_lines.line_discount_type',
                 'transaction_sell_lines.line_discount_amount',
-                'transaction_sell_lines.res_service_staff_id',
+                'transaction_sell_lines.res_service_staff_uid',
                 'units.uid as unit_uid',
-                'transaction_sell_lines.sub_unit_id',
+                'transaction_sell_lines.sub_unit_uid',
 
                 //qty_available not added when negative to avoid max quanity getting decreased in edit and showing error in max quantity validation
                 DB::raw('IF(vld.qty_available > 0, vld.qty_available + transaction_sell_lines.quantity, transaction_sell_lines.quantity) AS qty_available')
@@ -939,7 +939,7 @@ class SellPosController extends Controller
                 $sell_details[$key]->media = $variation->media;
 
                 //If modifier or combo sell line then unset
-                if (!empty($sell_details[$key]->parent_sell_line_id)) {
+                if (!empty($sell_details[$key]->parent_sell_line_uid)) {
                     unset($sell_details[$key]);
                 } else {
                     if ($transaction->status != 'final') {
@@ -956,7 +956,7 @@ class SellPosController extends Controller
                         $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($value->variation_uid, $business_uid, $location_uid);
                         foreach ($lot_number_obj as $lot_number) {
                             //If lot number is selected added ordered quantity to lot quantity available
-                            if ($value->lot_no_line_id == $lot_number->purchase_line_id) {
+                            if ($value->lot_no_line_uid == $lot_number->purchase_line_uid) {
                                 $lot_number->qty_available += $value->quantity_ordered;
                             }
 
@@ -966,7 +966,7 @@ class SellPosController extends Controller
                     }
                     $sell_details[$key]->lot_numbers = $lot_numbers;
 
-                    if (!empty($value->sub_unit_id)) {
+                    if (!empty($value->sub_unit_uid)) {
                         $value = $this->productUtil->changeSellLineUnit($business_uid, $value);
                         $sell_details[$key] = $value;
                     }
@@ -975,7 +975,7 @@ class SellPosController extends Controller
 
                     if ($this->transactionUtil->isModuleEnabled('modifiers')) {
                         //Add modifier details to sel line details
-                        $sell_line_modifiers = TransactionSellLine::where('parent_sell_line_id', $sell_details[$key]->transaction_sell_lines_id)
+                        $sell_line_modifiers = TransactionSellLine::where('parent_sell_line_uid', $sell_details[$key]->transaction_sell_lines_id)
                             ->where('children_type', 'modifier')
                             ->get();
                         $modifiers_ids = [];
@@ -996,7 +996,7 @@ class SellPosController extends Controller
 
                     //Get details of combo items
                     if ($sell_details[$key]->product_type == 'combo') {
-                        $sell_line_combos = TransactionSellLine::where('parent_sell_line_id', $sell_details[$key]->transaction_sell_lines_id)
+                        $sell_line_combos = TransactionSellLine::where('parent_sell_line_uid', $sell_details[$key]->transaction_sell_lines_id)
                             ->where('children_type', 'combo')
                             ->get()
                             ->toArray();
@@ -1078,7 +1078,7 @@ class SellPosController extends Controller
         }
         $redeem_details = [];
         if (request()->session()->get('business.enable_rp') == 1) {
-            $redeem_details = $this->transactionUtil->getRewardRedeemDetails($business_uid, $transaction->contact_id);
+            $redeem_details = $this->transactionUtil->getRewardRedeemDetails($business_uid, $transaction->contact_uid);
 
             $redeem_details['points'] += $transaction->rp_redeemed;
             $redeem_details['points'] -= $transaction->rp_earned;
@@ -1104,7 +1104,7 @@ class SellPosController extends Controller
 
         $invoice_layouts = InvoiceLayout::forDropdown($business_uid);
 
-        $customer_due = $this->transactionUtil->getContactDue($transaction->contact_id, $transaction->business_uid);
+        $customer_due = $this->transactionUtil->getContactDue($transaction->contact_uid, $transaction->business_uid);
 
         $customer_due = $customer_due != 0 ? $this->transactionUtil->num_f($customer_due, true) : '';
 
@@ -1230,26 +1230,26 @@ class SellPosController extends Controller
                 }
 
                 //Customer group details
-                $contact_id = $request->get('contact_id', null);
-                $cg = $this->contactUtil->getCustomerGroup($business_uid, $contact_id);
-                $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+                $contact_uid = $request->get('contact_uid', null);
+                $cg = $this->contactUtil->getCustomerGroup($business_uid, $contact_uid);
+                $input['customer_group_uid'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
 
                 //set selling price group id
-                $price_group_id = $request->has('price_group') ? $request->input('price_group') : null;
+                $price_group_uid = $request->has('price_group') ? $request->input('price_group') : null;
 
                 $input['is_suspend'] = isset($input['is_suspend']) && 1 == $input['is_suspend'] ? 1 : 0;
                 if ($input['is_suspend']) {
                     $input['sale_note'] = !empty($input['additional_notes']) ? $input['additional_notes'] : null;
                 }
 
-                if ($status_before == 'draft' && !empty($request->input('invoice_scheme_id'))) {
-                    $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
+                if ($status_before == 'draft' && !empty($request->input('invoice_scheme_uid'))) {
+                    $input['invoice_scheme_uid'] = $request->input('invoice_scheme_uid');
                 }
 
                 //Types of service
                 if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
-                    $input['types_of_service_id'] = $request->input('types_of_service_id');
-                    $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
+                    $input['types_of_service_uid'] = $request->input('types_of_service_uid');
+                    $price_group_uid = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_uid;
                     $input['packing_charge'] = !empty($request->input('packing_charge')) ?
                     $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
                     $input['packing_charge_type'] = $request->input('packing_charge_type');
@@ -1267,13 +1267,13 @@ class SellPosController extends Controller
                     $request->input('service_custom_field_6') : null;
                 }
 
-                $input['selling_price_group_id'] = $price_group_id;
+                $input['selling_price_group_uid'] = $price_group_uid;
 
                 if ($this->transactionUtil->isModuleEnabled('tables')) {
-                    $input['res_table_id'] = request()->get('res_table_id');
+                    $input['res_table_uid'] = request()->get('res_table_uid');
                 }
                 if ($this->transactionUtil->isModuleEnabled('service_staff')) {
-                    $input['res_waiter_id'] = request()->get('res_waiter_id');
+                    $input['res_waiter_uid'] = request()->get('res_waiter_uid');
                 }
 
                 if ($this->transactionUtil->isModuleEnabled('kitchen')) {
@@ -1314,9 +1314,9 @@ class SellPosController extends Controller
                     DB::commit();
 
                     $can_print_invoice = auth()->user()->can('print_invoice');
-                    $invoice_layout_id = $request->input('invoice_layout_id');
+                    $invoice_layout_uid = $request->input('invoice_layout_uid');
 
-                    $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction_before->id, null, false, true, $invoice_layout_id);
+                    $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction_before->id, null, false, true, $invoice_layout_uid);
                     $msg = trans('purchase.payment_updated_success');
 
                     $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
@@ -1332,7 +1332,7 @@ class SellPosController extends Controller
                 //update service staff timer
                 if (!$is_direct_sale && $transaction->status == 'final') {
                     foreach ($input['products'] as $product_line) {
-                        if (!empty($product_line['res_service_staff_id'])) {
+                        if (!empty($product_line['res_service_staff_uid'])) {
                             $product = Product::find($product_line['product_uid']);
 
                             if (!empty($product->preparation_time_in_minutes)) {
@@ -1341,17 +1341,17 @@ class SellPosController extends Controller
                                 if (!empty($product_line['transaction_sell_lines_id'])) {
                                     $sl = TransactionSellLine::find($product_line['transaction_sell_lines_id']);
 
-                                    if ($sl->quantity >= $quantity && $sl->res_service_staff_id == $product_line['res_service_staff_id']) {
+                                    if ($sl->quantity >= $quantity && $sl->res_service_staff_uid == $product_line['res_service_staff_uid']) {
                                         continue;
                                     }
 
                                     //if same service staff assigned quantity is only increased quantity
-                                    if ($sl->res_service_staff_id == $product_line['res_service_staff_id']) {
+                                    if ($sl->res_service_staff_uid == $product_line['res_service_staff_uid']) {
                                         $quantity = $quantity - $sl->quantity;
                                     }
                                 }
 
-                                $service_staff = User::find($product_line['res_service_staff_id']);
+                                $service_staff = User::find($product_line['res_service_staff_uid']);
 
                                 $base_time = \Carbon::parse($transaction->transaction_date);
                                 //is transaction date is past take base time as now
@@ -1406,7 +1406,7 @@ class SellPosController extends Controller
                 }
 
                 if ($request->session()->get('business.enable_rp') == 1) {
-                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
+                    $this->transactionUtil->updateCustomerRewardPoints($contact_uid, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
                 }
 
                 Media::uploadMedia($business_uid, $transaction, $request, 'shipping_documents', false, 'shipping_document');
@@ -1471,21 +1471,21 @@ class SellPosController extends Controller
                 $msg = __('lang_v1.updated_success');
                 $receipt = '';
                 $can_print_invoice = auth()->user()->can('print_invoice');
-                $invoice_layout_id = $request->input('invoice_layout_id');
+                $invoice_layout_uid = $request->input('invoice_layout_uid');
 
                 if ($input['status'] == 'draft' && $input['is_quotation'] == 0) {
                     $msg = trans('sale.draft_added');
                 } elseif ($input['status'] == 'draft' && $input['is_quotation'] == 1) {
                     $msg = trans('lang_v1.quotation_updated');
                     if (!$is_direct_sale && $can_print_invoice) {
-                        $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_id);
+                        $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_uid);
                     } else {
                         $receipt = '';
                     }
                 } elseif ($input['status'] == 'final') {
                     $msg = trans('sale.pos_sale_updated');
                     if (!$is_direct_sale && $can_print_invoice) {
-                        $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_id);
+                        $receipt = $this->receiptContent($business_uid, $input['location_uid'], $transaction->id, null, false, true, $invoice_layout_uid);
                     } else {
                         $receipt = '';
                     }
@@ -1706,7 +1706,7 @@ class SellPosController extends Controller
             //Commented as credit sales not showing
             // if (!empty($register->id)) {
             //     $query->leftjoin('cash_register_transactions as crt', 'transactions.uid', '=', 'crt.transaction_uid')
-            //     ->where('crt.cash_register_id', $register->id);
+            //     ->where('crt.cash_register_uid', $register->id);
             // }
         }
 
@@ -1774,8 +1774,8 @@ class SellPosController extends Controller
                 $is_package_slip = !empty($request->input('package_slip')) ? true : false;
                 $is_delivery_note = !empty($request->input('delivery_note')) ? true : false;
 
-                $invoice_layout_id = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_id : null;
-                $receipt = $this->receiptContent($business_uid, $transaction->location_uid, $transaction_uid, $printer_type, $is_package_slip, false, $invoice_layout_id, $is_delivery_note);
+                $invoice_layout_uid = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_uid : null;
+                $receipt = $this->receiptContent($business_uid, $transaction->location_uid, $transaction_uid, $printer_type, $is_package_slip, false, $invoice_layout_uid, $is_delivery_note);
 
                 if (!empty($receipt)) {
                     $output = ['success' => 1, 'receipt' => $receipt];
@@ -1856,7 +1856,7 @@ class SellPosController extends Controller
             if (!empty($category_uid) && ($category_uid != 'all')) {
                 $products->where(function ($query) use ($category_uid) {
                     $query->where('p.category_uid', $category_uid);
-                    $query->orWhere('p.sub_category_id', $category_uid);
+                    $query->orWhere('p.sub_category_uid', $category_uid);
                 });
             }
             if (!empty($brand_uid) && ($brand_uid != 'all')) {
@@ -1943,9 +1943,9 @@ class SellPosController extends Controller
         $transaction = Transaction::where('invoice_token', $token)->with(['business', 'location'])->first();
 
         if (!empty($transaction)) {
-            $invoice_layout_id = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_id : null;
+            $invoice_layout_uid = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_uid : null;
 
-            $receipt = $this->receiptContent($transaction->business_uid, $transaction->location_uid, $transaction->id, 'browser', false, false, $invoice_layout_id);
+            $receipt = $this->receiptContent($transaction->business_uid, $transaction->location_uid, $transaction->id, 'browser', false, false, $invoice_layout_uid);
             $pos_settings = empty($transaction->business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($transaction->business->pos_settings, true);
             $payment_link = '';
             if (!empty($pos_settings['enable_payment_link']) && $transaction->payment_status != 'paid') {
@@ -2054,7 +2054,7 @@ class SellPosController extends Controller
                     'paid_on' => \Carbon::now()->toDateTimeString(),
                     'transaction_uid' => $transaction->id,
                     'amount' => $total_payable,
-                    'payment_for' => $transaction->contact_id,
+                    'payment_for' => $transaction->contact_uid,
                     'method' => 'cash',
                     'note' => $payment_id,
                     'paid_through_link' => 1,
@@ -2107,7 +2107,7 @@ class SellPosController extends Controller
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
 
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.uid')
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_uid', '=', 'contacts.uid')
                 ->leftJoin('transaction_payments as tp', 'transactions.uid', '=', 'tp.transaction_uid')
                 ->join(
                     'business_locations AS bl',
@@ -2127,7 +2127,7 @@ class SellPosController extends Controller
                     'contacts.name',
                     'transactions.subscription_no',
                     'bl.name as business_location',
-                    'transactions.recur_parent_id',
+                    'transactions.recur_parent_uid',
                     'transactions.recur_stopped_on',
                     'transactions.is_recurring',
                     'transactions.recur_interval',
@@ -2147,8 +2147,8 @@ class SellPosController extends Controller
                 $sells->whereDate('transactions.transaction_date', '>=', $start)
                     ->whereDate('transactions.transaction_date', '<=', $end);
             }
-            if (!empty(request()->contact_id)) {
-                $sells->where('transactions.contact_id', request()->contact_id);
+            if (!empty(request()->contact_uid)) {
+                $sells->where('transactions.contact_uid', request()->contact_uid);
             }
             $datatable = Datatables::of($sells)
                 ->addColumn(
@@ -2345,7 +2345,7 @@ class SellPosController extends Controller
                     'quantity' => $input['products'][$variation_details->id]['quantity'],
                     'item_tax' => 0,
                     'enable_stock' => $variation_details->product->enable_stock,
-                    'tax_id' => null,
+                    'tax_uid' => null,
                 ];
 
                 $final_total += ($input['products'][$variation_details->id]['quantity'] * $variation_details->unit_price_inc_tax);
@@ -2359,7 +2359,7 @@ class SellPosController extends Controller
             }
 
             $business = Business::find($business_uid);
-            $user_uid = $business->owner_id;
+            $user_uid = $business->owner_uid;
 
             $business_data = [
                 'id' => $business_uid,
@@ -2374,14 +2374,14 @@ class SellPosController extends Controller
             $order_data = [
                 'business_uid' => $business_uid,
                 'location_uid' => $location_uid,
-                'contact_id' => $input['customer_id'],
+                'contact_uid' => $input['customer_id'],
                 'final_total' => $final_total,
                 'created_by_uid' => $user_uid,
                 'status' => 'final',
                 'payment_status' => 'due',
                 'additional_notes' => '',
                 'transaction_date' => \Carbon::now(),
-                'customer_group_id' => $customer->customer_group_id,
+                'customer_group_uid' => $customer->customer_group_uid,
                 'tax_rate_uid' => null,
                 'sale_note' => null,
                 'commission_agent' => null,
@@ -2470,20 +2470,20 @@ class SellPosController extends Controller
     public function getTypesOfServiceDetails(Request $request)
     {
         $location_uid = $request->input('location_uid');
-        $types_of_service_id = $request->input('types_of_service_id');
+        $types_of_service_uid = $request->input('types_of_service_uid');
 
         $business_uid = $request->session()->get('user.business_uid');
 
         $types_of_service = TypesOfService::where('business_uid', $business_uid)
-            ->where('uid', $types_of_service_id)
+            ->where('uid', $types_of_service_uid)
             ->first();
 
-        $price_group_id = !empty($types_of_service->location_price_group[$location_uid])
+        $price_group_uid = !empty($types_of_service->location_price_group[$location_uid])
         ? $types_of_service->location_price_group[$location_uid] : '';
         $price_group_name = '';
 
-        if (!empty($price_group_id)) {
-            $price_group = SellingPriceGroup::find($price_group_id);
+        if (!empty($price_group_uid)) {
+            $price_group = SellingPriceGroup::find($price_group_uid);
             $price_group_name = $price_group->name;
         }
 
@@ -2491,7 +2491,7 @@ class SellPosController extends Controller
             ->with(compact('types_of_service'))->render();
 
         return $this->respond([
-            'price_group_id' => $price_group_id,
+            'price_group_uid' => $price_group_uid,
             'packing_charge' => $types_of_service->packing_charge,
             'packing_charge_type' => $types_of_service->packing_charge_type,
             'modal_html' => $modal_html,
@@ -2536,7 +2536,7 @@ class SellPosController extends Controller
             //Check Customer credit limit
             $data = [
                 'final_total' => $transaction->final_total,
-                'contact_id' => $transaction->contact_id,
+                'contact_uid' => $transaction->contact_uid,
                 'status' => 'final',
             ];
             $is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($data, $id);
@@ -2948,7 +2948,7 @@ class SellPosController extends Controller
             )
             ->join(
                 'product_variations AS pv',
-                'variations.product_variation_id',
+                'variations.product_variation_uid',
                 '=',
                 'pv.uid'
             )
@@ -2957,13 +2957,13 @@ class SellPosController extends Controller
                     ->where('vld.location_uid', '=', $location_uid);
             })
             ->leftjoin('units', 'units.uid', '=', 'p.unit_uid')
-            ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.uid')
+            ->leftjoin('units as u', 'p.secondary_unit_uid', '=', 'u.uid')
             ->where('transaction_sell_lines.transaction_uid', $transaction->id)
             ->select(
                 DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
                 'variations.sub_sku',
                 'transaction_sell_lines.uid',
-                'transaction_sell_lines.res_service_staff_id',
+                'transaction_sell_lines.res_service_staff_uid',
             )
             ->get();
 
@@ -2999,7 +2999,7 @@ class SellPosController extends Controller
 
                 DB::beginTransaction();
 
-                $transaction->res_waiter_id = $request->res_waiter_id;
+                $transaction->res_waiter_uid = $request->res_waiter_uid;
 
                 $transaction->update();
 
@@ -3007,7 +3007,7 @@ class SellPosController extends Controller
                     foreach ($request->sell_details as $sell) {
 
                         TransactionSellLine::where('uid', $sell['id'])->update([
-                            'res_service_staff_id' => $sell['res_service_staff_id'],
+                            'res_service_staff_uid' => $sell['res_service_staff_uid'],
                         ]);
                     }
                 }

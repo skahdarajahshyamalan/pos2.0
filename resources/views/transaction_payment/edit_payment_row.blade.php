@@ -158,12 +158,12 @@
         @if(!empty($accounts))
           <div class="col-md-6">
             <div class="form-group">
-              {!! Form::label("account_id" , __('lang_v1.payment_account') . ':') !!}
+              {!! Form::label("account_uid" , __('lang_v1.payment_account') . ':') !!}
               <div class="input-group">
                 <span class="input-group-addon">
                   <i class="fas fa-money-bill-alt"></i>
                 </span>
-                {!! Form::select("account_id", $accounts, !empty($payment_line->account_id) ? $payment_line->account_id : '' , ['class' => 'form-control select2', 'id' => "account_id", 'style' => 'width:100%;']); !!}
+                {!! Form::select("account_uid", $accounts, !empty($payment_line->account_uid) ? $payment_line->account_uid : '' , ['class' => 'form-control select2', 'id' => "account_uid", 'style' => 'width:100%;']); !!}
               </div>
             </div>
           </div>

@@ -49,7 +49,7 @@ class BusinessUtil extends Util
 
         //Update reference count
         $ref_count = $this->setAndGetReferenceCount('contacts', $business_uid);
-        $contact_id = $this->generateReferenceNumber('contacts', $ref_count, $business_uid);
+        $contact_uid = $this->generateReferenceNumber('contacts', $ref_count, $business_uid);
 
         //Add Default/Walk-In Customer for new business
         $customer = [
@@ -58,7 +58,7 @@ class BusinessUtil extends Util
             'name' => 'Walk-In Customer',
             'created_by_uid' => $user_uid,
             'is_default' => 1,
-            'contact_id' => $contact_id,
+            'contact_uid' => $contact_uid,
             'credit_limit' => 0,
         ];
         Contact::create($customer);
@@ -225,7 +225,7 @@ class BusinessUtil extends Util
     public function getDetails($business_uid)
     {
         $details = Business::leftjoin('tax_rates AS TR', 'business.default_sales_tax', 'TR.uid')
-                        ->leftjoin('currencies AS cur', 'business.currency_id', 'cur.uid')
+                        ->leftjoin('currencies AS cur', 'business.currency_uid', 'cur.uid')
                         ->select(
                             'business.*',
                             'cur.code as currency_code',
@@ -283,23 +283,23 @@ class BusinessUtil extends Util
      *
      * @param  int  $business_uid
      * @param  array  $location_details
-     * @param  int  $invoice_layout_id default null
+     * @param  int  $invoice_layout_uid default null
      * @return location object
      */
-    public function addLocation($business_uid, $location_details, $invoice_scheme_id = null, $invoice_layout_id = null)
+    public function addLocation($business_uid, $location_details, $invoice_scheme_uid = null, $invoice_layout_uid = null)
     {
-        if (empty($invoice_scheme_id)) {
+        if (empty($invoice_scheme_uid)) {
             $layout = InvoiceLayout::where('is_default', 1)
                                     ->where('business_uid', $business_uid)
                                     ->first();
-            $invoice_layout_id = $layout->id;
+            $invoice_layout_uid = $layout->id;
         }
 
-        if (empty($invoice_scheme_id)) {
+        if (empty($invoice_scheme_uid)) {
             $scheme = InvoiceScheme::where('is_default', 1)
                                     ->where('business_uid', $business_uid)
                                     ->first();
-            $invoice_scheme_id = $scheme->id;
+            $invoice_scheme_uid = $scheme->id;
         }
 
         //Update reference count
@@ -322,9 +322,9 @@ class BusinessUtil extends Util
             'state' => $location_details['state'],
             'zip_code' => $location_details['zip_code'],
             'country' => $location_details['country'],
-            'invoice_scheme_id' => $invoice_scheme_id,
-            'invoice_layout_id' => $invoice_layout_id,
-            'sale_invoice_layout_id' => $invoice_layout_id,
+            'invoice_scheme_uid' => $invoice_scheme_uid,
+            'invoice_layout_uid' => $invoice_layout_uid,
+            'sale_invoice_layout_uid' => $invoice_layout_uid,
             'mobile' => ! empty($location_details['mobile']) ? $location_details['mobile'] : '',
             'alternate_number' => ! empty($location_details['alternate_number']) ? $location_details['alternate_number'] : '',
             'website' => ! empty($location_details['website']) ? $location_details['website'] : '',
@@ -364,13 +364,13 @@ class BusinessUtil extends Util
      * Return the printer configuration
      *
      * @param  int  $business_uid
-     * @param  int  $printer_id
+     * @param  int  $printer_uid
      * @return array
      */
-    public function printerConfig($business_uid, $printer_id)
+    public function printerConfig($business_uid, $printer_uid)
     {
         $printer = Printer::where('business_uid', $business_uid)
-                    ->find($printer_id);
+                    ->find($printer_uid);
 
         $output = [];
 

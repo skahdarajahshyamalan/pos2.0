@@ -121,7 +121,7 @@
 						$tax_percent = $purchase->tax->amount;
 					}
 				@endphp
-				{!! Form::hidden('tax_id', $purchase->tax_id); !!}
+				{!! Form::hidden('tax_uid', $purchase->tax_uid); !!}
 				{!! Form::hidden('tax_amount', 0, ['id' => 'tax_amount']); !!}
 				{!! Form::hidden('tax_percent', $tax_percent, ['id' => 'tax_percent']); !!}
 			</div>

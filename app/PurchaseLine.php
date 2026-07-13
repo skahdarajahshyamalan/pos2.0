@@ -49,7 +49,7 @@ class PurchaseLine extends Model
      */
     public function sub_unit()
     {
-        return $this->belongsTo(\App\Unit::class, 'sub_unit_id');
+        return $this->belongsTo(\App\Unit::class, 'sub_unit_uid');
     }
 
     /**
@@ -75,16 +75,16 @@ class PurchaseLine extends Model
 
     public function line_tax()
     {
-        return $this->belongsTo(\App\TaxRate::class, 'tax_id');
+        return $this->belongsTo(\App\TaxRate::class, 'tax_uid');
     }
 
     public function purchase_order_line()
     {
-        return $this->belongsTo(\App\PurchaseLine::class, 'purchase_order_line_id');
+        return $this->belongsTo(\App\PurchaseLine::class, 'purchase_order_line_uid');
     }
 
     public function purchase_requisition_line()
     {
-        return $this->belongsTo(\App\PurchaseLine::class, 'purchase_requisition_line_id');
+        return $this->belongsTo(\App\PurchaseLine::class, 'purchase_requisition_line_uid');
     }
 }

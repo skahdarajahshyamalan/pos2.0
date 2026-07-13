@@ -38,12 +38,12 @@ class DocumentAndNoteController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
             $user_uid = request()->session()->get('user.uid');
             //model id like project_id, user_uid
-            $notable_id = request()->get('notable_id');
+            $notable_uid = request()->get('notable_uid');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
             $document_note = DocumentAndNote::where('business_uid', $business_uid)
-                ->where('notable_id', $notable_id)
+                ->where('notable_uid', $notable_uid)
                 ->where(function ($query) use ($user_uid) {
                     $query->where('is_private', 0)
                         ->orWhere(function ($q) use ($user_uid) {
@@ -55,7 +55,7 @@ class DocumentAndNoteController extends Controller
                 ->with('createdBy', 'media')
                 ->select('*');
 
-            $permissions = $this->__getPermission($business_uid, $notable_id, $notable_type);
+            $permissions = $this->__getPermission($business_uid, $notable_uid, $notable_type);
 
             if (! empty($permissions) && in_array('view', $permissions)) {
                 return Datatables::of($document_note)
@@ -73,7 +73,7 @@ class DocumentAndNoteController extends Controller
 
                         if (in_array('view', $permissions)) {
                             $html .= '<li>
-                                        <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note">
+                                        <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_uid' => $row->notable_uid, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note">
                                             <i class="fa fa-eye"></i>
                                             '.__('messages.view').'
                                         </a>
@@ -81,7 +81,7 @@ class DocumentAndNoteController extends Controller
                         }
                         if (in_array('create', $permissions)) {
                             $html .= '<li>
-                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'edit'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'"  class="cursor-pointer docs_and_notes_btn">
+                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'edit'], [$row->id, 'notable_uid' => $row->notable_uid, 'notable_type' => $notable_type]).'"  class="cursor-pointer docs_and_notes_btn">
                                         <i class="fa fa-edit"></i>
                                         '.__('messages.edit').'
                                     </a>
@@ -89,7 +89,7 @@ class DocumentAndNoteController extends Controller
                         }
                         if (in_array('delete', $permissions)) {
                             $html .= '<li>
-                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'destroy'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'"  id="delete_docus_note" class="cursor-pointer">
+                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'destroy'], [$row->id, 'notable_uid' => $row->notable_uid, 'notable_type' => $notable_type]).'"  id="delete_docus_note" class="cursor-pointer">
                                         <i class="fas fa-trash"></i>
                                         '.__('messages.delete').'
                                     </a>
@@ -126,7 +126,7 @@ class DocumentAndNoteController extends Controller
                                 $icon = '<i class="fas fa-file-image text-primary" data-toggle="tooltip" title="'.$media_tooltip.'"></i>';
                             }
 
-                            $html = '<a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note text-black">
+                            $html = '<a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_uid' => $row->notable_uid, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note text-black">
                                 '.
                                     $row->heading.
                                     '&nbsp;'.
@@ -151,7 +151,7 @@ class DocumentAndNoteController extends Controller
      *
      * @return array of permissions
      */
-    private function __getPermission($business_uid, $notable_id, $notable_type)
+    private function __getPermission($business_uid, $notable_uid, $notable_type)
     {
         $permissions = [];
 
@@ -171,7 +171,7 @@ class DocumentAndNoteController extends Controller
             //If not found in main app, get from modules.
             $module_parameters = [
                 'business_uid' => $business_uid,
-                'notable_id' => $notable_id,
+                'notable_uid' => $notable_uid,
                 'notable_type' => $notable_type,
             ];
             $module_data = $this->moduleUtil->getModuleData('addDocumentAndNotes', $module_parameters);
@@ -192,12 +192,12 @@ class DocumentAndNoteController extends Controller
     public function create()
     {
         //model id like project_id, user_uid
-        $notable_id = request()->get('notable_id');
+        $notable_uid = request()->get('notable_uid');
         //model name like App\User
         $notable_type = request()->get('notable_type');
 
         return view('documents_and_notes.create')
-            ->with(compact('notable_id', 'notable_type'));
+            ->with(compact('notable_uid', 'notable_type'));
     }
 
     /**
@@ -211,7 +211,7 @@ class DocumentAndNoteController extends Controller
         try {
 
             //model id like project_id, user_uid
-            $notable_id = request()->get('notable_id');
+            $notable_uid = request()->get('notable_uid');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
@@ -227,7 +227,7 @@ class DocumentAndNoteController extends Controller
 
             //find model to which document is to be added
             $model = $notable_type::where('business_uid', $input['business_uid'])
-                ->findOrFail($notable_id);
+                ->findOrFail($notable_uid);
 
             $model_note = $model->documentsAndnote()->create($input);
 
@@ -266,13 +266,13 @@ class DocumentAndNoteController extends Controller
     public function show($id)
     {
         //model id like project_id, user_uid
-        $notable_id = request()->get('notable_id');
+        $notable_uid = request()->get('notable_uid');
         //model name like App\User
         $notable_type = request()->get('notable_type');
 
         $business_uid = request()->session()->get('user.business_uid');
         $document_note = DocumentAndNote::where('business_uid', $business_uid)
-            ->where('notable_id', $notable_id)
+            ->where('notable_uid', $notable_uid)
             ->where('notable_type', $notable_type)
             ->with('media', 'createdBy')
             ->findOrFail($id);
@@ -290,18 +290,18 @@ class DocumentAndNoteController extends Controller
     public function edit($id)
     {
         //model id like project_id, user_uid
-        $notable_id = request()->get('notable_id');
+        $notable_uid = request()->get('notable_uid');
         //model name like App\User
         $notable_type = request()->get('notable_type');
 
         $business_uid = request()->session()->get('user.business_uid');
         $document_note = DocumentAndNote::where('business_uid', $business_uid)
-        ->where('notable_id', $notable_id)
+        ->where('notable_uid', $notable_uid)
         ->where('notable_type', $notable_type)
         ->findOrFail($id);
 
         return view('documents_and_notes.edit')
-            ->with(compact('notable_id', 'document_note', 'notable_type'));
+            ->with(compact('notable_uid', 'document_note', 'notable_type'));
     }
 
     /**
@@ -316,7 +316,7 @@ class DocumentAndNoteController extends Controller
         try {
 
             //model id like project_id, user_uid
-            $notable_id = request()->get('notable_id');
+            $notable_uid = request()->get('notable_uid');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
@@ -326,7 +326,7 @@ class DocumentAndNoteController extends Controller
             $input['is_private'] = ! empty($request->get('is_private')) ? 1 : 0;
 
             $document_note = DocumentAndNote::where('business_uid', $business_uid)
-                ->where('notable_id', $notable_id)
+                ->where('notable_uid', $notable_uid)
                 ->where('notable_type', $notable_type)
                 ->findOrFail($id);
 
@@ -378,12 +378,12 @@ class DocumentAndNoteController extends Controller
         try {
             $business_uid = request()->session()->get('user.business_uid');
             //model id like project_id, user_uid
-            $notable_id = request()->get('notable_id');
+            $notable_uid = request()->get('notable_uid');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
             $document_note = DocumentAndNote::where('business_uid', $business_uid)
-                ->where('notable_id', $notable_id)
+                ->where('notable_uid', $notable_uid)
                 ->where('notable_type', $notable_type)
                 ->findOrFail($id);
 
@@ -452,11 +452,11 @@ class DocumentAndNoteController extends Controller
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
             $notable_type = $request->get('notable_type');
-            $notable_id = $request->get('notable_id');
-            $permissions = $this->__getPermission($business_uid, $notable_id, $notable_type);
+            $notable_uid = $request->get('notable_uid');
+            $permissions = $this->__getPermission($business_uid, $notable_uid, $notable_type);
 
             return view('documents_and_notes.index')
-                ->with(compact('permissions', 'notable_type', 'notable_id'));
+                ->with(compact('permissions', 'notable_type', 'notable_uid'));
         }
     }
 }

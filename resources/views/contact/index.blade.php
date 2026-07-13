@@ -145,7 +145,7 @@
                         <thead>
                             <tr>
                                 <th class="tw-w-full not-export">@lang('messages.action')</th>
-                                <th>@lang('lang_v1.contact_id')</th>
+                                <th>@lang('lang_v1.contact_uid')</th>
                                 @if ($type == 'supplier')
                                     <th>@lang('business.business_name')</th>
                                     <th>@lang('contact.name')</th>

@@ -266,7 +266,7 @@
 					{{@format_quantity($purchase_line->quantity)}} @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->actual_name}}  @else {{$purchase_line->product->unit->actual_name}} @endif   {{-- Display the base_unit_multiplier here --}}
 						@if($purchase_line->product->unit->sub_units)
 							@foreach($purchase_line->product->unit->sub_units as $sub_unit)
-								@if($sub_unit->id == $purchase_line->sub_unit_id)
+								@if($sub_unit->id == $purchase_line->sub_unit_uid)
 									({{ (float) $sub_unit->base_unit_multiplier }}
 									{{ $purchase_line->product->unit->short_name }})
 								@endif
@@ -279,8 +279,8 @@
 				<td>
 					@php 
 		              $total += ($purchase_line->quantity * $purchase_line->purchase_price);
-		              if (!empty($purchase_line->tax_id)) {
-		              	$tax_array[$purchase_line->tax_id][] = ($purchase_line->item_tax * $purchase_line->quantity);
+		              if (!empty($purchase_line->tax_uid)) {
+		              	$tax_array[$purchase_line->tax_uid][] = ($purchase_line->item_tax * $purchase_line->quantity);
 		              }
 		            @endphp
 		            @format_currency($purchase_line->quantity * $purchase_line->purchase_price)

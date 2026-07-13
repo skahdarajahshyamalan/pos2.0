@@ -5,7 +5,7 @@
       <h4 class="modal-title"><b>@lang('product.product_name'):</b> {{$purchase_line->name}}, <b>@lang('purchase.ref_no'):</b> {{$purchase_line->ref_no}}</h4>
     </div>
     <form id="stock_exp_modal_form" method="post" action="{{route('updateStockExpiryReport')}}">
-    <input type="hidden" value="{{$purchase_line->id}}" name="purchase_line_id">
+    <input type="hidden" value="{{$purchase_line->id}}" name="purchase_line_uid">
     <div class="modal-body">
       <div class="row">
       <div class="col-md-6">

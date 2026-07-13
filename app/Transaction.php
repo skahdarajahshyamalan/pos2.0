@@ -53,7 +53,7 @@ class Transaction extends Model
 
     public function contact()
     {
-        return $this->belongsTo(\App\Contact::class, 'contact_id');
+        return $this->belongsTo(\App\Contact::class, 'contact_uid');
     }
 
     public function delivery_person_user()
@@ -78,7 +78,7 @@ class Transaction extends Model
 
     public function tax()
     {
-        return $this->belongsTo(\App\TaxRate::class, 'tax_id');
+        return $this->belongsTo(\App\TaxRate::class, 'tax_uid');
     }
 
     public function stock_adjustment_lines()
@@ -98,42 +98,42 @@ class Transaction extends Model
 
     public function return_parent()
     {
-        return $this->hasOne(\App\Transaction::class, 'return_parent_id');
+        return $this->hasOne(\App\Transaction::class, 'return_parent_uid');
     }
 
     public function return_parent_sell()
     {
-        return $this->belongsTo(\App\Transaction::class, 'return_parent_id');
+        return $this->belongsTo(\App\Transaction::class, 'return_parent_uid');
     }
 
     public function table()
     {
-        return $this->belongsTo(\App\Restaurant\ResTable::class, 'res_table_id');
+        return $this->belongsTo(\App\Restaurant\ResTable::class, 'res_table_uid');
     }
 
     public function service_staff()
     {
-        return $this->belongsTo(\App\User::class, 'res_waiter_id');
+        return $this->belongsTo(\App\User::class, 'res_waiter_uid');
     }
 
     public function recurring_invoices()
     {
-        return $this->hasMany(\App\Transaction::class, 'recur_parent_id');
+        return $this->hasMany(\App\Transaction::class, 'recur_parent_uid');
     }
 
     public function recurring_parent()
     {
-        return $this->hasOne(\App\Transaction::class, 'id', 'recur_parent_id');
+        return $this->hasOne(\App\Transaction::class, 'id', 'recur_parent_uid');
     }
 
     public function price_group()
     {
-        return $this->belongsTo(\App\SellingPriceGroup::class, 'selling_price_group_id');
+        return $this->belongsTo(\App\SellingPriceGroup::class, 'selling_price_group_uid');
     }
 
     public function types_of_service()
     {
-        return $this->belongsTo(\App\TypesOfService::class, 'types_of_service_id');
+        return $this->belongsTo(\App\TypesOfService::class, 'types_of_service_uid');
     }
 
     /**
@@ -158,7 +158,7 @@ class Transaction extends Model
 
     public function subscription_invoices()
     {
-        return $this->hasMany(\App\Transaction::class, 'recur_parent_id');
+        return $this->hasMany(\App\Transaction::class, 'recur_parent_uid');
     }
 
     /**

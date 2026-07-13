@@ -341,9 +341,9 @@ class PurchaseRequisitionController extends Controller
                                 ->with(['purchase_lines'])
                                 ->find($id);
 
-                //unset purchase_order_line_id if set
-                PurchaseLine::whereIn('purchase_requisition_line_id', $transaction->purchase_lines->pluck('id'))
-                        ->update(['purchase_requisition_line_id' => null]);
+                //unset purchase_order_line_uid if set
+                PurchaseLine::whereIn('purchase_requisition_line_uid', $transaction->purchase_lines->pluck('id'))
+                        ->update(['purchase_requisition_line_uid' => null]);
 
                 $transaction->delete();
 
@@ -370,7 +370,7 @@ class PurchaseRequisitionController extends Controller
 
             $query = VariationLocationDetails::join(
                 'product_variations as pv',
-                'variation_location_details.product_variation_id',
+                'variation_location_details.product_variation_uid',
                 '=',
                 'pv.uid'
             )
@@ -393,7 +393,7 @@ class PurchaseRequisitionController extends Controller
                         'l.uid'
                     )
                     ->leftjoin('units as u', 'p.unit_uid', '=', 'u.uid')
-                    ->leftjoin('units as su', 'p.secondary_unit_id', '=', 'su.uid')
+                    ->leftjoin('units as su', 'p.secondary_unit_uid', '=', 'su.uid')
                     ->where('p.business_uid', $business_uid)
                     ->where('p.enable_stock', 1)
                     ->where('p.is_inactive', 0)

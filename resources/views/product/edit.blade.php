@@ -66,9 +66,9 @@
                 {!! Form::label('sub_unit_ids', __('lang_v1.related_sub_units') . ':') !!} @show_tooltip(__('lang_v1.sub_units_tooltip'))
 
                 <select name="sub_unit_ids[]" class="form-control select2" multiple id="sub_unit_ids">
-                  @foreach($sub_units as $sub_unit_id => $sub_unit_value)
-                    <option value="{{$sub_unit_id}}" 
-                      @if(is_array($product->sub_unit_ids) &&in_array($sub_unit_id, $product->sub_unit_ids))   selected 
+                  @foreach($sub_units as $sub_unit_uid => $sub_unit_value)
+                    <option value="{{$sub_unit_uid}}" 
+                      @if(is_array($product->sub_unit_ids) &&in_array($sub_unit_uid, $product->sub_unit_ids))   selected 
                       @endif>{{$sub_unit_value['name']}}</option>
                   @endforeach
                 </select>
@@ -78,8 +78,8 @@
             @if(!empty($common_settings['enable_secondary_unit']))
                 <div class="col-sm-4">
                     <div class="form-group">
-                        {!! Form::label('secondary_unit_id', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
-                        {!! Form::select('secondary_unit_id', $units, $product->secondary_unit_id, ['class' => 'form-control select2']); !!}
+                        {!! Form::label('secondary_unit_uid', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
+                        {!! Form::select('secondary_unit_uid', $units, $product->secondary_unit_uid, ['class' => 'form-control select2']); !!}
                     </div>
                 </div>
             @endif
@@ -104,8 +104,8 @@
 
             <div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
               <div class="form-group">
-                {!! Form::label('sub_category_id', __('product.sub_category')  . ':') !!}
-                  {!! Form::select('sub_category_id', $sub_categories, $product->sub_category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+                {!! Form::label('sub_category_uid', __('product.sub_category')  . ':') !!}
+                  {!! Form::select('sub_category_uid', $sub_categories, $product->sub_category_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
               </div>
             </div>
 
@@ -136,8 +136,8 @@
             @if(!empty($common_settings['enable_product_warranty']))
             <div class="col-sm-4">
               <div class="form-group">
-                {!! Form::label('warranty_id', __('lang_v1.warranty') . ':') !!}
-                {!! Form::select('warranty_id', $warranties, $product->warranty_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+                {!! Form::label('warranty_uid', __('lang_v1.warranty') . ':') !!}
+                {!! Form::select('warranty_uid', $warranties, $product->warranty_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
               </div>
             </div>
             @endif

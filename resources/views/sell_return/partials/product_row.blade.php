@@ -40,17 +40,17 @@
             $hide_tax = '';
         }
         
-		$tax_id = $product->tax_id;
+		$tax_uid = $product->tax_uid;
 		$unit_price_inc_tax = $product->sell_price_inc_tax;
 		if($hide_tax == 'hide'){
-			$tax_id = null;
+			$tax_uid = null;
 			$unit_price_inc_tax = $product->default_sell_price;
 		}
 	@endphp
 	<td class="{{$hide_tax}}">
 		<input type="hidden" name="products[{{$row_count}}][item_tax]" class="form-control item_tax">
 		
-		{!! Form::select("products[$row_count][tax_id]", $tax_dropdown['tax_rates'], $tax_id, ['placeholder' => 'Select', 'class' => 'form-control tax_id'], $tax_dropdown['attributes']); !!}
+		{!! Form::select("products[$row_count][tax_uid]", $tax_dropdown['tax_rates'], $tax_uid, ['placeholder' => 'Select', 'class' => 'form-control tax_uid'], $tax_dropdown['attributes']); !!}
 	</td>
 	<td class="{{$hide_tax}}">
 		<input type="text" name="products[{{$row_count}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax)}}">

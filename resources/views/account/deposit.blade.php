@@ -12,12 +12,12 @@
             <div class="form-group">
                 <strong>@lang('account.selected_account')</strong>: 
                 {{$account->name}}
-                {!! Form::hidden('account_id', $account->id) !!}
+                {!! Form::hidden('account_uid', $account->id) !!}
             </div>
 
             <div class="form-group">
-                {!! Form::label('account_id', __( 'lang_v1.deposit_to' ) .":") !!}
-                {!! Form::select('account_id', $from_accounts, $account->id, ['class' => 'form-control' ]); !!}
+                {!! Form::label('account_uid', __( 'lang_v1.deposit_to' ) .":") !!}
+                {!! Form::select('account_uid', $from_accounts, $account->id, ['class' => 'form-control' ]); !!}
             </div>
 
             <div class="form-group">

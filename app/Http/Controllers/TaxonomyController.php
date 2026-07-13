@@ -55,11 +55,11 @@ class TaxonomyController extends Controller
                 ->get()
                 ->keyBy('id');
 
-            $grouped = $all_categories->groupBy('parent_id');
+            $grouped = $all_categories->groupBy('parent_uid');
 
             $category = collect();
 
-            // Get parents (those with parent_id = null or 0)
+            // Get parents (those with parent_uid = null or 0)
             $parents = $grouped[null] ?? $grouped[0] ?? [];
 
             foreach ($parents as $parent) {
@@ -95,7 +95,7 @@ class TaxonomyController extends Controller
                     return $row->name;
                 })
                 ->removeColumn('id')
-                ->removeColumn('parent_id')
+                ->removeColumn('parent_uid')
                 ->rawColumns(['action'])
                 ->make(true);
 
@@ -122,7 +122,7 @@ class TaxonomyController extends Controller
         $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 
         $categories = Category::where('business_uid', $business_uid)
-                        ->where('parent_id', 0)
+                        ->where('parent_uid', 0)
                         ->where('category_type', $category_type)
                         ->select(['name', 'short_code', 'id'])
                         ->get();
@@ -153,10 +153,10 @@ class TaxonomyController extends Controller
 
         try {
             $input = $request->only(['name', 'short_code', 'category_type', 'description']);
-            if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
-                $input['parent_id'] = $request->input('parent_id');
+            if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_uid'))) {
+                $input['parent_uid'] = $request->input('parent_uid');
             } else {
-                $input['parent_id'] = 0;
+                $input['parent_uid'] = 0;
             }
             $input['business_uid'] = $request->session()->get('user.business_uid');
             $input['created_by_uid'] = $request->session()->get('user.uid');
@@ -208,17 +208,17 @@ class TaxonomyController extends Controller
             $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 
             $parent_categories = Category::where('business_uid', $business_uid)
-                                        ->where('parent_id', 0)
+                                        ->where('parent_uid', 0)
                                         ->where('category_type', $category_type)
                                         ->where('uid', '!=', $id)
                                         ->pluck('name', 'id');
             $is_parent = false;
 
-            if ($category->parent_id == 0) {
+            if ($category->parent_uid == 0) {
                 $is_parent = true;
                 $selected_parent = null;
             } else {
-                $selected_parent = $category->parent_id;
+                $selected_parent = $category->parent_uid;
             }
 
             return view('taxonomy.edit')
@@ -250,10 +250,10 @@ class TaxonomyController extends Controller
                 $category->description = $input['description'];
                 $category->short_code = $request->input('short_code');
 
-                if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
-                    $category->parent_id = $request->input('parent_id');
+                if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_uid'))) {
+                    $category->parent_uid = $request->input('parent_uid');
                 } else {
-                    $category->parent_id = 0;
+                    $category->parent_uid = 0;
                 }
                 $category->save();
 

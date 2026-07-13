@@ -13,6 +13,6 @@ class GroupSubTax extends Model
 
     public function tax_rate()
     {
-        return $this->belongsTo(\App\TaxRate::class, 'group_tax_id');
+        return $this->belongsTo(\App\TaxRate::class, 'group_tax_uid');
     }
 }

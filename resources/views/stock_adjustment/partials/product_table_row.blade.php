@@ -8,9 +8,9 @@
         @php
             $lot_enabled = session()->get('business.enable_lot_number');
             $exp_enabled = session()->get('business.enable_product_expiry');
-            $lot_no_line_id = '';
-            if(!empty($product->lot_no_line_id)){
-                $lot_no_line_id = $product->lot_no_line_id;
+            $lot_no_line_uid = '';
+            if(!empty($product->lot_no_line_uid)){
+                $lot_no_line_uid = $product->lot_no_line_uid;
             }
         @endphp
 
@@ -19,12 +19,12 @@
             <small class="text-muted" style="white-space: nowrap;">@lang('report.current_stock'): <span class="qty_available_text">{{$product->formatted_qty_available}}</span> {{ $product->unit }}</small>
         @endif
         @if(!empty($product->lot_numbers))
-            <select class="form-control lot_number" name="products[{{$row_index}}][lot_no_line_id]">
+            <select class="form-control lot_number" name="products[{{$row_index}}][lot_no_line_uid]">
                 <option value="">@lang('lang_v1.lot_n_expiry')</option>
                 @foreach($product->lot_numbers as $lot_number)
                     @php
                         $selected = "";
-                        if($lot_number->purchase_line_id == $lot_no_line_id){
+                        if($lot_number->purchase_line_uid == $lot_no_line_uid){
                             $selected = "selected";
 
                             $max_qty_rule = $lot_number->qty_available;
@@ -38,7 +38,7 @@
                             }
                         }
                     @endphp
-                    <option value="{{$lot_number->purchase_line_id}}" data-qty_available="{{$lot_number->qty_available}}" data-msg-max="@lang('lang_v1.quantity_error_msg_in_lot', ['qty'=> $lot_number->qty_formated, 'unit' => $product->unit  ])" {{$selected}}>@if(!empty($lot_number->lot_number) && $lot_enabled == 1){{$lot_number->lot_number}} @endif @if($lot_enabled == 1 && $exp_enabled == 1) - @endif @if($exp_enabled == 1 && !empty($lot_number->exp_date)) @lang('product.exp_date'): {{@format_date($lot_number->exp_date)}} @endif {{$expiry_text}}</option>
+                    <option value="{{$lot_number->purchase_line_uid}}" data-qty_available="{{$lot_number->qty_available}}" data-msg-max="@lang('lang_v1.quantity_error_msg_in_lot', ['qty'=> $lot_number->qty_formated, 'unit' => $product->unit  ])" {{$selected}}>@if(!empty($lot_number->lot_number) && $lot_enabled == 1){{$lot_number->lot_number}} @endif @if($lot_enabled == 1 && $exp_enabled == 1) - @endif @if($exp_enabled == 1 && !empty($lot_number->exp_date)) @lang('product.exp_date'): {{@format_date($lot_number->exp_date)}} @endif {{$expiry_text}}</option>
                 @endforeach
             </select>
         @endif

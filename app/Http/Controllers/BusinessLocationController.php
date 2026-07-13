@@ -48,25 +48,25 @@ class BusinessLocationController extends Controller
             $locations = BusinessLocation::where('business_locations.business_uid', $business_uid)
                 ->leftjoin(
                     'invoice_schemes as ic',
-                    'business_locations.invoice_scheme_id',
+                    'business_locations.invoice_scheme_uid',
                     '=',
                     'ic.uid'
                 )
                 ->leftjoin(
                     'invoice_layouts as il',
-                    'business_locations.invoice_layout_id',
+                    'business_locations.invoice_layout_uid',
                     '=',
                     'il.uid'
                 )
                 ->leftjoin(
                     'invoice_layouts as sil',
-                    'business_locations.sale_invoice_layout_id',
+                    'business_locations.sale_invoice_layout_uid',
                     '=',
                     'sil.uid'
                 )
                 ->leftjoin(
                     'selling_price_groups as spg',
-                    'business_locations.selling_price_group_id',
+                    'business_locations.selling_price_group_uid',
                     '=',
                     'spg.uid'
                 )
@@ -165,8 +165,8 @@ class BusinessLocationController extends Controller
                 return $this->moduleUtil->quotaExpiredResponse('locations', $business_uid);
             }
 
-            $input = $request->only(['name', 'landmark', 'city', 'state', 'country', 'zip_code', 'invoice_scheme_id',
-                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id']);
+            $input = $request->only(['name', 'landmark', 'city', 'state', 'country', 'zip_code', 'invoice_scheme_uid',
+                'invoice_layout_uid', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_uid', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_uid', 'sale_invoice_scheme_uid']);
 
             $input['business_uid'] = $business_uid;
 
@@ -269,8 +269,8 @@ class BusinessLocationController extends Controller
 
         try {
             $input = $request->only(['name', 'landmark', 'city', 'state', 'country',
-                'zip_code', 'invoice_scheme_id',
-                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id' ]);
+                'zip_code', 'invoice_scheme_uid',
+                'invoice_layout_uid', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_uid', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_uid', 'sale_invoice_scheme_uid' ]);
 
             $business_uid = $request->session()->get('user.business_uid');
 

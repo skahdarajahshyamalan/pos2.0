@@ -60,8 +60,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            {!! Form::label('tax_id', __('product.tax') . ':') !!}
-                            {!! Form::select('tax_id', $taxes, null, [
+                            {!! Form::label('tax_uid', __('product.tax') . ':') !!}
+                            {!! Form::select('tax_uid', $taxes, null, [
                                 'class' => 'form-control select2',
                                 'style' => 'width:100%',
                                 'id' => 'product_list_filter_tax_id',
@@ -244,7 +244,7 @@
                         d.category_uid = $('#product_list_filter_category_id').val();
                         d.brand_uid = $('#product_list_filter_brand_id').val();
                         d.unit_uid = $('#product_list_filter_unit_id').val();
-                        d.tax_id = $('#product_list_filter_tax_id').val();
+                        d.tax_uid = $('#product_list_filter_tax_id').val();
                         d.active_state = $('#active_state').val();
                         d.not_for_selling = $('#not_for_selling').is(':checked');
                         d.location_uid = $('#location_uid').val();

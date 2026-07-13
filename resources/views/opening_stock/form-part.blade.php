@@ -35,7 +35,7 @@
 		@php
 			$purchases[$key][$variation->id][] = ['quantity' => 0, 
 			'purchase_price' => $variation->default_purchase_price,
-			'purchase_line_id' => null,
+			'purchase_line_uid' => null,
 			'lot_number' => null,
 			'transaction_date' => null,
 			'purchase_line_note' => null,
@@ -47,7 +47,7 @@
 @foreach($purchases[$key][$variation->id] as $sub_key => $var)
 	@php
 
-	$purchase_line_id = $var['purchase_line_id'];
+	$purchase_line_uid = $var['purchase_line_uid'];
 
 	$qty = $var['quantity'];
 
@@ -65,8 +65,8 @@
 	<td>
 		{{ $product->name }} @if( $product->type == 'variable' ) (<b>{{ $variation->product_variation->name }}</b> : {{ $variation->name }}) @endif
 
-		@if(!empty($purchase_line_id))
-			{!! Form::hidden('stocks[' . $key . '][' . $variation->id . '][' . $sub_key . '][purchase_line_id]', $purchase_line_id); !!}
+		@if(!empty($purchase_line_uid))
+			{!! Form::hidden('stocks[' . $key . '][' . $variation->id . '][' . $sub_key . '][purchase_line_uid]', $purchase_line_uid); !!}
 		@endif
 	</td>
 	<td>

@@ -1,10 +1,10 @@
 @php
     $variation_name = !empty($variation_name) ? $variation_name : null;
-    $variation_value_id = !empty($variation_value_id) ? $variation_value_id : null;
+    $variation_value_uid = !empty($variation_value_uid) ? $variation_value_uid : null;
 
     $name = (empty($row_type) || $row_type == 'add') ? 'product_variation' : 'product_variation_edit';
 
-    $readonly = !empty($variation_value_id) ? 'readonly' : '';
+    $readonly = !empty($variation_value_uid) ? 'readonly' : '';
 @endphp
 
 @if(!session('business.enable_price_tax')) 
@@ -20,11 +20,11 @@
 @endif
 
 @php
-    $is_variation_value_hidden = !empty($variation_value_id) ? 1 : 0;
+    $is_variation_value_hidden = !empty($variation_value_uid) ? 1 : 0;
 @endphp
 
-<tr @if(!empty($variation_value_id)) 
-        data-variation_value_id="{{$variation_value_id}}" 
+<tr @if(!empty($variation_value_uid)) 
+        data-variation_value_uid="{{$variation_value_uid}}" 
         class="variation_value_row hide" 
     @endif>
     <td>
@@ -32,7 +32,7 @@
         {!! Form::hidden($name . '[' . $variation_index . '][variations][' . $value_index . '][is_hidden]', 
             $is_variation_value_hidden , ['class' => 'is_variation_value_hidden']) !!}
 
-        {!! Form::hidden($name . '[' . $variation_index . '][variations][' . $value_index . '][variation_value_id]', $variation_value_id) !!}
+        {!! Form::hidden($name . '[' . $variation_index . '][variations][' . $value_index . '][variation_value_uid]', $variation_value_uid) !!}
     </td>
     <td>
         {!! Form::text($name . '[' . $variation_index . '][variations][' . $value_index . '][value]', $variation_name, ['class' => 'form-control input-sm variation_value_name', 'required', $readonly]); !!}

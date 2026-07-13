@@ -99,7 +99,7 @@ class MapPurchaseSell extends Command
                     ];
 
                     foreach ($transaction->sell_lines as $line) {
-                        if (! empty($line->lot_no_line_id)) {
+                        if (! empty($line->lot_no_line_uid)) {
                             $this->transactionUtil->mapPurchaseSell($business_formatted, [$line], 'purchase', false);
                         }
                     }
@@ -114,7 +114,7 @@ class MapPurchaseSell extends Command
                     ];
 
                     foreach ($transaction->sell_lines as $line) {
-                        if (empty($line->lot_no_line_id)) {
+                        if (empty($line->lot_no_line_uid)) {
                             $this->transactionUtil->mapPurchaseSell($business_formatted, [$line], 'purchase', false);
                         }
                     }

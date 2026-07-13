@@ -52,11 +52,11 @@ class BusinessLocation extends Model
                 DB::raw("IF(location_uid IS NULL OR location_uid='', name, CONCAT(name, ' (', location_uid, ')')) AS name"),
                 'id',
                 'receipt_printer_type',
-                'selling_price_group_id',
+                'selling_price_group_uid',
                 'default_payment_accounts',
-                'invoice_scheme_id',
-                'invoice_layout_id',
-                'sale_invoice_scheme_id'
+                'invoice_scheme_uid',
+                'invoice_layout_uid',
+                'sale_invoice_scheme_uid'
             );
         }
 
@@ -80,11 +80,11 @@ class BusinessLocation extends Model
 
                 return [$item->id => [
                     'data-receipt_printer_type' => $item->receipt_printer_type,
-                    'data-default_price_group' => ! empty($item->selling_price_group_id) && array_key_exists($item->selling_price_group_id, $price_groups) ? $item->selling_price_group_id : null,
+                    'data-default_price_group' => ! empty($item->selling_price_group_uid) && array_key_exists($item->selling_price_group_uid, $price_groups) ? $item->selling_price_group_uid : null,
                     'data-default_payment_accounts' => json_encode($default_payment_accounts),
-                    'data-default_sale_invoice_scheme_id' => $item->sale_invoice_scheme_id,
-                    'data-default_invoice_scheme_id' => $item->invoice_scheme_id,
-                    'data-default_invoice_layout_id' => $item->invoice_layout_id,
+                    'data-default_sale_invoice_scheme_id' => $item->sale_invoice_scheme_uid,
+                    'data-default_invoice_scheme_id' => $item->invoice_scheme_uid,
+                    'data-default_invoice_layout_id' => $item->invoice_layout_uid,
                 ],
                 ];
             })->all();
@@ -97,7 +97,7 @@ class BusinessLocation extends Model
 
     public function price_group()
     {
-        return $this->belongsTo(\App\SellingPriceGroup::class, 'selling_price_group_id');
+        return $this->belongsTo(\App\SellingPriceGroup::class, 'selling_price_group_uid');
     }
 
     /**

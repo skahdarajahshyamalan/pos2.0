@@ -31,7 +31,7 @@
 	@foreach($price_groups as $k => $v)
 		@php
 			$price_grp = $variation->group_prices->filter(function($item) use($k) {
-			    return $item->price_group_id == $k;
+			    return $item->price_group_uid == $k;
 			})->first();
 		@endphp
 		<div class="input-group" style="width: 100%;">

@@ -24,8 +24,8 @@
       </div>
 
       <div class="form-group selling_price_group-field @if($customer_group->price_calculation_type != 'selling_price_group') hide @endif">
-            {!! Form::label('selling_price_group_id', __( 'lang_v1.selling_price_group' ) . ':') !!}
-            {!! Form::select('selling_price_group_id', $price_groups, $customer_group->selling_price_group_id, ['class' => 'form-control']); !!}
+            {!! Form::label('selling_price_group_uid', __( 'lang_v1.selling_price_group' ) . ':') !!}
+            {!! Form::select('selling_price_group_uid', $price_groups, $customer_group->selling_price_group_uid, ['class' => 'form-control']); !!}
       </div>
 
     </div>

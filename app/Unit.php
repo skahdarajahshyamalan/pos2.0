@@ -38,7 +38,7 @@ class Unit extends Model
     {
         $query = Unit::where('business_uid', $business_uid);
         if ($only_base) {
-            $query->whereNull('base_unit_id');
+            $query->whereNull('base_unit_uid');
         }
 
         $units = $query->select(DB::raw('CONCAT(actual_name, " (", short_name, ")") as name'), 'id')->get();
@@ -52,11 +52,11 @@ class Unit extends Model
 
     public function sub_units()
     {
-        return $this->hasMany(\App\Unit::class, 'base_unit_id');
+        return $this->hasMany(\App\Unit::class, 'base_unit_uid');
     }
 
     public function base_unit()
     {
-        return $this->belongsTo(\App\Unit::class, 'base_unit_id');
+        return $this->belongsTo(\App\Unit::class, 'base_unit_uid');
     }
 }

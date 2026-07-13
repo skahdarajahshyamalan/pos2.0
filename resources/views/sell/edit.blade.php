@@ -39,14 +39,14 @@
 	<div class="row">
 		<div class="col-md-12 col-sm-12">
 			@component('components.widget', ['class' => 'box-solid'])
-				@if(!empty($transaction->selling_price_group_id))
+				@if(!empty($transaction->selling_price_group_uid))
 					<div class="col-md-4 col-sm-6">
 						<div class="form-group">
 							<div class="input-group">
 								<span class="input-group-addon">
 									<i class="fas fa-money-bill-alt"></i>
 								</span>
-								{!! Form::hidden('price_group', $transaction->selling_price_group_id, ['id' => 'price_group']) !!}
+								{!! Form::hidden('price_group', $transaction->selling_price_group_uid, ['id' => 'price_group']) !!}
 								{!! Form::text('price_group_text', $transaction->price_group->name, ['class' => 'form-control', 'readonly']); !!}
 								<span class="input-group-addon">
 									@show_tooltip(__('lang_v1.price_group_help_text'))
@@ -65,13 +65,13 @@
 								</span>
 								{!! Form::text('types_of_service_text', $transaction->types_of_service->name, ['class' => 'form-control', 'readonly']); !!}
 
-								{!! Form::hidden('types_of_service_id', $transaction->types_of_service_id, ['id' => 'types_of_service_id']) !!}
+								{!! Form::hidden('types_of_service_uid', $transaction->types_of_service_uid, ['id' => 'types_of_service_uid']) !!}
 
 								<span class="input-group-addon">
 									@show_tooltip(__('lang_v1.types_of_service_help'))
 								</span> 
 							</div>
-							<small><p class="help-block @if(empty($transaction->selling_price_group_id)) hide @endif" id="price_group_text">@lang('lang_v1.price_group'): <span>@if(!empty($transaction->selling_price_group_id)){{$transaction->price_group->name}}@endif</span></p></small>
+							<small><p class="help-block @if(empty($transaction->selling_price_group_uid)) hide @endif" id="price_group_text">@lang('lang_v1.price_group'): <span>@if(!empty($transaction->selling_price_group_uid)){{$transaction->price_group->name}}@endif</span></p></small>
 						</div>
 					</div>
 					<div class="modal fade types_of_service_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
@@ -93,7 +93,7 @@
 				<div class="clearfix"></div>
 				<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-4 @endif">
 					<div class="form-group">
-						{!! Form::label('contact_id', __('contact.customer') . ':*') !!}
+						{!! Form::label('contact_uid', __('contact.customer') . ':*') !!}
 						<div class="input-group">
 							<span class="input-group-addon">
 								<i class="fa fa-user"></i>
@@ -102,7 +102,7 @@
 							value="{{ $transaction->contact->id }}" >
 							<input type="hidden" id="default_customer_name" 
 							value="{{ $transaction->contact->name }}" >
-							{!! Form::select('contact_id', 
+							{!! Form::select('contact_uid', 
 								[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
 							<span class="input-group-btn">
 								<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
@@ -193,8 +193,8 @@
 				@if($transaction->status == 'draft')
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!}
-						{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+						{!! Form::label('invoice_scheme_uid', __('invoice.invoice_scheme') . ':') !!}
+						{!! Form::select('invoice_scheme_uid', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
 					</div>
 				</div>
 				@endif
@@ -464,7 +464,7 @@
 			                <span class="input-group-addon">
 			                    <i class="fa fa-info"></i>
 			                </span>
-			                {!! Form::select('tax_rate_uid', $taxes['tax_rates'], $transaction->tax_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $business_details->default_sales_tax], $taxes['attributes']); !!}
+			                {!! Form::select('tax_rate_uid', $taxes['tax_rates'], $transaction->tax_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $business_details->default_sales_tax], $taxes['attributes']); !!}
 
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
 							value="{{@num_format($transaction->tax?->amount)}}" data-default="{{$business_details->tax_calculation_amount}}">
@@ -824,7 +824,7 @@
 						<span class="input-group-addon">
 							<i class="fas fa-money-bill-alt"></i>
 						</span>
-						{!! Form::select("payment[change_return][account_id]", $accounts, !empty($change_return['account_id']) ? $change_return['account_id'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
+						{!! Form::select("payment[change_return][account_uid]", $accounts, !empty($change_return['account_uid']) ? $change_return['account_uid'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
 					</div>
 				</div>
 			</div>

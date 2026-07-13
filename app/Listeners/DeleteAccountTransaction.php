@@ -41,8 +41,8 @@ class DeleteAccountTransaction
             return true;
         }
 
-        AccountTransaction::where('account_id', $event->transactionPayment->account_id)
-                        ->where('transaction_payment_id', $event->transactionPayment->id)
+        AccountTransaction::where('account_uid', $event->transactionPayment->account_uid)
+                        ->where('transaction_payment_uid', $event->transactionPayment->id)
                         ->delete();
     }
 }

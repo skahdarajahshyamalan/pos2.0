@@ -28,8 +28,8 @@
         </div>
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('expense_sub_category_id', __('product.sub_category')  . ':') !!}
-                  {!! Form::select('expense_sub_category_id', $sub_categories, $expense->expense_sub_category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+                {!! Form::label('expense_sub_category_uid', __('product.sub_category')  . ':') !!}
+                  {!! Form::select('expense_sub_category_uid', $sub_categories, $expense->expense_sub_category_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
             </div>
         </div>
         <div class="col-sm-4">
@@ -61,8 +61,8 @@
         </div>
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('contact_id', __('lang_v1.expense_for_contact').':') !!} 
-            {!! Form::select('contact_id', $contacts, $expense->contact_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+            {!! Form::label('contact_uid', __('lang_v1.expense_for_contact').':') !!} 
+            {!! Form::select('contact_uid', $contacts, $expense->contact_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
           </div>
         </div>
         <div class="clearfix"></div>
@@ -76,12 +76,12 @@
         </div>
         <div class="col-md-4">
             <div class="form-group">
-                {!! Form::label('tax_id', __('product.applicable_tax') . ':' ) !!}
+                {!! Form::label('tax_uid', __('product.applicable_tax') . ':' ) !!}
                 <div class="input-group">
                     <span class="input-group-addon">
                         <i class="fa fa-info"></i>
                     </span>
-                    {!! Form::select('tax_id', $taxes['tax_rates'], $expense->tax_id, ['class' => 'form-control'], $taxes['attributes']); !!}
+                    {!! Form::select('tax_uid', $taxes['tax_rates'], $expense->tax_uid, ['class' => 'form-control'], $taxes['attributes']); !!}
 
             <input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
             value="0">

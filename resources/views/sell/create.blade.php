@@ -106,7 +106,7 @@
 								<span class="input-group-addon">
 									<i class="fa fa-external-link-square-alt text-primary service_modal_btn"></i>
 								</span>
-								{!! Form::select('types_of_service_id', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_id', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
+								{!! Form::select('types_of_service_uid', $types_of_service, null, ['class' => 'form-control', 'id' => 'types_of_service_uid', 'style' => 'width: 100%;', 'placeholder' => __('lang_v1.select_types_of_service')]); !!}
 
 								{!! Form::hidden('types_of_service_price_group', null, ['id' => 'types_of_service_price_group']) !!}
 
@@ -131,7 +131,7 @@
 				<div class="clearfix"></div>
 				<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-4 @endif">
 					<div class="form-group">
-						{!! Form::label('contact_id', __('contact.customer') . ':*') !!}
+						{!! Form::label('contact_uid', __('contact.customer') . ':*') !!}
 						<div class="input-group">
 							<span class="input-group-addon">
 								<i class="fa fa-user"></i>
@@ -144,9 +144,9 @@
 							<input type="hidden" id="default_customer_address" value="{{ $walk_in_customer['shipping_address'] ?? ''}}" >
 							@if(!empty($walk_in_customer['price_calculation_type']) && $walk_in_customer['price_calculation_type'] == 'selling_price_group')
 								<input type="hidden" id="default_selling_price_group" 
-							value="{{ $walk_in_customer['selling_price_group_id'] ?? ''}}" >
+							value="{{ $walk_in_customer['selling_price_group_uid'] ?? ''}}" >
 							@endif
-							{!! Form::select('contact_id', 
+							{!! Form::select('contact_uid', 
 								[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
 							<span class="input-group-btn">
 								<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
@@ -232,8 +232,8 @@
 				@if($sale_type != 'sales_order')
 					<div class="col-sm-3">
 						<div class="form-group">
-							{!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!}
-							{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+							{!! Form::label('invoice_scheme_uid', __('invoice.invoice_scheme') . ':') !!}
+							{!! Form::select('invoice_scheme_uid', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
 						</div>
 					</div>
 				@endif
@@ -862,7 +862,7 @@
 									<span class="input-group-addon">
 										<i class="fas fa-money-bill-alt"></i>
 									</span>
-									{!! Form::select("payment[change_return][account_id]", $accounts, !empty($change_return['account_id']) ? $change_return['account_id'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
+									{!! Form::select("payment[change_return][account_uid]", $accounts, !empty($change_return['account_uid']) ? $change_return['account_uid'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
 								</div>
 							</div>
 						</div>

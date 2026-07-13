@@ -52,7 +52,7 @@
 				<i class="fas fa-edit pos_totals_edit" title="@lang('sale.edit_order_tax')" aria-hidden="true" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax"></i>
 			</span>
 			<span class="pos_totals_value" id="order_tax">@if(empty($edit)) 0 @else {{$transaction->tax_amount}} @endif</span>
-			<input type="hidden" name="tax_rate_uid" id="tax_rate_uid" value="@if(empty($edit)) {{$business_details->default_sales_tax}} @else {{$transaction->tax_id}} @endif" data-default="{{$business_details->default_sales_tax}}">
+			<input type="hidden" name="tax_rate_uid" id="tax_rate_uid" value="@if(empty($edit)) {{$business_details->default_sales_tax}} @else {{$transaction->tax_uid}} @endif" data-default="{{$business_details->default_sales_tax}}">
 			<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
 		</div>
 

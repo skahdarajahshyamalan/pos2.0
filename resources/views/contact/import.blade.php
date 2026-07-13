@@ -100,7 +100,7 @@
                     </tr>
                     <tr>
                         <td>7</td>
-                        <td>@lang('lang_v1.contact_id') <small class="text-muted">(@lang('lang_v1.optional'))</small></td>
+                        <td>@lang('lang_v1.contact_uid') <small class="text-muted">(@lang('lang_v1.optional'))</small></td>
                         <td>@lang('lang_v1.contact_id_ins')</td>
                     </tr>
                     <tr>

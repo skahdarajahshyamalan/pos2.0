@@ -43,16 +43,16 @@ class AddAccountTransaction
         }
 
         // //Create new account transaction
-        if (! empty($event->formInput['account_id']) && $event->transactionPayment->method != 'advance') {
+        if (! empty($event->formInput['account_uid']) && $event->transactionPayment->method != 'advance') {
             $type = ! empty($event->transactionPayment->payment_type) ? $event->transactionPayment->payment_type : AccountTransaction::getAccountTransactionType($event->formInput['transaction_type']);
             $account_transaction_data = [
                 'amount' => $event->formInput['amount'],
-                'account_id' => $event->formInput['account_id'],
+                'account_uid' => $event->formInput['account_uid'],
                 'type' => $type,
                 'operation_date' => $event->transactionPayment->paid_on,
                 'created_by_uid' => $event->transactionPayment->created_by_uid,
                 'transaction_uid' => $event->transactionPayment->transaction_uid,
-                'transaction_payment_id' => $event->transactionPayment->id,
+                'transaction_payment_uid' => $event->transactionPayment->id,
             ];
 
             //If change return then set type as debit

@@ -59,7 +59,7 @@ class OpeningStockController extends Controller
         if (! empty($product) && $product->enable_stock == 1) {
             //Get Opening Stock Transactions for the product if exists
             $transactions = Transaction::where('business_uid', $business_uid)
-                                ->where('opening_stock_product_id', $product_uid)
+                                ->where('opening_stock_product_uid', $product_uid)
                                 ->where('type', 'opening_stock')
                                 ->with(['purchase_lines'])
                                 ->get();
@@ -78,7 +78,7 @@ class OpeningStockController extends Controller
                     //Show only remaining quantity for editing opening stock.
                     $purchase_lines[$purchase_line->variation_uid][$k]['quantity'] = $purchase_line->quantity_remaining;
                     $purchase_lines[$purchase_line->variation_uid][$k]['purchase_price'] = $purchase_line->purchase_price;
-                    $purchase_lines[$purchase_line->variation_uid][$k]['purchase_line_id'] = $purchase_line->id;
+                    $purchase_lines[$purchase_line->variation_uid][$k]['purchase_line_uid'] = $purchase_line->id;
                     $purchase_lines[$purchase_line->variation_uid][$k]['exp_date'] = $purchase_line->exp_date;
                     $purchase_lines[$purchase_line->variation_uid][$k]['lot_number'] = $purchase_line->lot_number;
                     $purchase_lines[$purchase_line->variation_uid][$k]['transaction_date'] = $this->productUtil->format_date($transaction->transaction_date, true);
@@ -160,7 +160,7 @@ class OpeningStockController extends Controller
             if (! empty($product) && $product->enable_stock == 1) {
                 //Get product tax
                 $tax_percent = ! empty($product->product_tax->amount) ? $product->product_tax->amount : 0;
-                $tax_id = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
+                $tax_uid = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
 
                 //Get start date for financial year.
                 $transaction_date = request()->session()->get('financial_year.start');
@@ -200,8 +200,8 @@ class OpeningStockController extends Controller
 
                                 $purchase_line = null;
 
-                                if (isset($pl['purchase_line_id'])) {
-                                    $purchase_line = PurchaseLine::findOrFail($pl['purchase_line_id']);
+                                if (isset($pl['purchase_line_uid'])) {
+                                    $purchase_line = PurchaseLine::findOrFail($pl['purchase_line_uid']);
                                     //Quantity = remaining + used
                                     $qty_remaining = $qty_remaining + $purchase_line->quantity_used;
 
@@ -224,7 +224,7 @@ class OpeningStockController extends Controller
                                 }
                                 if (! is_null($purchase_line)) {
                                     $purchase_line->item_tax = $item_tax;
-                                    $purchase_line->tax_id = $tax_id;
+                                    $purchase_line->tax_uid = $tax_uid;
                                     $purchase_line->quantity = $qty_remaining;
                                     $purchase_line->pp_without_discount = $purchase_price;
                                     $purchase_line->purchase_price = $purchase_price;
@@ -312,7 +312,7 @@ class OpeningStockController extends Controller
                         //Delete transaction if all purchase line quantity is 0 (Only if transaction exists)
                         $delete_transactions = Transaction::where('type', 'opening_stock')
                             ->where('business_uid', $business_uid)
-                            ->where('opening_stock_product_id', $product->id)
+                            ->where('opening_stock_product_uid', $product->id)
                             ->where('location_uid', $location_uid)
                             ->with(['purchase_lines'])
                             ->whereNotIn('id', $updated_transaction_ids)
@@ -343,7 +343,7 @@ class OpeningStockController extends Controller
                                 $transaction = Transaction::create(
                                     [
                                         'type' => 'opening_stock',
-                                        'opening_stock_product_id' => $product->id,
+                                        'opening_stock_product_uid' => $product->id,
                                         'status' => 'received',
                                         'business_uid' => $business_uid,
                                         'transaction_date' => $new_transaction_data[$key]['transaction_date'],

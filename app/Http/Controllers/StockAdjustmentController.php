@@ -216,9 +216,9 @@ class StockAdjustmentController extends Controller
                         'quantity' => $this->productUtil->num_uf($product['quantity']),
                         'unit_price' => $this->productUtil->num_uf($product['unit_price']),
                     ];
-                    if (! empty($product['lot_no_line_id'])) {
-                        //Add lot_no_line_id to stock adjustment line
-                        $adjustment_line['lot_no_line_id'] = $product['lot_no_line_id'];
+                    if (! empty($product['lot_no_line_uid'])) {
+                        //Add lot_no_line_uid to stock adjustment line
+                        $adjustment_line['lot_no_line_uid'] = $product['lot_no_line_uid'];
                     }
                     $product_data[] = $adjustment_line;
 
@@ -428,17 +428,17 @@ class StockAdjustmentController extends Controller
     /**
      * Sets expired purchase line as stock adjustmnet
      *
-     * @param  int  $purchase_line_id
+     * @param  int  $purchase_line_uid
      * @return json $output
      */
-    public function removeExpiredStock($purchase_line_id)
+    public function removeExpiredStock($purchase_line_uid)
     {
         if (! auth()->user()->can('stock_adjustment.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
-            $purchase_line = PurchaseLine::where('uid', $purchase_line_id)
+            $purchase_line = PurchaseLine::where('uid', $purchase_line_uid)
                                     ->with(['transaction'])
                                     ->first();
 

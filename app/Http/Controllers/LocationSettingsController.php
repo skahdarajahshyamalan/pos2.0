@@ -77,7 +77,7 @@ class LocationSettingsController extends Controller
                 abort(403, 'Unauthorized action.');
             }
 
-            $input = $request->only(['print_receipt_on_invoice', 'receipt_printer_type', 'printer_id', 'invoice_layout_id', 'invoice_scheme_id']);
+            $input = $request->only(['print_receipt_on_invoice', 'receipt_printer_type', 'printer_uid', 'invoice_layout_uid', 'invoice_scheme_uid']);
 
             //Auto set to browser in demo.
             if (config('app.env') == 'demo') {

@@ -104,14 +104,14 @@ class BookingController extends Controller
                 //Check if booking is available for the required input
                 $query = Booking::where('business_uid', $business_uid)
                                 ->where('location_uid', $input['location_uid'])
-                                ->where('contact_id', $input['contact_id'])
+                                ->where('contact_uid', $input['contact_uid'])
                                 ->where(function ($q) use ($date_range) {
                                     $q->whereBetween('booking_start', $date_range)
                                     ->orWhereBetween('booking_end', $date_range);
                                 });
 
-                if (isset($input['res_table_id'])) {
-                    $query->where('table_id', $input['res_table_id']);
+                if (isset($input['res_table_uid'])) {
+                    $query->where('table_uid', $input['res_table_uid']);
                 }
 
                 $existing_booking = $query->first();
@@ -288,8 +288,8 @@ class BookingController extends Controller
             if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->commonUtil->is_admin(auth()->user(), $business_uid)) {
                 $query->where(function ($query) use ($user_uid) {
                     $query->where('created_by_uid', $user_uid)
-                        ->orWhere('correspondent_id', $user_uid)
-                        ->orWhere('waiter_id', $user_uid);
+                        ->orWhere('correspondent_uid', $user_uid)
+                        ->orWhere('waiter_uid', $user_uid);
                 });
 
                 //$query->where('created_by_uid', $user_uid);

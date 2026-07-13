@@ -6,7 +6,7 @@
 @endphp
 
 @foreach($sub_units as $key => $value)
-	@if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key)
+	@if(!empty($product->sub_unit_uid) && $product->sub_unit_uid == $key)
 		@php
 			$multiplier = $value['multiplier'];
 		@endphp
@@ -20,7 +20,7 @@
 	<td>
 		@if(!empty($so_line))
 			<input type="hidden" 
-			name="products[{{$row_count}}][so_line_id]" 
+			name="products[{{$row_count}}][so_line_uid]" 
 			value="{{$so_line->id}}">
 		@endif
 		@php
@@ -64,17 +64,17 @@
 	            $hide_tax = '';
 	        }
 	        
-			$tax_id = $product->tax_id;
+			$tax_uid = $product->tax_uid;
 			$item_tax = !empty($product->item_tax) ? $product->item_tax : 0;
 			$unit_price_inc_tax = $product->sell_price_inc_tax;
 
 			if($hide_tax == 'hide'){
-				$tax_id = null;
+				$tax_uid = null;
 				$unit_price_inc_tax = $product->default_sell_price;
 			}
 
 			if(!empty($so_line) && $action !== 'edit') {
-				$tax_id = $so_line->tax_id;
+				$tax_uid = $so_line->tax_uid;
 				$item_tax = $so_line->item_tax;
 				$unit_price_inc_tax = $so_line->unit_price_inc_tax;
 			}
@@ -102,11 +102,11 @@
   		@endphp
 
 		@if(!empty($discount))
-			{!! Form::hidden("products[$row_count][discount_id]", $discount->id); !!}
+			{!! Form::hidden("products[$row_count][discount_uid]", $discount->id); !!}
 		@endif
 
 		@php
-			$warranty_id = !empty($action) && $action == 'edit' && !empty($product->warranties->first())  ? $product->warranties->first()->id : $product->warranty_id;
+			$warranty_uid = !empty($action) && $action == 'edit' && !empty($product->warranties->first())  ? $product->warranties->first()->id : $product->warranty_uid;
 
 			if($discount_type == 'fixed') {
 				$discount_amount = $discount_amount * $multiplier;
@@ -153,18 +153,18 @@
 		@php
 			$lot_enabled = session()->get('business.enable_lot_number');
 			$exp_enabled = session()->get('business.enable_product_expiry');
-			$lot_no_line_id = '';
-			if(!empty($product->lot_no_line_id)){
-				$lot_no_line_id = $product->lot_no_line_id;
+			$lot_no_line_uid = '';
+			if(!empty($product->lot_no_line_uid)){
+				$lot_no_line_uid = $product->lot_no_line_uid;
 			}
 		@endphp
 		@if(!empty($product->lot_numbers) && empty($is_sales_order))
-			<select class="form-control lot_number input-sm" name="products[{{$row_count}}][lot_no_line_id]" @if(!empty($product->transaction_sell_lines_id)) disabled @endif>
+			<select class="form-control lot_number input-sm" name="products[{{$row_count}}][lot_no_line_uid]" @if(!empty($product->transaction_sell_lines_id)) disabled @endif>
 				<option value="">@lang('lang_v1.lot_n_expiry')</option>
 				@foreach($product->lot_numbers as $lot_number)
 					@php
 						$selected = "";
-						if($lot_number->purchase_line_id == $lot_no_line_id){
+						if($lot_number->purchase_line_uid == $lot_no_line_uid){
 							$selected = "selected";
 
 							$max_qty_rule = $lot_number->qty_available;
@@ -179,14 +179,14 @@
 						}
 
 						//preselected lot number if product searched by lot number
-						if(!empty($purchase_line_id) && $purchase_line_id == $lot_number->purchase_line_id) {
+						if(!empty($purchase_line_uid) && $purchase_line_uid == $lot_number->purchase_line_uid) {
 							$selected = "selected";
 
 							$max_qty_rule = $lot_number->qty_available;
 							$max_qty_msg = __('lang_v1.quantity_error_msg_in_lot', ['qty'=> $lot_number->qty_formated, 'unit' => $product->unit  ]);
 						}
 					@endphp
-					<option value="{{$lot_number->purchase_line_id}}" data-qty_available="{{$lot_number->qty_available}}" data-msg-max="@lang('lang_v1.quantity_error_msg_in_lot', ['qty'=> $lot_number->qty_formated, 'unit' => $product->unit  ])" {{$selected}}>@if(!empty($lot_number->lot_number) && $lot_enabled == 1){{$lot_number->lot_number}} @endif @if($lot_enabled == 1 && $exp_enabled == 1) - @endif @if($exp_enabled == 1 && !empty($lot_number->exp_date)) @lang('product.exp_date'): {{@format_date($lot_number->exp_date)}} @endif {{$expiry_text}}</option>
+					<option value="{{$lot_number->purchase_line_uid}}" data-qty_available="{{$lot_number->qty_available}}" data-msg-max="@lang('lang_v1.quantity_error_msg_in_lot', ['qty'=> $lot_number->qty_formated, 'unit' => $product->unit  ])" {{$selected}}>@if(!empty($lot_number->lot_number) && $lot_enabled == 1){{$lot_number->lot_number}} @endif @if($lot_enabled == 1 && $exp_enabled == 1) - @endif @if($exp_enabled == 1 && !empty($lot_number->exp_date)) @lang('product.exp_date'): {{@format_date($lot_number->exp_date)}} @endif {{$expiry_text}}</option>
 				@endforeach
 			</select>
 		@endif
@@ -225,13 +225,13 @@
 			}
 		@endphp
 		@foreach($sub_units as $key => $value)
-        	@if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key)
+        	@if(!empty($product->sub_unit_uid) && $product->sub_unit_uid == $key)
         		@php
         			$max_qty_rule = $max_qty_rule / $multiplier;
         			$unit_name = $value['name'];
         			$max_qty_msg = __('validation.custom-messages.quantity_not_available', ['qty'=> $max_qty_rule, 'unit' => $unit_name  ]);
 
-        			if(!empty($product->lot_no_line_id)){
+        			if(!empty($product->lot_no_line_uid)){
         				$max_qty_msg = __('lang_v1.quantity_error_msg_in_lot', ['qty'=> $max_qty_rule, 'unit' => $unit_name  ]);
         			}
 
@@ -265,16 +265,16 @@
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_uid}}">
 		@if(count($sub_units) > 1)
-			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
+			<select name="products[{{$row_count}}][sub_unit_uid]" class="form-control input-sm sub_unit">
                 @foreach($sub_units as $key => $value)
-                    <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
+                    <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_uid) && $product->sub_unit_uid == $key) selected @endif>
                         {{$value['name']}}
                     </option>
                 @endforeach
            </select>
 		@elseif(count($sub_units) == 1)
 			@php $_su_key = array_key_first($sub_units); $_su = $sub_units[$_su_key]; @endphp
-			<input type="hidden" name="products[{{$row_count}}][sub_unit_id]" value="{{$_su_key}}">
+			<input type="hidden" name="products[{{$row_count}}][sub_unit_uid]" value="{{$_su_key}}">
 			<span class="pos-unit-label tw-inline-block tw-text-[11px] tw-font-medium tw-text-[#64748b] tw-mt-0.5 tw-leading-[1.2] tw-whitespace-nowrap">{{$_su['name']}}</span>
 		@else
 			<span class="pos-unit-label tw-inline-block tw-text-[11px] tw-font-medium tw-text-[#64748b] tw-mt-0.5 tw-leading-[1.2] tw-whitespace-nowrap">{{$product->unit}}</span>
@@ -340,7 +340,7 @@
 			<td>
 				<div class="form-group">
 					<div class="input-group">
-						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
+						{!! Form::select("products[" . $row_count . "][res_service_staff_uid]", $waiters, !empty($product->res_service_staff_uid) ? $product->res_service_staff_uid : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
 					</div>
 				</div>
 			</td>
@@ -382,7 +382,7 @@
 		<td class="text-center {{$hide_tax}}">
 			{!! Form::hidden("products[$row_count][item_tax]", @num_format($item_tax), ['class' => 'item_tax']); !!}
 		
-			{!! Form::select("products[$row_count][tax_id]", $tax_dropdown['tax_rates'], $tax_id, ['placeholder' => 'Select', 'class' => 'form-control tax_id'], $tax_dropdown['attributes']); !!}
+			{!! Form::select("products[$row_count][tax_uid]", $tax_dropdown['tax_rates'], $tax_uid, ['placeholder' => 'Select', 'class' => 'form-control tax_uid'], $tax_dropdown['attributes']); !!}
 		</td>
 
 	@else
@@ -390,7 +390,7 @@
 			<td>
 				<div class="form-group">
 					<div class="input-group">
-						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
+						{!! Form::select("products[" . $row_count . "][res_service_staff_uid]", $waiters, !empty($product->res_service_staff_uid) ? $product->res_service_staff_uid : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
 					</div>
 				</div>
 			</td>
@@ -401,7 +401,7 @@
 	</td>
 	@if(!empty($common_settings['enable_product_warranty']) && !empty($is_direct_sell))
 		<td>
-			{!! Form::select("products[$row_count][warranty_id]", $warranties, $warranty_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control']); !!}
+			{!! Form::select("products[$row_count][warranty_uid]", $warranties, $warranty_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control']); !!}
 		</td>
 	@endif
 	<td class="text-center">

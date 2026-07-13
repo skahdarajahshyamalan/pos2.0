@@ -292,7 +292,7 @@ class ImportProductsController extends Controller
                     if (! empty($category_name)) {
                         $category = Category::firstOrCreate(
                             ['business_uid' => $business_uid, 'name' => $category_name, 'category_type' => 'product'],
-                            ['created_by_uid' => $user_uid, 'parent_id' => 0]
+                            ['created_by_uid' => $user_uid, 'parent_uid' => 0]
                         );
                         $product_array['category_uid'] = $category->id;
                     }
@@ -302,9 +302,9 @@ class ImportProductsController extends Controller
                     if (! empty($sub_category_name)) {
                         $sub_category = Category::firstOrCreate(
                             ['business_uid' => $business_uid, 'name' => $sub_category_name, 'category_type' => 'product'],
-                            ['created_by_uid' => $user_uid, 'parent_id' => $category->id]
+                            ['created_by_uid' => $user_uid, 'parent_uid' => $category->id]
                         );
-                        $product_array['sub_category_id'] = $sub_category->id;
+                        $product_array['sub_category_uid'] = $sub_category->id;
                     }
 
                     //Add SKU
@@ -530,7 +530,7 @@ class ImportProductsController extends Controller
 
                         //Check if variation exists or create new
                         $variation = $this->productUtil->createOrNewVariation($business_uid, $variation_name);
-                        $product_array['variation']['variation_template_id'] = $variation->id;
+                        $product_array['variation']['variation_template_uid'] = $variation->id;
 
                         foreach ($variation_values as $k => $v) {
                             $variation_prices = $this->calculateVariationPrices($dpp_exc_tax[$k], $dpp_inc_tax[$k], $selling_price[$k], $tax_amount, $tax_type, $profit_margin[$k]);
@@ -543,14 +543,14 @@ class ImportProductsController extends Controller
                             if (empty($variation_value)) {
                                 $variation_value = VariationValueTemplate::create([
                                     'name' => $v,
-                                    'variation_template_id' => $variation->id,
+                                    'variation_template_uid' => $variation->id,
                                 ]);
                             }
 
                             //Assign Values
                             $product_array['variation']['variations'][] = [
                                 'value' => $v,
-                                'variation_value_id' => $variation_value->id,
+                                'variation_value_uid' => $variation_value->id,
                                 'default_purchase_price' => $variation_prices['dpp_exc_tax'],
                                 'dpp_inc_tax' => $variation_prices['dpp_inc_tax'],
                                 'profit_percent' => $this->productUtil->num_f($profit_margin[$k]),
@@ -782,7 +782,7 @@ class ImportProductsController extends Controller
         $transaction = Transaction::create(
             [
                 'type' => 'opening_stock',
-                'opening_stock_product_id' => $product->id,
+                'opening_stock_product_uid' => $product->id,
                 'status' => 'received',
                 'business_uid' => $business_uid,
                 'transaction_date' => $transaction_date,
@@ -795,7 +795,7 @@ class ImportProductsController extends Controller
         );
         //Get product tax
         $tax_percent = ! empty($product->product_tax->amount) ? $product->product_tax->amount : 0;
-        $tax_id = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
+        $tax_uid = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
 
         $item_tax = $this->productUtil->calc_percentage($variation->default_purchase_price, $tax_percent);
 
@@ -805,7 +805,7 @@ class ImportProductsController extends Controller
             'variation_uid' => $variation->id,
             'quantity' => $opening_stock['quantity'],
             'item_tax' => $item_tax,
-            'tax_id' => $tax_id,
+            'tax_uid' => $tax_uid,
             'pp_without_discount' => $variation->default_purchase_price,
             'purchase_price' => $variation->default_purchase_price,
             'purchase_price_inc_tax' => $variation->dpp_inc_tax,
@@ -843,7 +843,7 @@ class ImportProductsController extends Controller
             $transaction = Transaction::create(
                 [
                     'type' => 'opening_stock',
-                    'opening_stock_product_id' => $product->id,
+                    'opening_stock_product_uid' => $product->id,
                     'status' => 'received',
                     'business_uid' => $business_uid,
                     'transaction_date' => $transaction_date,
@@ -874,7 +874,7 @@ class ImportProductsController extends Controller
 
                     //Get product tax
                     $tax_percent = ! empty($product->product_tax->amount) ? $product->product_tax->amount : 0;
-                    $tax_id = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
+                    $tax_uid = ! empty($product->product_tax->id) ? $product->product_tax->id : null;
 
                     $item_tax = $this->productUtil->calc_percentage($variation->default_purchase_price, $tax_percent);
 
@@ -884,7 +884,7 @@ class ImportProductsController extends Controller
                         'variation_uid' => $variation->id,
                         'quantity' => $opening_stock['quantity'],
                         'item_tax' => $item_tax,
-                        'tax_id' => $tax_id,
+                        'tax_uid' => $tax_uid,
                         'purchase_price' => $variation->default_purchase_price,
                         'purchase_price_inc_tax' => $variation->dpp_inc_tax,
                         'exp_date' => ! empty($opening_stock['exp_date']) ? $opening_stock['exp_date'] : null,

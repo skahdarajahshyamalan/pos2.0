@@ -28,8 +28,8 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('sub_category_id', __('product.sub_category') . ':') !!}
-                        {!! Form::select('sub_category', array(), null, ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'sub_category_id']); !!}
+                        {!! Form::label('sub_category_uid', __('product.sub_category') . ':') !!}
+                        {!! Form::select('sub_category', array(), null, ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'sub_category_uid']); !!}
                     </div>
                 </div>
                 <div class="col-md-3">

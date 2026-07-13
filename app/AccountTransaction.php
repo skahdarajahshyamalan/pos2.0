@@ -62,15 +62,15 @@ class AccountTransaction extends Model
     {
         $transaction_data = [
             'amount' => $data['amount'],
-            'account_id' => $data['account_id'],
+            'account_uid' => $data['account_uid'],
             'type' => $data['type'],
             'sub_type' => ! empty($data['sub_type']) ? $data['sub_type'] : null,
             'operation_date' => ! empty($data['operation_date']) ? $data['operation_date'] : \Carbon::now(),
             'created_by_uid' => $data['created_by_uid'],
             'transaction_uid' => ! empty($data['transaction_uid']) ? $data['transaction_uid'] : null,
-            'transaction_payment_id' => ! empty($data['transaction_payment_id']) ? $data['transaction_payment_id'] : null,
+            'transaction_payment_uid' => ! empty($data['transaction_payment_uid']) ? $data['transaction_payment_uid'] : null,
             'note' => ! empty($data['note']) ? $data['note'] : null,
-            'transfer_transaction_id' => ! empty($data['transfer_transaction_id']) ? $data['transfer_transaction_id'] : null,
+            'transfer_transaction_uid' => ! empty($data['transfer_transaction_uid']) ? $data['transfer_transaction_uid'] : null,
         ];
 
         $account_transaction = AccountTransaction::create($transaction_data);
@@ -88,15 +88,15 @@ class AccountTransaction extends Model
      */
     public static function updateAccountTransaction($transaction_payment, $transaction_type)
     {
-        if (! empty($transaction_payment->account_id)) {
+        if (! empty($transaction_payment->account_uid)) {
             $account_transaction = AccountTransaction::where(
-                'transaction_payment_id',
+                'transaction_payment_uid',
                 $transaction_payment->id
             )
                     ->first();
             if (! empty($account_transaction)) {
                 $account_transaction->amount = $transaction_payment->amount;
-                $account_transaction->account_id = $transaction_payment->account_id;
+                $account_transaction->account_uid = $transaction_payment->account_uid;
                 $account_transaction->operation_date = $transaction_payment->paid_on;
                 $account_transaction->save();
 
@@ -104,12 +104,12 @@ class AccountTransaction extends Model
             } else {
                 $accnt_trans_data = [
                     'amount' => $transaction_payment->amount,
-                    'account_id' => $transaction_payment->account_id,
+                    'account_uid' => $transaction_payment->account_uid,
                     'type' => empty($transaction_type) ? $transaction_payment->payment_type : self::getAccountTransactionType($transaction_type),
                     'operation_date' => $transaction_payment->paid_on,
                     'created_by_uid' => $transaction_payment->created_by_uid,
                     'transaction_uid' => $transaction_payment->transaction_uid,
-                    'transaction_payment_id' => $transaction_payment->id,
+                    'transaction_payment_uid' => $transaction_payment->id,
                 ];
 
                 //If change return then set type as debit
@@ -124,11 +124,11 @@ class AccountTransaction extends Model
 
     public function transfer_transaction()
     {
-        return $this->belongsTo(\App\AccountTransaction::class, 'transfer_transaction_id');
+        return $this->belongsTo(\App\AccountTransaction::class, 'transfer_transaction_uid');
     }
 
     public function account()
     {
-        return $this->belongsTo(\App\Account::class, 'account_id');
+        return $this->belongsTo(\App\Account::class, 'account_uid');
     }
 }

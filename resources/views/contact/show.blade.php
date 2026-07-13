@@ -10,7 +10,7 @@
             <h3>@lang('contact.view_contact')</h3>
         </div>
         <div class="col-md-4 col-xs-12 mt-15 pull-right">
-            {!! Form::select('contact_id', $contact_dropdown, $contact->id , ['class' => 'form-control select2', 'id' => 'contact_id']); !!}
+            {!! Form::select('contact_uid', $contact_dropdown, $contact->id , ['class' => 'form-control select2', 'id' => 'contact_uid']); !!}
         </div>
     </div>
     <div class="hide print_table_part">
@@ -371,7 +371,7 @@ $(document).ready( function(){
         supplier_stock_report_table.ajax.reload();
     });
 
-    $('#contact_id').change( function() {
+    $('#contact_uid').change( function() {
         if ($(this).val()) {
             window.location = "{{url('/contacts')}}/" + $(this).val();
         }
@@ -505,7 +505,7 @@ function get_contact_ledger() {
         location_uid: location_uid
     }
     $.ajax({
-        url: '/contacts/ledger?contact_id={{$contact->id}}',
+        url: '/contacts/ledger?contact_uid={{$contact->id}}',
         data: data,
         dataType: 'html',
         success: function(result) {
@@ -594,5 +594,5 @@ $(document).on('click', '#print_ledger_pdf', function() {
         });
     });
 </script>
-@include('sale_pos.partials.subscriptions_table_javascript', ['contact_id' => $contact->id])
+@include('sale_pos.partials.subscriptions_table_javascript', ['contact_uid' => $contact->id])
 @endsection

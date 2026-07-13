@@ -39,7 +39,7 @@
                   <span class="input-group-addon">
                     <i class="fa fa-user"></i>
                   </span>
-                  {!! Form::select('contact_id', [ $purchase->contact_id => $purchase->contact->name], $purchase->contact_id, ['class' => 'form-control', 'placeholder' => __('messages.please_select') , 'required', 'id' => 'supplier_id']); !!}
+                  {!! Form::select('contact_uid', [ $purchase->contact_uid => $purchase->contact->name], $purchase->contact_uid, ['class' => 'form-control', 'placeholder' => __('messages.please_select') , 'required', 'id' => 'supplier_id']); !!}
                   <span class="input-group-btn">
                     <button type="button" class="btn btn-default bg-white btn-flat add_new_supplier" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
                   </span>
@@ -314,11 +314,11 @@
                   <tr>
                     <td>
                       <div class="form-group">
-                      {!! Form::label('tax_id', __( 'purchase.purchase_tax' ) . ':') !!}
-                      <select name="tax_id" id="tax_id" class="form-control select2" placeholder="'Please Select'">
+                      {!! Form::label('tax_uid', __( 'purchase.purchase_tax' ) . ':') !!}
+                      <select name="tax_uid" id="tax_uid" class="form-control select2" placeholder="'Please Select'">
                         <option value="" data-tax_amount="0" selected>@lang('lang_v1.none')</option>
                         @foreach($taxes as $tax)
-                          <option value="{{ $tax->id }}" @if($purchase->tax_id == $tax->id) {{'selected'}} @endif data-tax_amount="{{ $tax->amount }}"
+                          <option value="{{ $tax->id }}" @if($purchase->tax_uid == $tax->id) {{'selected'}} @endif data-tax_amount="{{ $tax->amount }}"
                           >
                             {{ $tax->name }}
                           </option>

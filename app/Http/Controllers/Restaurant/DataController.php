@@ -35,11 +35,11 @@ class DataController extends Controller
                 $transaction_uid = $request->get('transaction_uid', null);
                 if (! empty($transaction_uid)) {
                     $transaction = Transaction::find($transaction_uid);
-                    $view_data = ['res_table_id' => $transaction->res_table_id,
-                        'res_waiter_id' => $transaction->res_waiter_id,
+                    $view_data = ['res_table_uid' => $transaction->res_table_uid,
+                        'res_waiter_uid' => $transaction->res_waiter_uid,
                     ];
                 } else {
-                    $view_data = ['res_table_id' => null, 'res_waiter_id' => null];
+                    $view_data = ['res_table_uid' => null, 'res_waiter_uid' => null];
                 }
 
                 $waiters_enabled = false;
@@ -61,7 +61,7 @@ class DataController extends Controller
                 $waiters = [];
                 $waiters_enabled = $this->commonUtil->isModuleEnabled('service_staff') ? true : false;
                 $tables_enabled = $this->commonUtil->isModuleEnabled('tables') ? true : false;
-                $view_data = ['res_table_id' => null, 'res_waiter_id' => null];
+                $view_data = ['res_table_uid' => null, 'res_waiter_uid' => null];
             }
 
             $pos_settings = json_decode($request->session()->get('business.pos_settings'), true);
@@ -80,14 +80,14 @@ class DataController extends Controller
      */
     public function sellPosStore($input)
     {
-        $table_id = request()->get('res_table_id');
-        $res_waiter_id = request()->get('res_waiter_id');
+        $table_uid = request()->get('res_table_uid');
+        $res_waiter_uid = request()->get('res_waiter_uid');
 
         Transaction::where('uid', $input['transaction_uid'])
             ->where('type', 'sell')
             ->where('business_uid', $input['business_uid'])
-            ->update(['res_table_id' => $table_id,
-                'res_waiter_id' => $res_waiter_id, ]);
+            ->update(['res_table_uid' => $table_uid,
+                'res_waiter_uid' => $res_waiter_uid, ]);
     }
 
     public function checkStaffPin(Request $request){

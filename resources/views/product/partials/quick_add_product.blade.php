@@ -64,8 +64,8 @@
 
         <div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
           <div class="form-group">
-            {!! Form::label('sub_category_id', __('product.sub_category') . ':') !!}
-              {!! Form::select('sub_category_id', [], null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::label('sub_category_uid', __('product.sub_category') . ':') !!}
+              {!! Form::select('sub_category_uid', [], null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
 
@@ -88,8 +88,8 @@
         @if(!empty($common_settings['enable_product_warranty']))
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('warranty_id', __('lang_v1.warranty') . ':') !!}
-            {!! Form::select('warranty_id', $warranties, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+            {!! Form::label('warranty_uid', __('lang_v1.warranty') . ':') !!}
+            {!! Form::select('warranty_uid', $warranties, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
           </div>
         </div>
         @endif

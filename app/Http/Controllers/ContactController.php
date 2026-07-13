@@ -131,7 +131,7 @@ class ContactController extends Controller
         }
 
         if (! empty(request()->input('assigned_to'))) {
-            $contact->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_id')
+            $contact->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_uid')
                 ->where('uc.user_uid', request()->input('assigned_to'));
         }
 
@@ -312,7 +312,7 @@ class ContactController extends Controller
         }
 
         if (! empty(request()->input('assigned_to'))) {
-            $query->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_id')
+            $query->join('user_contact_access AS uc', 'contacts.uid', 'uc.contact_uid')
                 ->where('uc.user_uid', request()->input('assigned_to'));
         }
 
@@ -353,8 +353,8 @@ class ContactController extends Controller
                      ->orHavingRaw('transaction_date IS NULL');
         }
 
-        if (! empty(request()->input('customer_group_id'))) {
-            $query->where('contacts.customer_group_id', request()->input('customer_group_id'));
+        if (! empty(request()->input('customer_group_uid'))) {
+            $query->where('contacts.customer_group_uid', request()->input('customer_group_uid'));
         }
 
         if (! empty(request()->input('contact_status'))) {
@@ -590,7 +590,7 @@ class ContactController extends Controller
             }
 
             $input = $request->only(['type', 'supplier_business_name',
-                'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'address_line_1', 'address_line_2', 'customer_group_id', 'zip_code', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'dob', 'shipping_custom_field_details', 'assigned_to_users', 'land_mark', 'street_name', 'building_number', 'additional_number']);
+                'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'address_line_1', 'address_line_2', 'customer_group_uid', 'zip_code', 'contact_uid', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'dob', 'shipping_custom_field_details', 'assigned_to_users', 'land_mark', 'street_name', 'building_number', 'additional_number']);
 
             $name_array = [];
 
@@ -741,7 +741,7 @@ class ContactController extends Controller
 
             $customer_groups = CustomerGroup::forDropdown($business_uid);
 
-            $ob_transaction = Transaction::where('contact_id', $id)
+            $ob_transaction = Transaction::where('contact_uid', $id)
                                             ->where('type', 'opening_balance')
                                             ->first();
             $opening_balance = ! empty($ob_transaction->final_total) ? $ob_transaction->final_total : 0;
@@ -779,7 +779,7 @@ class ContactController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['type', 'supplier_business_name', 'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'address_line_1', 'address_line_2', 'zip_code', 'dob', 'alternate_number', 'city', 'state', 'country', 'landline', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'shipping_custom_field_details', 'export_custom_field_1', 'export_custom_field_2', 'export_custom_field_3', 'export_custom_field_4', 'export_custom_field_5',
+                $input = $request->only(['type', 'supplier_business_name', 'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'address_line_1', 'address_line_2', 'zip_code', 'dob', 'alternate_number', 'city', 'state', 'country', 'landline', 'customer_group_uid', 'contact_uid', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'shipping_custom_field_details', 'export_custom_field_1', 'export_custom_field_2', 'export_custom_field_3', 'export_custom_field_4', 'export_custom_field_5',
                     'export_custom_field_6', 'assigned_to_users', 'land_mark', 'street_name', 'building_number', 'additional_number']);
 
                 $name_array = [];
@@ -858,7 +858,7 @@ class ContactController extends Controller
 
                 //Check if any transaction related to this contact exists
                 $count = Transaction::where('business_uid', $business_uid)
-                                    ->where('contact_id', $id)
+                                    ->where('contact_uid', $id)
                                     ->count();
                 if ($count == 0) {
                     $contact = Contact::where('business_uid', $business_uid)->findOrFail($id);
@@ -913,7 +913,7 @@ class ContactController extends Controller
             $user_uid = request()->session()->get('user.uid');
 
             $contacts = Contact::where('contacts.business_uid', $business_uid)
-                            ->leftjoin('customer_groups as cg', 'cg.uid', '=', 'contacts.customer_group_id')
+                            ->leftjoin('customer_groups as cg', 'cg.uid', '=', 'contacts.customer_group_uid')
                             ->active();
 
             if (! request()->has('all_contact')) {
@@ -925,13 +925,13 @@ class ContactController extends Controller
                     $query->where('contacts.name', 'like', '%'.$term.'%')
                             ->orWhere('supplier_business_name', 'like', '%'.$term.'%')
                             ->orWhere('mobile', 'like', '%'.$term.'%')
-                            ->orWhere('contacts.contact_id', 'like', '%'.$term.'%');
+                            ->orWhere('contacts.contact_uid', 'like', '%'.$term.'%');
                 });
             }
 
             $contacts->select(
                 'contacts.uid',
-                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT(contacts.name, ' (', contacts.contact_id, ')')) AS text"),
+                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', contacts.name, CONCAT(contacts.name, ' (', contacts.contact_uid, ')')) AS text"),
                 'mobile',
                 'address_line_1',
                 'address_line_2',
@@ -946,7 +946,7 @@ class ContactController extends Controller
                 'supplier_business_name',
                 'cg.amount as discount_percent',
                 'cg.price_calculation_type',
-                'cg.selling_price_group_id',
+                'cg.selling_price_group_uid',
                 'shipping_custom_field_details',
                 'is_export',
                 'export_custom_field_1',
@@ -974,15 +974,15 @@ class ContactController extends Controller
      */
     public function checkContactId(Request $request)
     {
-        $contact_id = $request->input('contact_id');
+        $contact_uid = $request->input('contact_uid');
 
         $valid = 'true';
-        if (! empty($contact_id)) {
+        if (! empty($contact_uid)) {
             $business_uid = $request->session()->get('user.business_uid');
             $hidden_id = $request->input('hidden_id');
 
             $query = Contact::where('business_uid', $business_uid)
-                            ->where('contact_id', $contact_id);
+                            ->where('contact_uid', $contact_uid);
             if (! empty($hidden_id)) {
                 $query->where('uid', '!=', $hidden_id);
             }
@@ -1135,11 +1135,11 @@ class ContactController extends Controller
                     //Check contact ID
                     if (! empty(trim($value[6]))) {
                         $count = Contact::where('business_uid', $business_uid)
-                                    ->where('contact_id', $value[6])
+                                    ->where('contact_uid', $value[6])
                                     ->count();
 
                         if ($count == 0) {
-                            $contact_array['contact_id'] = $value[6];
+                            $contact_array['contact_uid'] = $value[6];
                         } else {
                             $is_valid = false;
                             $error_msg = "Contact ID already exists in row no. $row_no";
@@ -1220,8 +1220,8 @@ class ContactController extends Controller
                     foreach ($formated_data as $contact_data) {
                         $ref_count = $this->transactionUtil->setAndGetReferenceCount('contacts');
                         //Set contact id if empty
-                        if (empty($contact_data['contact_id'])) {
-                            $contact_data['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count);
+                        if (empty($contact_data['contact_uid'])) {
+                            $contact_data['contact_uid'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count);
                         }
 
                         $opening_balance = 0;
@@ -1277,7 +1277,7 @@ class ContactController extends Controller
         }
 
         $business_uid = request()->session()->get('user.business_uid');
-        $contact_id = request()->input('contact_id');
+        $contact_uid = request()->input('contact_uid');
 
         $is_admin = $this->contactUtil->is_admin(auth()->user());
 
@@ -1286,7 +1286,7 @@ class ContactController extends Controller
         $format = request()->format;
         $location_uid = request()->location_uid;
 
-        $contact = Contact::find($contact_id);
+        $contact = Contact::find($contact_uid);
 
         $is_selected_contacts = User::isSelectedContacts(auth()->user()->id);
         $user_contacts = [];
@@ -1307,7 +1307,7 @@ class ContactController extends Controller
 
         $line_details = ($format == 'format_3' || $format == 'format_4') ? true : false;
 
-        $ledger_details = $this->transactionUtil->getLedgerDetails($contact_id, $start_date, $end_date, $format, $location_uid, $line_details);
+        $ledger_details = $this->transactionUtil->getLedgerDetails($contact_uid, $start_date, $end_date, $format, $location_uid, $line_details);
 
         $location = null;
         if (! empty($location_uid)) {
@@ -1372,12 +1372,12 @@ class ContactController extends Controller
             if (empty($customer)) {
                 $data['type'] = 'customer';
                 $data['business_uid'] = $api_settings->business_uid;
-                $data['created_by_uid'] = $business->owner_id;
+                $data['created_by_uid'] = $business->owner_uid;
                 $data['mobile'] = 0;
 
                 $ref_count = $this->commonUtil->setAndGetReferenceCount('contacts', $business->id);
 
-                $data['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count, $business->id);
+                $data['contact_uid'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count, $business->id);
 
                 $customer = Contact::create($data);
             }
@@ -1404,16 +1404,16 @@ class ContactController extends Controller
             $data = $request->only(['to_email', 'subject', 'email_body', 'cc', 'bcc', 'ledger_format']);
             $emails_array = array_map('trim', explode(',', $data['to_email']));
 
-            $contact_id = $request->input('contact_id');
+            $contact_uid = $request->input('contact_uid');
             $business_uid = request()->session()->get('business.uid');
 
             $start_date = request()->input('start_date');
             $end_date = request()->input('end_date');
             $location_uid = request()->input('location_uid');
 
-            $contact = Contact::find($contact_id);
+            $contact = Contact::find($contact_uid);
 
-            $ledger_details = $this->transactionUtil->getLedgerDetails($contact_id, $start_date, $end_date, $data['ledger_format'], $location_uid);
+            $ledger_details = $this->transactionUtil->getLedgerDetails($contact_uid, $start_date, $end_date, $data['ledger_format'], $location_uid);
 
             $orig_data = [
                 'email_body' => $data['email_body'],
@@ -1482,10 +1482,10 @@ class ContactController extends Controller
         $query = PurchaseLine::join('transactions as t', 't.uid', '=', 'purchase_lines.transaction_uid')
                         ->join('products as p', 'p.uid', '=', 'purchase_lines.product_uid')
                         ->join('variations as v', 'v.uid', '=', 'purchase_lines.variation_uid')
-                        ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.uid')
+                        ->join('product_variations as pv', 'v.product_variation_uid', '=', 'pv.uid')
                         ->join('units as u', 'p.unit_uid', '=', 'u.uid')
                         ->whereIn('t.type', ['purchase', 'purchase_return'])
-                        ->where('t.contact_id', $supplier_id)
+                        ->where('t.contact_uid', $supplier_id)
                         ->select(
                             'p.name as product_name',
                             'v.name as variation_name',
@@ -1496,15 +1496,15 @@ class ContactController extends Controller
                             DB::raw('SUM(quantity) as purchase_quantity'),
                             DB::raw('SUM(quantity_returned) as total_quantity_returned'),
                             DB::raw("SUM((SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transaction_sell_lines_purchase_lines as TSLPL 
-                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.uid
+                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_uid=TSL.uid
                               JOIN transactions AS sell ON sell.uid=TSL.transaction_uid
                               WHERE sell.status='final' AND sell.type='sell'
-                              AND TSLPL.purchase_line_id=purchase_lines.uid)) as total_quantity_sold"),
+                              AND TSLPL.purchase_line_uid=purchase_lines.uid)) as total_quantity_sold"),
                             DB::raw("SUM((SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transaction_sell_lines_purchase_lines as TSLPL 
-                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_id=TSL.uid
+                              JOIN transaction_sell_lines AS TSL ON TSLPL.sell_line_uid=TSL.uid
                               JOIN transactions AS sell ON sell.uid=TSL.transaction_uid
                               WHERE sell.status='final' AND sell.type='sell_transfer'
-                              AND TSLPL.purchase_line_id=purchase_lines.uid)) as total_quantity_transfered"),
+                              AND TSLPL.purchase_line_uid=purchase_lines.uid)) as total_quantity_transfered"),
                             DB::raw("SUM( COALESCE(quantity - ($pl_query_string), 0) * purchase_price_inc_tax) as stock_price"),
                             DB::raw("SUM( COALESCE(quantity - ($pl_query_string), 0)) as current_stock")
                         )->groupBy('purchase_lines.variation_uid');
@@ -1614,16 +1614,16 @@ class ContactController extends Controller
              ->with(compact('contacts', 'all_contacts'));
     }
 
-    public function getContactPayments($contact_id)
+    public function getContactPayments($contact_uid)
     {
         $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
             $payments = TransactionPayment::leftjoin('transactions as t', 'transaction_payments.transaction_uid', '=', 't.uid')
-            ->leftjoin('transaction_payments as parent_payment', 'transaction_payments.parent_id', '=', 'parent_payment.uid')
+            ->leftjoin('transaction_payments as parent_payment', 'transaction_payments.parent_uid', '=', 'parent_payment.uid')
             ->where('transaction_payments.business_uid', $business_uid)
-            ->whereNull('transaction_payments.parent_id')
+            ->whereNull('transaction_payments.parent_uid')
             ->with(['child_payments', 'child_payments.transaction'])
-            ->where('transaction_payments.payment_for', $contact_id)
+            ->where('transaction_payments.payment_for', $contact_uid)
                 ->select(
                     'transaction_payments.uid',
                     'transaction_payments.amount',
@@ -1631,12 +1631,12 @@ class ContactController extends Controller
                     'transaction_payments.method',
                     'transaction_payments.paid_on',
                     'transaction_payments.payment_ref_no',
-                    'transaction_payments.parent_id',
+                    'transaction_payments.parent_uid',
                     'transaction_payments.transaction_no',
                     't.invoice_no',
                     't.ref_no',
                     't.type as transaction_type',
-                    't.return_parent_id',
+                    't.return_parent_uid',
                     't.uid as transaction_uid',
                     'transaction_payments.cheque_number',
                     'transaction_payments.card_transaction_number',
@@ -1655,11 +1655,11 @@ class ContactController extends Controller
         }
     }
 
-    public function getContactDue($contact_id)
+    public function getContactDue($contact_uid)
     {
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
-            $due = $this->transactionUtil->getContactDue($contact_id, $business_uid);
+            $due = $this->transactionUtil->getContactDue($contact_uid, $business_uid);
 
             $output = $due != 0 ? $this->transactionUtil->num_f($due, true) : '';
 
@@ -1676,8 +1676,8 @@ class ContactController extends Controller
         $query = Contact::where('business_uid', $business_uid)
                         ->where('mobile', 'like', "%{$mobile_number}");
 
-        if (! empty($request->input('contact_id'))) {
-            $query->where('uid', '!=', $request->input('contact_id'));
+        if (! empty($request->input('contact_uid'))) {
+            $query->where('uid', '!=', $request->input('contact_uid'));
         }
 
         $contacts = $query->pluck('name')->toArray();
@@ -1703,8 +1703,8 @@ class ContactController extends Controller
         $query = Contact::where('business_uid', $business_uid)
                         ->where('tax_number', $tax_number);
 
-        if (! empty($request->input('contact_id'))) {
-            $query->where('uid', '!=', $request->input('contact_id'));
+        if (! empty($request->input('contact_uid'))) {
+            $query->where('uid', '!=', $request->input('contact_uid'));
         }
 
         $contacts = $query->pluck('name')->toArray();

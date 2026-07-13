@@ -244,7 +244,7 @@ class SellingPriceGroupController extends Controller
         $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->get();
 
         $variations = Variation::join('products as p', 'variations.product_uid', '=', 'p.uid')
-                            ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.uid')
+                            ->join('product_variations as pv', 'variations.product_variation_uid', '=', 'pv.uid')
                             ->where('p.business_uid', $business_uid)
                             ->whereIn('p.type', ['single', 'variable'])
                             ->select('sub_sku', 'p.name as product_name', 'variations.name as variation_name', 'p.type', 'variations.uid', 'pv.name as product_variation_name', 'sell_price_inc_tax')
@@ -258,9 +258,9 @@ class SellingPriceGroupController extends Controller
             $temp['Selling Price Including Tax'] = $variation->sell_price_inc_tax;
 
             foreach ($price_groups as $price_group) {
-                $price_group_id = $price_group->id;
-                $variation_pg = $variation->group_prices->filter(function ($item) use ($price_group_id) {
-                    return $item->price_group_id == $price_group_id;
+                $price_group_uid = $price_group->id;
+                $variation_pg = $variation->group_prices->filter(function ($item) use ($price_group_uid) {
+                    return $item->price_group_uid == $price_group_uid;
                 });
 
                 $temp[$price_group->name] = $variation_pg->isNotEmpty() ? $variation_pg->first()->price_inc_tax : '';
@@ -365,7 +365,7 @@ class SellingPriceGroupController extends Controller
                             if (! is_null($value[$k])) {
                                 VariationGroupPrice::updateOrCreate(
                                     ['variation_uid' => $variation->id,
-                                        'price_group_id' => $price_group->first()->id,
+                                        'price_group_uid' => $price_group->first()->id,
                                     ],
                                     ['price_inc_tax' => $value[$k],
                                     ]

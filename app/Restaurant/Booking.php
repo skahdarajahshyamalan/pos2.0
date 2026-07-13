@@ -17,22 +17,22 @@ class Booking extends Model
 
     public function customer()
     {
-        return $this->belongsTo(\App\Contact::class, 'contact_id');
+        return $this->belongsTo(\App\Contact::class, 'contact_uid');
     }
 
     public function table()
     {
-        return $this->belongsTo(\App\Restaurant\ResTable::class, 'table_id');
+        return $this->belongsTo(\App\Restaurant\ResTable::class, 'table_uid');
     }
 
     public function correspondent()
     {
-        return $this->belongsTo(\App\User::class, 'correspondent_id');
+        return $this->belongsTo(\App\User::class, 'correspondent_uid');
     }
 
     public function waiter()
     {
-        return $this->belongsTo(\App\User::class, 'waiter_id');
+        return $this->belongsTo(\App\User::class, 'waiter_uid');
     }
 
     public function location()
@@ -48,12 +48,12 @@ class Booking extends Model
     public static function createBooking($input)
     {
         $data = [
-            'contact_id' => $input['contact_id'],
-            'waiter_id' => isset($input['res_waiter_id']) ? $input['res_waiter_id'] : null,
-            'table_id' => isset($input['res_table_id']) ? $input['res_table_id'] : null,
+            'contact_uid' => $input['contact_uid'],
+            'waiter_uid' => isset($input['res_waiter_uid']) ? $input['res_waiter_uid'] : null,
+            'table_uid' => isset($input['res_table_uid']) ? $input['res_table_uid'] : null,
             'business_uid' => $input['business_uid'],
             'location_uid' => $input['location_uid'],
-            'correspondent_id' => isset($input['correspondent']) ? $input['correspondent'] : null,
+            'correspondent_uid' => isset($input['correspondent']) ? $input['correspondent'] : null,
             'booking_start' => $input['booking_start'],
             'booking_end' => $input['booking_end'],
             'created_by_uid' => $input['created_by_uid'],

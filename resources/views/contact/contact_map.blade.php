@@ -46,13 +46,13 @@
                 obj.text = obj.name; 
                 obj.uid = obj.uid;
                 obj.shipping_address = obj.shipping_address || "";
-                obj.contact_id = obj.contact_id || "";
+                obj.contact_uid = obj.contact_uid || "";
                   return obj;
             });
             $('#contacts').select2({
                 data: data,
                 templateResult: function (data) { 
-                    var template = data.name + " (" + data.contact_id + ")" + '<br><small>' + data.shipping_address + '</small>';
+                    var template = data.name + " (" + data.contact_uid + ")" + '<br><small>' + data.shipping_address + '</small>';
 
                     return  template;
                 },
@@ -89,7 +89,7 @@
                         $contact_type = $contact->type != 'both' ? __('contact.' . $contact->type) : __('lang_v1.both_customer_and_supplier');
                     @endphp
                     [
-                        "{{$contact->name}} ({{$contact->contact_id}}) \n {{$contact_type}}", 
+                        "{{$contact->name}} ({{$contact->contact_uid}}) \n {{$contact_type}}", 
                         {{$contact->position}}
                     ],
                 @endforeach

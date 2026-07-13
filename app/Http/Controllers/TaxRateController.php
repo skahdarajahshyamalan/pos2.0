@@ -172,11 +172,11 @@ class TaxRateController extends Controller
                 $tax_rate->save();
 
                 //update group tax amount
-                $group_taxes = GroupSubTax::where('tax_id', $id)
+                $group_taxes = GroupSubTax::where('tax_uid', $id)
                                             ->get();
 
                 foreach ($group_taxes as $group_tax) {
-                    $this->taxUtil->updateGroupTaxAmount($group_tax->group_tax_id);
+                    $this->taxUtil->updateGroupTaxAmount($group_tax->group_tax_uid);
                 }
 
                 $output = ['success' => true,
@@ -209,7 +209,7 @@ class TaxRateController extends Controller
         if (request()->ajax()) {
             try {
                 //update group tax amount
-                $group_taxes = GroupSubTax::where('tax_id', $id)
+                $group_taxes = GroupSubTax::where('tax_uid', $id)
                                             ->get();
                 if ($group_taxes->isEmpty()) {
                     $business_uid = request()->user()->business_uid;

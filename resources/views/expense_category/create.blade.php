@@ -26,8 +26,8 @@
             </div>
         </div>
         <div class="form-group hide" id="parent_cat_div">
-            {!! Form::label('parent_id', __( 'category.select_parent_category' ) . ':') !!}
-            {!! Form::select('parent_id', $categories, null, ['class' => 'form-control', 'placeholder' => __('lang_v1.none')]); !!}
+            {!! Form::label('parent_uid', __( 'category.select_parent_category' ) . ':') !!}
+            {!! Form::select('parent_uid', $categories, null, ['class' => 'form-control', 'placeholder' => __('lang_v1.none')]); !!}
         </div>
     </div>
 

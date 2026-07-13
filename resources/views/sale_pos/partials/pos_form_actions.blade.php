@@ -142,7 +142,7 @@
 @endif
 
 @if (isset($transaction))
-    @include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_id])
+    @include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_uid])
 @else
     @include('sale_pos.partials.edit_order_tax_modal', [
         'selected_tax' => $business_details->default_sales_tax,

@@ -25,7 +25,7 @@ class TransactionPayment extends Model
      */
     public function payment_account()
     {
-        return $this->belongsTo(\App\Account::class, 'account_id');
+        return $this->belongsTo(\App\Account::class, 'account_uid');
     }
 
     /**
@@ -49,7 +49,7 @@ class TransactionPayment extends Model
      */
     public function child_payments()
     {
-        return $this->hasMany(\App\TransactionPayment::class, 'parent_id');
+        return $this->hasMany(\App\TransactionPayment::class, 'parent_uid');
     }
 
     /**
@@ -75,8 +75,8 @@ class TransactionPayment extends Model
     public static function deletePayment($payment)
     {
         //Update parent payment if exists
-        if (! empty($payment->parent_id)) {
-            $parent_payment = TransactionPayment::find($payment->parent_id);
+        if (! empty($payment->parent_uid)) {
+            $parent_payment = TransactionPayment::find($payment->parent_uid);
             $parent_payment->amount -= $payment->amount;
 
             if ($parent_payment->amount <= 0) {

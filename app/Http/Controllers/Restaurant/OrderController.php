@@ -51,13 +51,13 @@ class OrderController extends Controller
         $line_orders = [];
         if ($this->restUtil->is_service_staff($user_uid)) {
             $is_service_staff = true;
-            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_id' => $user_uid]);
+            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_uid' => $user_uid]);
 
-            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => $user_uid]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_uid' => $user_uid]);
         } elseif (! empty(request()->service_staff)) {
-            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_id' => request()->service_staff]);
+            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_uid' => request()->service_staff]);
 
-            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => request()->service_staff]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_uid' => request()->service_staff]);
         }
 
         if (! $is_service_staff) {
@@ -86,7 +86,7 @@ class OrderController extends Controller
                         ->where('transaction_uid', $id);
 
             if ($this->restUtil->is_service_staff($user_uid)) {
-                $query->where('res_waiter_id', $user_uid);
+                $query->where('res_waiter_uid', $user_uid);
             }
 
             $query->update(['res_line_order_status' => 'served']);
@@ -119,7 +119,7 @@ class OrderController extends Controller
             $query = TransactionSellLine::where('uid', $id);
 
             if ($this->restUtil->is_service_staff($user_uid)) {
-                $query->where('res_service_staff_id', $user_uid);
+                $query->where('res_service_staff_uid', $user_uid);
             }
             $sell_line = $query->first();
 
@@ -149,13 +149,13 @@ class OrderController extends Controller
     {
         try {
             $business_uid = request()->session()->get('user.business_uid');
-            $waiter_id = request()->session()->get('user.uid');
+            $waiter_uid = request()->session()->get('user.uid');
             $line_id = $request->input('line_id');
             if (! empty($request->input('service_staff_id'))) {
-                $waiter_id = $request->input('service_staff_id');
+                $waiter_uid = $request->input('service_staff_id');
             }
 
-            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => $waiter_id, 'line_id' => $line_id]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_uid' => $waiter_uid, 'line_id' => $line_id]);
             $order = $line_orders[0];
             $html_content = view('restaurant.partials.print_line_order', compact('order'))->render();
             $output = [

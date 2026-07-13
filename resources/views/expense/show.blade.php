@@ -56,7 +56,7 @@
                 <td>{{ $purchase_line->quantity }}</td>
                 <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price }}</span></td>
                 <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->quantity * $purchase_line->purchase_price }}</span></td>
-                <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->item_tax }} </span> @if($purchase_line->tax_id) ( {{ $taxes[$purchase_line->tax_id]}} ) @endif</td>
+                <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->item_tax }} </span> @if($purchase_line->tax_uid) ( {{ $taxes[$purchase_line->tax_uid]}} ) @endif</td>
                 <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price_inc_tax }}</span></td>
                 <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->variations->default_sell_price }}</span></td>
                 <td><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price_inc_tax * $purchase_line->quantity }}</span></td>

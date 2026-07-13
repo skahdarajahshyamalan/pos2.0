@@ -23,7 +23,7 @@ class ExpenseCategoryController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $expense_category = ExpenseCategory::where('business_uid', $business_uid)
-                        ->select(['name', 'code', 'id', 'parent_id']);
+                        ->select(['name', 'code', 'id', 'parent_uid']);
 
             return Datatables::of($expense_category)
                 ->addColumn(
@@ -33,14 +33,14 @@ class ExpenseCategoryController extends Controller
                         <button data-href="{{action(\'App\Http\Controllers\ExpenseCategoryController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_expense_category"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
                 ->editColumn('name', function ($row) {
-                    if (! empty($row->parent_id)) {
+                    if (! empty($row->parent_uid)) {
                         return '--'.$row->name;
                     } else {
                         return $row->name;
                     }
                 })
                 ->removeColumn('id')
-                ->removeColumn('parent_id')
+                ->removeColumn('parent_uid')
                 ->rawColumns([2])
                 ->make(false);
         }
@@ -61,7 +61,7 @@ class ExpenseCategoryController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         $categories = ExpenseCategory::where('business_uid', $business_uid)
-                        ->whereNull('parent_id')
+                        ->whereNull('parent_uid')
                         ->pluck('name', 'id');
 
         return view('expense_category.create')->with(compact('categories'));
@@ -83,8 +83,8 @@ class ExpenseCategoryController extends Controller
             $input = $request->only(['name', 'code']);
             $input['business_uid'] = $request->session()->get('user.business_uid');
 
-            if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
-                $input['parent_id'] = $request->input('parent_id');
+            if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_uid'))) {
+                $input['parent_uid'] = $request->input('parent_uid');
             }
 
             ExpenseCategory::create($input);
@@ -130,7 +130,7 @@ class ExpenseCategoryController extends Controller
             $expense_category = ExpenseCategory::where('business_uid', $business_uid)->find($id);
 
             $categories = ExpenseCategory::where('business_uid', $business_uid)
-                        ->whereNull('parent_id')
+                        ->whereNull('parent_uid')
                         ->pluck('name', 'id');
 
             return view('expense_category.edit')
@@ -160,10 +160,10 @@ class ExpenseCategoryController extends Controller
                 $expense_category->name = $input['name'];
                 $expense_category->code = $input['code'];
 
-                if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
-                    $expense_category->parent_id = $request->input('parent_id');
+                if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_uid'))) {
+                    $expense_category->parent_uid = $request->input('parent_uid');
                 } else {
-                    $expense_category->parent_id = null;
+                    $expense_category->parent_uid = null;
                 }
 
                 $expense_category->save();
@@ -203,7 +203,7 @@ class ExpenseCategoryController extends Controller
                 $expense_category->delete();
 
                 //delete sub categories also
-                ExpenseCategory::where('business_uid', $business_uid)->where('parent_id', $id)->delete();
+                ExpenseCategory::where('business_uid', $business_uid)->where('parent_uid', $id)->delete();
 
                 $output = ['success' => true,
                     'msg' => __('expense.deleted_success'),
@@ -226,7 +226,7 @@ class ExpenseCategoryController extends Controller
             $category_uid = $request->input('cat_id');
             $business_uid = $request->session()->get('user.business_uid');
             $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
-                        ->where('parent_id', $category_uid)
+                        ->where('parent_uid', $category_uid)
                         ->select(['name', 'id'])
                         ->get();
         }

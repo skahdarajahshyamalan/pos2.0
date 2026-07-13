@@ -244,7 +244,7 @@ class CashRegisterUtil extends Util
                 'type' => 'credit',
                 'transaction_type' => 'advance_payment',
                 'transaction_uid' => null,
-                'transaction_payment_id' => $transactionPayment->id,
+                'transaction_payment_uid' => $transactionPayment->id,
             ]);
         }
 
@@ -261,7 +261,7 @@ class CashRegisterUtil extends Util
     {
         $query = CashRegister::leftjoin(
             'cash_register_transactions as ct',
-            'ct.cash_register_id',
+            'ct.cash_register_uid',
             '=',
             'cash_registers.uid'
         )
@@ -367,9 +367,9 @@ class CashRegisterUtil extends Util
      * 1. Get all sale transaction_ids from the transactions table by matching
      *    created_by_uid (register user) and created_at between register open/close time.
      *    This catches ALL sales including credit sales that have no cash_register_transactions entry.
-     * 2. Get all advance payment parent IDs (transaction_payment_id) from this register's
+     * 2. Get all advance payment parent IDs (transaction_payment_uid) from this register's
      *    cash_register_transactions (transaction_type='advance_payment')
-     * 3. Find child transaction_payments where parent_id IN (step 2) AND transaction_uid IN (step 1)
+     * 3. Find child transaction_payments where parent_uid IN (step 2) AND transaction_uid IN (step 1)
      * 4. Sum those child amounts — this is the portion of due collections that reduce this register's receivables
      *
      * @param  int|null  $register_id
@@ -410,10 +410,10 @@ class CashRegisterUtil extends Util
         }
 
         // Step 2: Get all advance payment parent IDs from this register
-        $advance_payment_ids = CashRegisterTransaction::where('cash_register_id', $register->id)
+        $advance_payment_ids = CashRegisterTransaction::where('cash_register_uid', $register->id)
             ->where('transaction_type', 'advance_payment')
-            ->whereNotNull('transaction_payment_id')
-            ->pluck('transaction_payment_id')
+            ->whereNotNull('transaction_payment_uid')
+            ->pluck('transaction_payment_uid')
             ->toArray();
 
         if (empty($advance_payment_ids)) {
@@ -422,7 +422,7 @@ class CashRegisterUtil extends Util
 
         // Step 3 & 4: Sum child payments where parent is an advance from this register
         // and the transaction_uid is a sale from this register session
-        $amount = \App\TransactionPayment::whereIn('parent_id', $advance_payment_ids)
+        $amount = \App\TransactionPayment::whereIn('parent_uid', $advance_payment_ids)
             ->whereIn('transaction_uid', $sale_transaction_ids)
             ->sum('amount');
 
@@ -464,7 +464,7 @@ class CashRegisterUtil extends Util
                 ->where('transactions.is_direct_sale', 0)
                 ->join('transaction_sell_lines AS TSL', 'transactions.uid', '=', 'TSL.transaction_uid')
                 ->join('variations AS v', 'TSL.variation_uid', '=', 'v.uid')
-                ->join('product_variations AS pv', 'v.product_variation_id', '=', 'pv.uid')
+                ->join('product_variations AS pv', 'v.product_variation_uid', '=', 'pv.uid')
                 ->join('products AS p', 'v.product_uid', '=', 'p.uid')
                 ->where('TSL.children_type', '!=', 'combo')
                 ->groupBy('v.uid')
@@ -487,7 +487,7 @@ class CashRegisterUtil extends Util
                 ->where('transactions.is_direct_sale', 0)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
-                ->leftjoin('types_of_services AS tos', 'tos.uid', '=', 'transactions.types_of_service_id')
+                ->leftjoin('types_of_services AS tos', 'tos.uid', '=', 'transactions.types_of_service_uid')
                 ->groupBy('tos.uid')
                 ->select(
                     'tos.name as types_of_service_name',

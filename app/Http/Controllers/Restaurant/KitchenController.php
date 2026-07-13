@@ -108,7 +108,7 @@ class KitchenController extends Controller
             $filter['line_order_status'] = 'received';
             $filter['is_kitchen_order'] = 1;
         } elseif ($orders_for == 'waiter') {
-            $filter['waiter_id'] = $service_staff_id;
+            $filter['waiter_uid'] = $service_staff_id;
         }
 
         $orders = $this->restUtil->getAllOrders($business_uid, $filter);
@@ -139,7 +139,7 @@ class KitchenController extends Controller
         if ($orders_for == 'kitchen') {
             $filter['order_status'] = 'received';
         } elseif ($orders_for == 'waiter') {
-            $filter['waiter_id'] = $service_staff_id;
+            $filter['waiter_uid'] = $service_staff_id;
         }
 
         $line_orders = $this->restUtil->getLineOrders($business_uid, $filter);

@@ -16,7 +16,7 @@
         <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_complete_row"><i class="fa fa-trash"></i></button>
     </td>
     <td>
-        {!! Form::select('product_variation[' . $row_index .'][variation_template_id]', $variation_templates, null, ['class' => 'form-control input-sm variation_template', 'required']); !!}
+        {!! Form::select('product_variation[' . $row_index .'][variation_template_uid]', $variation_templates, null, ['class' => 'form-control input-sm variation_template', 'required']); !!}
         <input type="hidden" class="row_index" value="{{$row_index}}">
         <div class="form-group variation_template_values_div mt-15 hide">
             <label>@lang('lang_v1.select_variation_values')</label>
