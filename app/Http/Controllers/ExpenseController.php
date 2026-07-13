@@ -94,7 +94,7 @@ class ExpenseController extends Controller
                             DB::raw("CONCAT(COALESCE(usr.surname, ''),' ',COALESCE(usr.first_name, ''),' ',COALESCE(usr.last_name,'')) as added_by"),
                             'transactions.recur_parent_uid',
                             'c.name as contact_name',
-                            'c.contact_uid as contact_uid', 
+                            'c.contact_id as contact_uid', 
                             'c.supplier_business_name as supplier_business_name', 
                             'transactions.type'
                         )
