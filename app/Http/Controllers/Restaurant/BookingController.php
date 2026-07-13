@@ -317,7 +317,7 @@ class BookingController extends Controller
                 ->editColumn('booking_end', function ($row) {
                     return $this->commonUtil->format_date($row->booking_end, true);
                 })
-               ->removeColumn('id')
+               ->removeColumn('uid')
                 ->make(true);
         }
     }

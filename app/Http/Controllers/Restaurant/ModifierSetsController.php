@@ -73,7 +73,7 @@ class ModifierSetsController extends Controller
 
                     return implode(', ', $modifiers);
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->escapeColumns(['action'])
                 ->make(true);
         }

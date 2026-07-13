@@ -53,7 +53,7 @@ class BrandController extends Controller
                         <button data-href="{{action(\'App\Http\Controllers\BrandController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_brand_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns([2])
                 ->make(false);
         }

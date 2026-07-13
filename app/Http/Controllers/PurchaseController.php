@@ -168,7 +168,7 @@ class PurchaseController extends Controller
 
                     return $html;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn('ref_no', function ($row) {
                     return ! empty($row->return_exists) ? e($row->ref_no).' <small class="label bg-red label-round no-print" title="'.__('lang_v1.some_qty_returned').'"><i class="fas fa-undo"></i></small>' : e($row->ref_no);
                 })

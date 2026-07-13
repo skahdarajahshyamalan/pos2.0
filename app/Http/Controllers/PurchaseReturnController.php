@@ -138,7 +138,7 @@ class PurchaseReturnController extends Controller
 
                     return $html;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('return_parent_uid')
                 ->editColumn(
                     'final_total',

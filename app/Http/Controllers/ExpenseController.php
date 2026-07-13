@@ -207,7 +207,7 @@ class ExpenseController extends Controller
                     <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'show\'], [$id])}}" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i> @lang("purchase.view_payments")</a></li>
                     </ul></div>'
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn(
                     'final_total',
                     '<span class="display_currency final-total" data-currency_symbol="true" data-orig-value="@if($type=="expense_refund"){{-1 * $final_total}}@else{{$final_total}}@endif">@if($type=="expense_refund") - @endif @format_currency($final_total)</span>'

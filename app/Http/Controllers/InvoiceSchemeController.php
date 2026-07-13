@@ -62,7 +62,7 @@ class InvoiceSchemeController extends Controller
                         return $row->name;
                     }
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('is_default')
                 ->removeColumn('scheme_type')
                 ->rawColumns([6, 0])

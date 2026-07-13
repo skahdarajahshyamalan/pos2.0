@@ -2176,7 +2176,7 @@ class SellPosController extends Controller
                         return $html;
                     }
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
                 ->editColumn('recur_interval', function ($row) {
                     $type = $row->recur_interval == 1 ? Str::singular(__('lang_v1.' . $row->recur_interval_type)) : __('lang_v1.' . $row->recur_interval_type);

@@ -38,7 +38,7 @@ class GroupTaxController extends Controller
 
                     return implode(' + ', $sub_taxes);
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns(['action'])
                 ->make(true);
         }

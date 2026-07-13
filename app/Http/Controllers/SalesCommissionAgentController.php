@@ -55,7 +55,7 @@ class SalesCommissionAgentController extends Controller
                 ->filterColumn('full_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) like ?", ["%{$keyword}%"]);
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns(['action'])
                 ->make(true);
         }

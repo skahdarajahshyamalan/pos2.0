@@ -53,7 +53,7 @@ class CustomerGroupController extends Controller
                     )
                     ->editColumn('selling_price_group', '@if($price_calculation_type=="selling_price_group") {{$selling_price_group}} @else -- @endif ')
                     ->editColumn('amount', '@if($price_calculation_type=="percentage") {{$amount}} @else -- @endif ')
-                    ->removeColumn('id')
+                    ->removeColumn('uid')
                     ->removeColumn('price_calculation_type')
                     ->rawColumns([3])
                     ->make(false);

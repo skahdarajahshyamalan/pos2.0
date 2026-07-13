@@ -43,7 +43,7 @@ class PrinterController extends Controller
                         <button data-href="{{action(\'App\Http\Controllers\PrinterController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_printer_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns([7])
                 ->make(false);
         }

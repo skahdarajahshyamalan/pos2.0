@@ -57,7 +57,7 @@ class SellingPriceGroupController extends Controller
                         <button data-href="{{action(\'App\Http\Controllers\SellingPriceGroupController@activateDeactivate\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs  @if($is_active) tw-dw-btn-error @else tw-dw-btn-success @endif activate_deactivate_spg"><i class="fas fa-power-off"></i> @if($is_active) @lang("messages.deactivate") @else @lang("messages.activate") @endif</button>'
                 )
                 ->removeColumn('is_active')
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns([2])
                 ->make(false);
         }

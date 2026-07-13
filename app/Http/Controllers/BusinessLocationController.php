@@ -87,7 +87,7 @@ class BusinessLocationController extends Controller
                     <button type="button" data-href="{{action(\'App\Http\Controllers\BusinessLocationController@activateDeactivateLocation\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline   activate-deactivate-location @if($is_active) tw-dw-btn-error @else tw-dw-btn-accent @endif tw-w-max"><i class="fa fa-power-off"></i> @if($is_active) @lang("lang_v1.deactivate_location") @else @lang("lang_v1.activate_location") @endif </button>
                     '
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('is_active')
                 ->rawColumns([11])
                 ->make(false);

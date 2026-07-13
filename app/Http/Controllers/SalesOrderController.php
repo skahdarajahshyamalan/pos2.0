@@ -82,7 +82,7 @@ class SalesOrderController extends Controller
                             ->where('type', 'sales_order')
                             ->whereIn('status', ['partial', 'ordered'])
                             ->where('contact_uid', $customer_id)
-                            ->select('invoice_no as text', 'id')
+                            ->select('invoice_no as text', 'uid')
                             ->get();
 
         return $sales_orders;

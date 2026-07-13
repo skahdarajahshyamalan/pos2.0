@@ -139,7 +139,7 @@ class DocumentAndNoteController extends Controller
                             return $html;
                         }
                         )
-                    ->removeColumn('id')
+                    ->removeColumn('uid')
                     ->rawColumns(['action', 'heading', 'createdBy', 'created_at', 'updated_at'])
                     ->make(true);
             }

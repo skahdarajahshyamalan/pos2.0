@@ -137,7 +137,7 @@ class PurchaseRequisitionController extends Controller
 
                     return $html;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn('delivery_date', '@if(!empty($delivery_date)){{@format_datetime($delivery_date)}}@endif')
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn('status', function ($row) {
@@ -451,7 +451,7 @@ class PurchaseRequisitionController extends Controller
                         ->where('type', 'purchase_requisition')
                         ->whereIn('status', ['partial', 'ordered'])
                         ->where('location_uid', $location_uid)
-                        ->select('ref_no as text', 'id')
+                        ->select('ref_no as text', 'uid')
                         ->get();
 
         return $purchase_requisitions;

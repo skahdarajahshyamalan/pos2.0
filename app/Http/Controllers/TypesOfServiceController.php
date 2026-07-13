@@ -60,7 +60,7 @@ class TypesOfServiceController extends Controller
 
                     return $html;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns(['action', 'packing_charge'])
                 ->make(true);
         }

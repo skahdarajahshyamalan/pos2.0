@@ -378,7 +378,7 @@ class HomeController extends Controller
 
                     return $row->ref_no;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('final_total')
                 ->removeColumn('total_paid')
                 ->rawColumns([0, 1, 2, 3])
@@ -455,7 +455,7 @@ class HomeController extends Controller
                 ->addColumn('action', '@if(auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endif')
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$customer}}')
                 ->removeColumn('supplier_business_name')
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('final_total')
                 ->removeColumn('total_paid')
                 ->rawColumns([0, 1, 2, 3])

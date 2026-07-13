@@ -43,7 +43,7 @@ class VariationTemplateController extends Controller
 
                     return implode(', ', $values_arr);
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('total_pv')
                 ->rawColumns([2])
                 ->make(false);

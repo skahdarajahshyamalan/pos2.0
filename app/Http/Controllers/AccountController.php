@@ -161,7 +161,7 @@ class AccountController extends Controller
 
                                 return $html;
                             })
-                            ->removeColumn('id')
+                            ->removeColumn('uid')
                             ->removeColumn('is_closed')
                             ->rawColumns(['action', 'balance', 'name', 'account_details'])
                             ->make(true);
@@ -470,7 +470,7 @@ class AccountController extends Controller
                             ->filterColumn('added_by', function ($query, $keyword) {
                                 $query->whereRaw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) like ?", ["%{$keyword}%"]);
                             })
-                            ->removeColumn('id')
+                            ->removeColumn('uid')
                             ->removeColumn('is_closed')
                             ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action', 'payment_details'])
                             ->make(true);
@@ -1074,7 +1074,7 @@ class AccountController extends Controller
                 ->editColumn('sub_type', function ($row) {
                     return $this->__getPaymentDetails($row);
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'total_balance', 'payment_details'])
                 ->make(true);
         }

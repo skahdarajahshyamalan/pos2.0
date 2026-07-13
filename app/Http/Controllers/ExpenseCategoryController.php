@@ -39,7 +39,7 @@ class ExpenseCategoryController extends Controller
                         return $row->name;
                     }
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('parent_uid')
                 ->rawColumns([2])
                 ->make(false);

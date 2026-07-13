@@ -70,7 +70,7 @@ class UnitController extends Controller
 
                     return  $row->actual_name;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->rawColumns(['action'])
                 ->make(true);
         }

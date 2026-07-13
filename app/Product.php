@@ -103,7 +103,7 @@ class Product extends Model
      */
     public function sub_category()
     {
-        return $this->belongsTo(\App\Category::class, 'sub_category_uid', 'id');
+        return $this->belongsTo(\App\Category::class, 'sub_category_uid', 'uid');
     }
 
     /**
@@ -111,7 +111,7 @@ class Product extends Model
      */
     public function product_tax()
     {
-        return $this->belongsTo(\App\TaxRate::class, 'tax', 'id');
+        return $this->belongsTo(\App\TaxRate::class, 'tax', 'uid');
     }
 
     /**

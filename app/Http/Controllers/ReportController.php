@@ -297,7 +297,7 @@ class ReportController extends Controller
                 ->removeColumn('supplier_business_name')
                 ->removeColumn('invoice_received')
                 ->removeColumn('purchase_paid')
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->filterColumn('name', function ($query, $keyword) {
                     $query->where(function ($q) use ($keyword) {
                         $q->where('contacts.name', 'like', "%{$keyword}%")
@@ -464,7 +464,7 @@ class ReportController extends Controller
                 })
                 ->removeColumn('enable_stock')
                 ->removeColumn('unit')
-                ->removeColumn('id');
+                ->removeColumn('uid');
 
             $raw_columns = ['unit_price', 'total_transfered', 'total_sold',
                 'total_adjusted', 'stock', 'stock_price', 'stock_value_by_sale_price',
@@ -611,7 +611,7 @@ class ReportController extends Controller
     //             })
     //             ->removeColumn('enable_stock')
     //             ->removeColumn('unit')
-    //             ->removeColumn('id');
+    //             ->removeColumn('uid');
 
     //         $raw_columns = ['unit_price', 'total_transfered', 'total_sold',
     //             'total_adjusted', 'stock', 'stock_price', 'stock_value_by_sale_price',
@@ -2294,7 +2294,7 @@ class ReportController extends Controller
                     }
                 })
                 ->removeColumn('unit')
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('variation_name')
                 ->rawColumns(['exp_date', 'stock', 'total_sold', 'total_adjusted'])
                 ->make(true);
@@ -3540,7 +3540,7 @@ class ReportController extends Controller
             }
 
             return Datatables::of($purchases)
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn(
                     'final_total',
                     '<span class="display_currency final_total" data-currency_symbol="true" data-orig-value="{{$final_total}}">{{$final_total}}</span>'
@@ -3778,8 +3778,8 @@ class ReportController extends Controller
                                     $html .= __('user.name').': '.$row->getExtraProperty('name').'<br>';
                                 }
 
-                                if (! empty($row->getExtraProperty('id'))) {
-                                    $html .= 'id: '.$row->getExtraProperty('id').'<br>';
+                                if (! empty($row->getExtraProperty('uid'))) {
+                                    $html .= 'id: '.$row->getExtraProperty('uid').'<br>';
                                 }
                                 if (! empty($row->getExtraProperty('invoice_no'))) {
                                     $html .= __('sale.invoice_no').': '.$row->getExtraProperty('invoice_no');

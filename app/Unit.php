@@ -41,7 +41,7 @@ class Unit extends Model
             $query->whereNull('base_unit_uid');
         }
 
-        $units = $query->select(DB::raw('CONCAT(actual_name, " (", short_name, ")") as name'), 'id')->get();
+        $units = $query->select(DB::raw('CONCAT(actual_name, " (", short_name, ")") as name'), 'uid')->get();
         $dropdown = $units->pluck('name', 'uid');
         if ($show_none) {
             $dropdown->prepend(__('messages.please_select'), '');

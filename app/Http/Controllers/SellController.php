@@ -359,7 +359,7 @@ class SellController extends Controller
                         return $html;
                     }
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn(
                     'final_total',
                     '<span class="final-total" data-orig-value="{{$final_total}}">@format_currency($final_total)</span>'
@@ -1356,7 +1356,7 @@ class SellController extends Controller
 
                         return $html;
                     })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn('invoice_no', function ($row) {
                     $invoice_no = $row->invoice_no;
                     if (! empty($row->woocommerce_order_id)) {

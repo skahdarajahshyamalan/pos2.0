@@ -41,7 +41,7 @@ class TableController extends Controller
                         <button data-href="{{action(\'App\Http\Controllers\Restaurant\TableController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_table_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endrole'
                 )
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->escapeColumns(['action'])
                 ->make(true);
         }

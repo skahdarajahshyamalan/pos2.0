@@ -191,7 +191,7 @@ class PurchaseOrderController extends Controller
 
                     return $html;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->editColumn(
                     'final_total',
                     '<span class="final_total" data-orig-value="{{$final_total}}">@format_currency($final_total)</span>'
@@ -785,7 +785,7 @@ class PurchaseOrderController extends Controller
                         ->where('type', 'purchase_order')
                         ->whereIn('status', ['partial', 'ordered'])
                         ->where('contact_uid', $contact_uid)
-                        ->select('ref_no as text', 'id')
+                        ->select('ref_no as text', 'uid')
                         ->get();
 
         return $purchase_orders;

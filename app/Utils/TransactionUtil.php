@@ -436,8 +436,8 @@ class TransactionUtil extends Util
         if (! empty($edit_ids)) {
             $deleted_lines = TransactionSellLine::where('transaction_uid', $transaction->id)
                     ->whereNotIn('id', $edit_ids)
-                    ->select('id')->get()->toArray();
-            $combo_delete_lines = TransactionSellLine::whereIn('parent_sell_line_uid', $deleted_lines)->where('children_type', 'combo')->select('id')->get()->toArray();
+                    ->select('uid')->get()->toArray();
+            $combo_delete_lines = TransactionSellLine::whereIn('parent_sell_line_uid', $deleted_lines)->where('children_type', 'combo')->select('uid')->get()->toArray();
             $deleted_lines = array_merge($deleted_lines, $combo_delete_lines);
 
             $adjust_qty = $status_before == 'draft' ? false : true;
@@ -3492,7 +3492,7 @@ class TransactionUtil extends Util
             //Included the deleted sell lines
             if (! empty($deleted_line_ids)) {
                 $deleted_sell_purchases = TransactionSellLinesPurchaseLines::whereIn('sell_line_uid', $deleted_line_ids)
-                            ->select('purchase_line_uid', 'quantity', 'id')
+                            ->select('purchase_line_uid', 'quantity', 'uid')
                             ->get()
                             ->toArray();
 

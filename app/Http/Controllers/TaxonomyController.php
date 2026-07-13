@@ -53,7 +53,7 @@ class TaxonomyController extends Controller
             $all_categories = Category::where('business_uid', $business_uid)
                 ->where('category_type', $category_type)
                 ->get()
-                ->keyBy('id');
+                ->keyBy('uid');
 
             $grouped = $all_categories->groupBy('parent_uid');
 
@@ -94,7 +94,7 @@ class TaxonomyController extends Controller
                     }
                     return $row->name;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('parent_uid')
                 ->rawColumns(['action'])
                 ->make(true);
