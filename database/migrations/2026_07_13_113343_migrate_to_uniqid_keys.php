@@ -266,6 +266,9 @@ class MigrateToUniqidKeys extends Migration
      */
     private function getForeignTable($column, $currentTable)
     {
+        if ($column === 'model_id' || $column === 'notifiable_id') {
+            return 'users';
+        }
         if (in_array($column, ['created_by', 'updated_by', 'deleted_by'])) {
             return 'users';
         }
