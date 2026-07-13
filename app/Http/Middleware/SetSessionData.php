@@ -22,7 +22,7 @@ class SetSessionData
             $business_util = new BusinessUtil;
 
             $user = Auth::user();
-            $session_data = ['id' => $user->id,
+            $session_data = ['id' => $user->uid,
                 'surname' => $user->surname,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
@@ -33,7 +33,7 @@ class SetSessionData
             $business = Business::findOrFail($user->business_uid);
 
             $currency = $business->currency;
-            $currency_data = ['id' => $currency->id,
+            $currency_data = ['id' => $currency->uid,
                 'code' => $currency->code,
                 'symbol' => $currency->symbol,
                 'thousand_separator' => $currency->thousand_separator,
@@ -45,7 +45,7 @@ class SetSessionData
             $request->session()->put('currency', $currency_data);
 
             //set current financial year to session
-            $financial_year = $business_util->getCurrentFinancialYear($business->id);
+            $financial_year = $business_util->getCurrentFinancialYear($business->uid);
             $request->session()->put('financial_year', $financial_year);
         }
 
