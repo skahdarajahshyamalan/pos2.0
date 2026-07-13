@@ -61,7 +61,7 @@ class LabelsController extends Controller
 
         $barcode_settings = Barcode::where('business_uid', $business_uid)
                                 ->orWhereNull('business_uid')
-                                ->select(DB::raw('CONCAT(name, ", ", COALESCE(description, "")) as name, id, is_default'))
+                                ->select(DB::raw('CONCAT(name, ", ", COALESCE(description, "")) as name, uid, is_default'))
                                 ->get();
         $default = $barcode_settings->where('is_default', 1)->first();
         $barcode_settings = $barcode_settings->pluck('name', 'uid');
