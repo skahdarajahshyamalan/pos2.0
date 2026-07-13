@@ -42,18 +42,18 @@ class UnitController extends Controller
 
             $unit = Unit::where('business_uid', $business_uid)
                         ->with(['base_unit'])
-                        ->select(['actual_name', 'short_name', 'allow_decimal', 'id',
+                        ->select(['actual_name', 'short_name', 'allow_decimal', 'uid',
                             'base_unit_uid', 'base_unit_multiplier', ]);
 
             return Datatables::of($unit)
                 ->addColumn(
                     'action',
                     '@can("unit.update")
-                    <button data-href="{{action(\'App\Http\Controllers\UnitController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_unit_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    <button data-href="{{action(\'App\Http\Controllers\UnitController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_unit_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                     @endcan
                     @can("unit.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\UnitController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_unit_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\UnitController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_unit_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->editColumn('allow_decimal', function ($row) {
