@@ -115,7 +115,7 @@
                 },
             },
             columns: [
-                { data: 'contact_uid', name: 'contacts.contact_uid' },
+                { data: 'contact_id', name: 'contacts.contact_id' },
                 { data: 'name', name: 'contacts.name' },
                 { data: 'ref_no', name: 'ref_no' },
                 { data: 'purchase_year_month', name: 'transaction_date' },

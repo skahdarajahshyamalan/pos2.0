@@ -78,7 +78,7 @@
                 }
             },
             columns: [
-                { data: 'contact_uid', name: 'contacts.contact_uid' },
+                { data: 'contact_id', name: 'contacts.contact_id' },
                 { data: 'name', name: 'contacts.name' },
                 { data: 'invoice_no_text', name: 'transactions.invoice_no' },
                 { data: 'sale_date', name: 'transactions.transaction_date' },

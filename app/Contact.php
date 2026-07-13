@@ -136,7 +136,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $query->select(
-                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', name, CONCAT(name, ' - ', COALESCE(supplier_business_name, ''), '(', contacts.contact_uid, ')')) AS supplier"),
+                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(name, ' - ', COALESCE(supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
                 'contacts.uid'
                     );
         } else {
@@ -180,7 +180,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $all_contacts->select(
-                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', name, CONCAT(contacts.name, ' - ', COALESCE(contacts.supplier_business_name, ''), '(', contacts.contact_uid, ')')) AS supplier"),
+                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(contacts.name, ' - ', COALESCE(contacts.supplier_business_name, ''), '(', contacts.contact_id, ')')) AS supplier"),
                 'contacts.uid'
                     );
         } else {
@@ -219,7 +219,7 @@ class Contact extends Authenticatable
 
         if ($append_id) {
             $all_contacts->select(
-                DB::raw("IF(contacts.contact_uid IS NULL OR contacts.contact_uid='', CONCAT( COALESCE(contacts.supplier_business_name, ''), ' - ', contacts.name), CONCAT(COALESCE(contacts.supplier_business_name, ''), ' - ', name, ' (', contacts.contact_uid, ')')) AS customer"),
+                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', CONCAT( COALESCE(contacts.supplier_business_name, ''), ' - ', contacts.name), CONCAT(COALESCE(contacts.supplier_business_name, ''), ' - ', name, ' (', contacts.contact_id, ')')) AS customer"),
                 'contacts.uid'
                 );
         } else {

@@ -3493,7 +3493,7 @@ class ReportController extends Controller
                         'transactions.uid',
                         'transactions.ref_no',
                         'contacts.name',
-                        'contacts.contact_uid',
+                        'contacts.contact_id',
                         'final_total',
                         'total_before_tax',
                         'discount_amount',

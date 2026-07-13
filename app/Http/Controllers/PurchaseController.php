@@ -893,7 +893,7 @@ class PurchaseController extends Controller
             $suppliers = $query->where(function ($query) use ($term) {
                 $query->where('name', 'like', '%'.$term.'%')
                                 ->orWhere('supplier_business_name', 'like', '%'.$term.'%')
-                                ->orWhere('contacts.contact_uid', 'like', '%'.$term.'%');
+                                ->orWhere('contacts.contact_id', 'like', '%'.$term.'%');
             })
                         ->select(
                             'contacts.uid',
@@ -906,7 +906,7 @@ class PurchaseController extends Controller
                             'contacts.state',
                             'contacts.country',
                             'contacts.zip_code',
-                            'contacts.contact_uid',
+                            'contacts.contact_id',
                             'contacts.pay_term_type',
                             'contacts.pay_term_number',
                             'contacts.balance'

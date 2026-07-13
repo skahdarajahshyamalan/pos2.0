@@ -5139,7 +5139,7 @@ class TransactionUtil extends Util
                     'transactions.invoice_no as invoice_no_text',
                     'contacts.name',
                     'contacts.mobile',
-                    'contacts.contact_uid',
+                    'contacts.contact_id',
                     'contacts.supplier_business_name',
                     'transactions.status',
                     'transactions.payment_status',
