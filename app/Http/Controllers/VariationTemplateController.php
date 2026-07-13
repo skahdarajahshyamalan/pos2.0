@@ -24,15 +24,15 @@ class VariationTemplateController extends Controller
 
             $variations = VariationTemplate::where('business_uid', $business_uid)
                         ->with(['values'])
-                        ->select('id', 'name', DB::raw('(SELECT COUNT(id) FROM product_variations WHERE product_variations.variation_template_uid=variation_templates.uid) as total_pv'));
+                        ->select('uid', 'name', DB::raw('(SELECT COUNT(uid) FROM product_variations WHERE product_variations.variation_template_uid=variation_templates.uid) as total_pv'));
 
             return Datatables::of($variations)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_variation_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_variation_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                         @if(empty($total_pv))
-                        <button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_variation_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_variation_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @endif'
                 )
                 ->editColumn('values', function ($data) {
