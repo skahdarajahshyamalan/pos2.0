@@ -40,17 +40,17 @@ class BrandController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $brands = Brands::where('business_uid', $business_uid)
-                        ->select(['name', 'description', 'id']);
+                        ->select(['name', 'description', 'uid']);
 
             return Datatables::of($brands)
                 ->addColumn(
                     'action',
                     '@can("brand.update")
-                    <button data-href="{{action(\'App\Http\Controllers\BrandController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_brand_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    <button data-href="{{action(\'App\Http\Controllers\BrandController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_brand_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                     @endcan
                     @can("brand.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\BrandController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_brand_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\BrandController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_brand_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->removeColumn('uid')
