@@ -79,6 +79,9 @@ class MigrateToUniqidKeys extends Migration
                     }
 
                     if (str_ends_with($column, '_id')) {
+                        if ($column === 'contact_id' && $table === 'contacts') {
+                            continue;
+                        }
                         $uidColumn = substr($column, 0, -3) . '_uid';
                         if (!Schema::hasColumn($table, $uidColumn)) {
                             $tableObj->string($uidColumn, 30)->nullable();
@@ -112,6 +115,10 @@ class MigrateToUniqidKeys extends Migration
             $columns = Schema::getColumnListing($table);
             foreach ($columns as $column) {
                 if ($column === 'id' || $column === 'uid') {
+                    continue;
+                }
+
+                if ($column === 'contact_id' && $table === 'contacts') {
                     continue;
                 }
 
@@ -224,6 +231,9 @@ class MigrateToUniqidKeys extends Migration
                     }
 
                     if (str_ends_with($column, '_id') || in_array($column, ['created_by', 'updated_by', 'deleted_by'])) {
+                        if ($column === 'contact_id' && $table === 'contacts') {
+                            continue;
+                        }
                         $tableObj->dropColumn($column);
                         
                         // Rename the new _uid column to replace the old name
