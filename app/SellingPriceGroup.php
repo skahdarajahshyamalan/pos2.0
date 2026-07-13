@@ -29,12 +29,12 @@ class SellingPriceGroup extends Model
     /**
      * Return list of selling price groups
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array
      */
-    public static function forDropdown($business_id, $with_default = true)
+    public static function forDropdown($business_uid, $with_default = true)
     {
-        $price_groups = SellingPriceGroup::where('business_id', $business_id)
+        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                     ->active()
                                     ->get();
 
@@ -56,12 +56,12 @@ class SellingPriceGroup extends Model
     /**
      * Counts total number of selling price groups
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array
      */
-    public static function countSellingPriceGroups($business_id)
+    public static function countSellingPriceGroups($business_uid)
     {
-        $count = SellingPriceGroup::where('business_id', $business_id)
+        $count = SellingPriceGroup::where('business_uid', $business_uid)
                                 ->active()
                                 ->count();
 

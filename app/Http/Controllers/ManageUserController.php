@@ -39,10 +39,10 @@ class ManageUserController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
 
-            $users = User::where('business_id', $business_id)
+            $users = User::where('business_uid', $business_uid)
                         ->user()
                         ->where('is_cmmsn_agnt', 0)
                         ->select(['id', 'username',
@@ -94,18 +94,18 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not, then check for users quota
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse();
-        } elseif (! $this->moduleUtil->isQuotaAvailable('users', $business_id)) {
-            return $this->moduleUtil->quotaExpiredResponse('users', $business_id, action([\App\Http\Controllers\ManageUserController::class, 'index']));
+        } elseif (! $this->moduleUtil->isQuotaAvailable('users', $business_uid)) {
+            return $this->moduleUtil->quotaExpiredResponse('users', $business_uid, action([\App\Http\Controllers\ManageUserController::class, 'index']));
         }
 
-        $roles = $this->getRolesArray($business_id);
+        $roles = $this->getRolesArray($business_uid);
         $username_ext = $this->moduleUtil->getUsernameExtension();
-        $locations = BusinessLocation::where('business_id', $business_id)
+        $locations = BusinessLocation::where('business_uid', $business_uid)
                                     ->Active()
                                     ->get();
 
@@ -167,16 +167,16 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $user = User::where('business_id', $business_id)
+        $user = User::where('business_uid', $business_uid)
                     ->with(['contactAccess'])
                     ->find($id);
 
         //Get user view part from modules
         $view_partials = $this->moduleUtil->getModuleData('moduleViewPartials', ['view' => 'manage_user.show', 'user' => $user]);
 
-        $users = User::forDropdown($business_id, false);
+        $users = User::forDropdown($business_uid, false);
 
         $activities = Activity::forSubject($user)
            ->with(['causer', 'subject'])
@@ -198,12 +198,12 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $user = User::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $user = User::where('business_uid', $business_uid)
                     ->with(['contactAccess'])
                     ->findOrFail($id);
 
-        $roles = $this->getRolesArray($business_id);
+        $roles = $this->getRolesArray($business_uid);
 
         $contact_access = $user->contactAccess->pluck('name', 'id')->toArray();
 
@@ -213,7 +213,7 @@ class ManageUserController extends Controller
             $is_checked_checkbox = false;
         }
 
-        $locations = BusinessLocation::where('business_id', $business_id)
+        $locations = BusinessLocation::where('business_uid', $business_uid)
                                     ->get();
 
         $permitted_locations = $user->permitted_locations();
@@ -245,17 +245,17 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
          //Check if subscribed
-         if (! $this->moduleUtil->isSubscribed($business_id)) {
+         if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse();
         }
 
         //Check for users quota if allow_login is true
         if (!empty($request->input('allow_login'))) {
-            if (! $this->moduleUtil->isQuotaAvailable('users', $business_id)) {
-                return $this->moduleUtil->quotaExpiredResponse('users', $business_id, action([\App\Http\Controllers\ManageUserController::class, 'index']));
+            if (! $this->moduleUtil->isQuotaAvailable('users', $business_uid)) {
+                return $this->moduleUtil->quotaExpiredResponse('users', $business_uid, action([\App\Http\Controllers\ManageUserController::class, 'index']));
             }
         }
 
@@ -322,7 +322,7 @@ class ManageUserController extends Controller
                 }
             }
 
-            $user = User::where('business_id', $business_id)
+            $user = User::where('business_uid', $business_uid)
                           ->findOrFail($id);
 
             $user->update($user_data);
@@ -382,8 +382,8 @@ class ManageUserController extends Controller
 
     private function getAdmins()
     {
-        $business_id = request()->session()->get('user.business_id');
-        $admins = User::role('Admin#'.$business_id)->get();
+        $business_uid = request()->session()->get('user.business_uid');
+        $admins = User::role('Admin#'.$business_uid)->get();
 
         return $admins;
     }
@@ -408,9 +408,9 @@ class ManageUserController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $user = User::where('business_id', $business_id)
+                $user = User::where('business_uid', $business_uid)
                     ->findOrFail($id);
 
                 $this->moduleUtil->activityLog($user, 'deleted', null, ['name' => $user->user_full_name, 'id' => $user->id]);
@@ -436,21 +436,21 @@ class ManageUserController extends Controller
     /**
      * Retrives roles array (Hides admin role from non admin users)
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array $roles
      */
-    private function getRolesArray($business_id)
+    private function getRolesArray($business_uid)
     {
-        $roles_array = Role::where('business_id', $business_id)->get()->pluck('name', 'id');
+        $roles_array = Role::where('business_uid', $business_uid)->get()->pluck('name', 'id');
         $roles = [];
 
-        $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_id);
+        $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_uid);
 
         foreach ($roles_array as $key => $value) {
-            if (! $is_admin && $value == 'Admin#'.$business_id) {
+            if (! $is_admin && $value == 'Admin#'.$business_uid) {
                 continue;
             }
-            $roles[$key] = str_replace('#'.$business_id, '', $value);
+            $roles[$key] = str_replace('#'.$business_uid, '', $value);
         }
 
         return $roles;
@@ -467,12 +467,12 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $user_id = auth()->user()->id;
+        $user_uid = auth()->user()->id;
         $username = auth()->user()->username;
         session()->flush();
 
         if (request()->has('save_current')) {
-            session(['previous_user_id' => $user_id, 'previous_username' => $username]);
+            session(['previous_user_id' => $user_uid, 'previous_username' => $username]);
         }
 
         Auth::loginUsingId($id);

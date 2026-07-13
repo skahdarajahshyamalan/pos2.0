@@ -21,7 +21,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-search"></i>
                             </span>
-                            <input type="hidden" value="" id="variation_id">
+                            <input type="hidden" value="" id="variation_uid">
                             {!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'), 'autofocus']); !!}
                         </div>
                     </div>
@@ -45,25 +45,25 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                        {!! Form::label('location_uid', __('purchase.business_location').':') !!}
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-map-marker"></i>
                             </span>
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'style' => 'width:100%']); !!}
+                            {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('category_id', __('product.category') . ':') !!}
-                        {!! Form::select('category_id', $categories, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'psr_filter_category_id', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::label('category_uid', __('product.category') . ':') !!}
+                        {!! Form::select('category_uid', $categories, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'psr_filter_category_id', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('brand_id', __('product.brand') . ':') !!}
-                        {!! Form::select('brand_id', $brands, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'psr_filter_brand_id', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::label('brand_uid', __('product.brand') . ':') !!}
+                        {!! Form::select('brand_uid', $brands, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'psr_filter_brand_id', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -217,7 +217,7 @@
     <script src="{{ asset('js/report.js?v=' . $asset_v) }}"></script>
     <script type="text/javascript">
         $(
-        '#product_sell_report_form #location_id, #product_sell_report_form #customer_id, #psr_filter_brand_id, #psr_filter_category_id, #psr_customer_group_id'
+        '#product_sell_report_form #location_uid, #product_sell_report_form #customer_id, #psr_filter_brand_id, #psr_filter_category_id, #psr_customer_group_id'
     ).change(function() {
         $('.nav-tabs li.active').find('a[data-toggle="tab"]').trigger('shown.bs.tab');
     });
@@ -251,10 +251,10 @@
                                         d.start_date = start;
                                         d.end_date = end;
                                         d.group_by = 'category';
-                                        d.category_id = $('select#psr_filter_category_id').val();
-                                        d.brand_id = $('select#psr_filter_brand_id').val();
+                                        d.category_uid = $('select#psr_filter_category_id').val();
+                                        d.brand_uid = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
-                                        d.location_id = $('select#location_id').val();
+                                        d.location_uid = $('select#location_uid').val();
                                         d.customer_group_id = $('#psr_customer_group_id').val();
                                     },
                                 },
@@ -308,10 +308,10 @@
                                         d.start_date = start;
                                         d.end_date = end;
                                         d.group_by = 'brand';
-                                        d.category_id = $('select#psr_filter_category_id').val();
-                                        d.brand_id = $('select#psr_filter_brand_id').val();
+                                        d.category_uid = $('select#psr_filter_category_id').val();
+                                        d.brand_uid = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
-                                        d.location_id = $('select#location_id').val();
+                                        d.location_uid = $('select#location_uid').val();
                                         d.customer_group_id = $('#psr_customer_group_id').val();
                                     },
                                 },

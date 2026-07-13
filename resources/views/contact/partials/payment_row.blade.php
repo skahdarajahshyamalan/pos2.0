@@ -38,22 +38,22 @@
     <td @if($count_child_payments > 0) class="bg-gray" @endif>
         @php
             $transaction_type = $payment->transaction->type ?? $payment->transaction_type;
-            $transaction_id = $payment->transaction->id ?? $payment->transaction_id;
+            $transaction_uid = $payment->transaction->id ?? $payment->transaction_uid;
             $invoice_no = $payment->transaction->invoice_no ?? $payment->invoice_no;
             $return_parent_id = $payment->transaction->return_parent_id ?? $payment->return_parent_id;
             $ref_no = $payment->transaction->ref_no ?? $payment->ref_no;
         @endphp
         @if($transaction_type == 'sell')
-            <a data-href="{{action([\App\Http\Controllers\SellController::class, 'show'], [$transaction_id])}}" href="#" data-container=".view_modal" class="btn-modal">{{$invoice_no}}</a> <br> <small>({{__('sale.sale')}}) </small>
+            <a data-href="{{action([\App\Http\Controllers\SellController::class, 'show'], [$transaction_uid])}}" href="#" data-container=".view_modal" class="btn-modal">{{$invoice_no}}</a> <br> <small>({{__('sale.sale')}}) </small>
 
         @elseif($transaction_type == 'sell_return')
             <a data-href="{{action([\App\Http\Controllers\SellReturnController::class, 'show'], [$return_parent_id])}}" href="#" data-container=".view_modal" class="btn-modal">{{$invoice_no }}</a> <br> <small>({{__('lang_v1.sell_return')}}) </small>
         @elseif($transaction_type == 'purchase_return')
             <a data-href="{{action([\App\Http\Controllers\PurchaseReturnController::class, 'show'], [$return_parent_id])}}" href="#" data-container=".view_modal" class="btn-modal">{{$ref_no}}</a> <br> <small>({{__('lang_v1.purchase_return')}}) </small>
         @elseif ($transaction_type == 'purchase')
-            <a data-href="{{action([\App\Http\Controllers\PurchaseController::class, 'show'], [$transaction_id])}}" href="#" data-container=".view_modal" class="btn-modal">{{$ref_no}}</a> <br> <small>({{__('lang_v1.purchase')}}) </small>
+            <a data-href="{{action([\App\Http\Controllers\PurchaseController::class, 'show'], [$transaction_uid])}}" href="#" data-container=".view_modal" class="btn-modal">{{$ref_no}}</a> <br> <small>({{__('lang_v1.purchase')}}) </small>
         @else 
-            @if(!empty($transaction_id))
+            @if(!empty($transaction_uid))
                 {{$ref_no}} <br> <small>({{__('lang_v1.' . $transaction_type)}}) </small>
             @endif
         @endif
@@ -61,7 +61,7 @@
     <td @if($count_child_payments > 0) class="bg-gray" @endif>
         <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'viewPayment'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-eye"></i>{{__('messages.view')}}</button>
 
-        @if(!empty($transaction_id))
+        @if(!empty($transaction_uid))
             @if(( in_array($transaction_type, ['purchase', 'purchase_return']) && auth()->user()->can('edit_purchase_payment')) || (in_array($transaction_type, ['sell', 'sell_return']) && auth()->user()->can('edit_sell_payment')) )
                 <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'edit'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-edit"></i> {{__('messages.edit')}}</button>
              @endif

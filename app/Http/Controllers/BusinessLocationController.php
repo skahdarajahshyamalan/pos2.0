@@ -43,9 +43,9 @@ class BusinessLocationController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $locations = BusinessLocation::where('business_locations.business_id', $business_id)
+            $locations = BusinessLocation::where('business_locations.business_uid', $business_uid)
                 ->leftjoin(
                     'invoice_schemes as ic',
                     'business_locations.invoice_scheme_id',
@@ -70,7 +70,7 @@ class BusinessLocationController extends Controller
                     '=',
                     'spg.id'
                 )
-                ->select(['business_locations.name', 'location_id', 'landmark', 'city', 'zip_code', 'state',
+                ->select(['business_locations.name', 'location_uid', 'landmark', 'city', 'zip_code', 'state',
                     'country', 'business_locations.id', 'spg.name as price_group', 'ic.name as invoice_scheme', 'il.name as invoice_layout', 'sil.name as sale_invoice_layout', 'business_locations.is_active', ]);
 
             $permitted_locations = auth()->user()->permitted_locations();
@@ -106,31 +106,31 @@ class BusinessLocationController extends Controller
         if (! auth()->user()->can('business_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not, then check for location quota
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse();
-        } elseif (! $this->moduleUtil->isQuotaAvailable('locations', $business_id)) {
-            return $this->moduleUtil->quotaExpiredResponse('locations', $business_id);
+        } elseif (! $this->moduleUtil->isQuotaAvailable('locations', $business_uid)) {
+            return $this->moduleUtil->quotaExpiredResponse('locations', $business_uid);
         }
 
-        $invoice_layouts = InvoiceLayout::where('business_id', $business_id)
+        $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
 
-        $invoice_schemes = InvoiceScheme::where('business_id', $business_id)
+        $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
 
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
-        $payment_types = $this->commonUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->commonUtil->payment_types(null, false, $business_uid);
 
         //Accounts
         $accounts = [];
         if ($this->commonUtil->isModuleEnabled('account')) {
-            $accounts = Account::forDropdown($business_id, true, false);
+            $accounts = Account::forDropdown($business_uid, true, false);
         }
 
         return view('business_location.create')
@@ -156,27 +156,27 @@ class BusinessLocationController extends Controller
         }
 
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not, then check for location quota
-            if (! $this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse();
-            } elseif (! $this->moduleUtil->isQuotaAvailable('locations', $business_id)) {
-                return $this->moduleUtil->quotaExpiredResponse('locations', $business_id);
+            } elseif (! $this->moduleUtil->isQuotaAvailable('locations', $business_uid)) {
+                return $this->moduleUtil->quotaExpiredResponse('locations', $business_uid);
             }
 
             $input = $request->only(['name', 'landmark', 'city', 'state', 'country', 'zip_code', 'invoice_scheme_id',
-                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id']);
+                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id']);
 
-            $input['business_id'] = $business_id;
+            $input['business_uid'] = $business_uid;
 
             $input['default_payment_accounts'] = ! empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
             //Update reference count
             $ref_count = $this->moduleUtil->setAndGetReferenceCount('business_location');
 
-            if (empty($input['location_id'])) {
-                $input['location_id'] = $this->moduleUtil->generateReferenceNumber('business_location', $ref_count);
+            if (empty($input['location_uid'])) {
+                $input['location_uid'] = $this->moduleUtil->generateReferenceNumber('business_location', $ref_count);
             }
 
             $location = BusinessLocation::create($input);
@@ -221,24 +221,24 @@ class BusinessLocationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $location = BusinessLocation::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $location = BusinessLocation::where('business_uid', $business_uid)
                                     ->find($id);
-        $invoice_layouts = InvoiceLayout::where('business_id', $business_id)
+        $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
-        $invoice_schemes = InvoiceScheme::where('business_id', $business_id)
+        $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
 
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
-        $payment_types = $this->commonUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->commonUtil->payment_types(null, false, $business_uid);
 
         //Accounts
         $accounts = [];
         if ($this->commonUtil->isModuleEnabled('account')) {
-            $accounts = Account::forDropdown($business_id, true, false);
+            $accounts = Account::forDropdown($business_uid, true, false);
         }
         $featured_products = $location->getFeaturedProducts(true, false);
 
@@ -270,15 +270,15 @@ class BusinessLocationController extends Controller
         try {
             $input = $request->only(['name', 'landmark', 'city', 'state', 'country',
                 'zip_code', 'invoice_scheme_id',
-                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id' ]);
+                'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_uid', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id' ]);
 
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             $input['default_payment_accounts'] = ! empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
             $input['featured_products'] = ! empty($input['featured_products']) ? json_encode($input['featured_products']) : null;
 
-            BusinessLocation::where('business_id', $business_id)
+            BusinessLocation::where('business_uid', $business_uid)
                             ->where('id', $id)
                             ->update($input);
 
@@ -315,15 +315,15 @@ class BusinessLocationController extends Controller
      */
     public function checkLocationId(Request $request)
     {
-        $location_id = $request->input('location_id');
+        $location_uid = $request->input('location_uid');
 
         $valid = 'true';
-        if (! empty($location_id)) {
-            $business_id = $request->session()->get('user.business_id');
+        if (! empty($location_uid)) {
+            $business_uid = $request->session()->get('user.business_uid');
             $hidden_id = $request->input('hidden_id');
 
-            $query = BusinessLocation::where('business_id', $business_id)
-                            ->where('location_id', $location_id);
+            $query = BusinessLocation::where('business_uid', $business_uid)
+                            ->where('location_uid', $location_uid);
             if (! empty($hidden_id)) {
                 $query->where('id', '!=', $hidden_id);
             }
@@ -339,20 +339,20 @@ class BusinessLocationController extends Controller
     /**
      * Function to activate or deactivate a location.
      *
-     * @param  int  $location_id
+     * @param  int  $location_uid
      * @return json
      */
-    public function activateDeactivateLocation($location_id)
+    public function activateDeactivateLocation($location_uid)
     {
         if (! auth()->user()->can('business_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $business_location = BusinessLocation::where('business_id', $business_id)
-                            ->findOrFail($location_id);
+            $business_location = BusinessLocation::where('business_uid', $business_uid)
+                            ->findOrFail($location_uid);
 
             $business_location->is_active = ! $business_location->is_active;
             $business_location->save();

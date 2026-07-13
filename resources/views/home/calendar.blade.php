@@ -18,15 +18,15 @@
                         @if(!empty($users))
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    {!! Form::label('user_id', __('role.user') . ':') !!}
-                                    {!! Form::select('user_id', $users, auth()->user()->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+                                    {!! Form::label('user_uid', __('role.user') . ':') !!}
+                                    {!! Form::select('user_uid', $users, auth()->user()->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
                                 </div>
                             </div>
                         @endif
                         <div class="col-md-12">
                             <div class="form-group">
-                                {!! Form::label('location_id', __('sale.location') . ':') !!}
-                                {!! Form::select('location_id', $all_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+                                {!! Form::label('location_uid', __('sale.location') . ':') !!}
+                                {!! Form::select('location_uid', $all_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -108,7 +108,7 @@
             });
         });
 
-        $(document).on('change', '#user_id, #location_id', function(){
+        $(document).on('change', '#user_uid, #location_uid', function(){
             reload_calendar();
         });
 
@@ -118,11 +118,11 @@
 
         function reload_calendar(){
             data = [];
-            if($('select#location_id').length) {
-                data.location_id = $('select#location_id').val();
+            if($('select#location_uid').length) {
+                data.location_uid = $('select#location_uid').val();
             }
-            if($('select#user_id').length) {
-                data.user_id = $('select#user_id').val();
+            if($('select#user_uid').length) {
+                data.user_uid = $('select#user_uid').val();
             }
 
             var events = [];

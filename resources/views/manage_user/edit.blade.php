@@ -143,7 +143,7 @@
                     <div class="checkbox">
                       <label>
                         {!! Form::checkbox('location_permissions[]', 'location.' . $location->id, is_array($permitted_locations) && in_array($location->id, $permitted_locations), 
-                        [ 'class' => 'input-icheck']); !!} {{ $location->name }} @if(!empty($location->location_id))({{ $location->location_id}}) @endif
+                        [ 'class' => 'input-icheck']); !!} {{ $location->name }} @if(!empty($location->location_uid))({{ $location->location_uid}}) @endif
                       </label>
                     </div>
                 </div>
@@ -284,7 +284,7 @@
                                 email: function() {
                                     return $( "#email" ).val();
                                 },
-                                user_id: {{$user->id}}
+                                user_uid: {{$user->id}}
                             }
                         }
                     },

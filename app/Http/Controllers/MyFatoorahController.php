@@ -51,12 +51,12 @@ class MyFatoorahController extends Controller {
             $currency = request('currency');
             $coupon_code = request('coupon_code');
             $name = request('name');
-            $user_id = request('user_id');
-            $business_id = request('business_id');
+            $user_uid = request('user_uid');
+            $business_uid = request('business_uid');
 
             $language = request('language');
 
-            $curlData = $this->getPayLoadData($package_id, $amount , $currency, $coupon_code, $email, $name, $user_id, $business_id, $language);
+            $curlData = $this->getPayLoadData($package_id, $amount , $currency, $coupon_code, $email, $name, $user_uid, $business_uid, $language);
 
             $mfObj   = new MyFatoorahPayment($this->mfConfig);
             $payment = $mfObj->getInvoiceURL($curlData, $paymentId, $package_id, $sessionId);
@@ -78,7 +78,7 @@ class MyFatoorahController extends Controller {
      * 
      * @return array
      */
-    private function getPayLoadData($package_id = null, $amount, $currency, $coupon_code, $email, $name, $user_id, $business_id, $language) {
+    private function getPayLoadData($package_id = null, $amount, $currency, $coupon_code, $email, $name, $user_uid, $business_uid, $language) {
         $callbackURL = route('myfatoorah_callback');
 
         //You can get the data using the order object in your system
@@ -93,7 +93,7 @@ class MyFatoorahController extends Controller {
             'ErrorUrl'           => $callbackURL,
             'Language'           => $language,
             'CustomerReference'  => $package_id,
-            'UserDefinedField'   => json_encode(['business_id' => $business_id, 'coupon_code' => $coupon_code, 'user_id' => $user_id]),
+            'UserDefinedField'   => json_encode(['business_uid' => $business_uid, 'coupon_code' => $coupon_code, 'user_uid' => $user_uid]),
             'SourceInfo'         => 'Laravel ' . app()::VERSION . ' - MyFatoorah Package ' . MYFATOORAH_LARAVEL_PACKAGE_VERSION
         ];
     }

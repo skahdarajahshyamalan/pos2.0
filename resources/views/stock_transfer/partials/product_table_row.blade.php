@@ -88,10 +88,10 @@
             <input type="hidden" name="products[{{$row_index}}][transaction_sell_lines_id]" class="form-control" value="{{$product->transaction_sell_lines_id}}">
         @endif
 
-        <input type="hidden" name="products[{{$row_index}}][product_id]" class="form-control product_id" value="{{$product->product_id}}">
+        <input type="hidden" name="products[{{$row_index}}][product_uid]" class="form-control product_uid" value="{{$product->product_uid}}">
 
-        <input type="hidden" value="{{$product->variation_id}}" 
-            name="products[{{$row_index}}][variation_id]">
+        <input type="hidden" value="{{$product->variation_uid}}" 
+            name="products[{{$row_index}}][variation_uid]">
 
         <input type="hidden" value="{{$product->enable_stock}}" 
             name="products[{{$row_index}}][enable_stock]">
@@ -111,7 +111,7 @@
 
          <input type="hidden" class="hidden_base_unit_price" value="{{$product->default_purchase_price}}">
 
-        <input type="hidden" name="products[{{$row_index}}][product_unit_id]" value="{{$product->unit_id}}">
+        <input type="hidden" name="products[{{$row_index}}][product_unit_id]" value="{{$product->unit_uid}}">
         @if(!empty($sub_units))
             <br>
             <select name="products[{{$row_index}}][sub_unit_id]" class="form-control input-sm sub_unit">

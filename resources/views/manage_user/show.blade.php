@@ -10,7 +10,7 @@
                 <h3>@lang( 'lang_v1.view_user' )</h3>
             </div>
             <div class="col-md-4 col-xs-12 mt-15 pull-right">
-                {!! Form::select('user_id', $users, $user->id , ['class' => 'form-control select2', 'id' => 'user_id']); !!}
+                {!! Form::select('user_uid', $users, $user->id , ['class' => 'form-control select2', 'id' => 'user_uid']); !!}
             </div>
         </div>
         <br>
@@ -124,7 +124,7 @@
                             @include('user.show_details')
                         </div>
                         <div class="tab-pane" id="documents_and_notes_tab">
-                            <!-- model id like project_id, user_id -->
+                            <!-- model id like project_id, user_uid -->
                             <input type="hidden" name="notable_id" id="notable_id" value="{{$user->id}}">
                             <!-- model name like App\User -->
                             <input type="hidden" name="notable_type" id="notable_type" value="App\User">
@@ -150,7 +150,7 @@
 
     <script type="text/javascript">
         $(document).ready( function(){
-            $('#user_id').change( function() {
+            $('#user_uid').change( function() {
                 if ($(this).val()) {
                     window.location = "{{url('/users')}}/" + $(this).val();
                 }

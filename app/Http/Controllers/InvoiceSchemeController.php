@@ -27,9 +27,9 @@ class InvoiceSchemeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
-            $schemes = InvoiceScheme::where('business_id', $business_id)
+            $schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->select(['id', 'name', 'scheme_type', 'prefix', 'number_type', 'start_number', 'invoice_count', 'total_digits', 'is_default']);
 
             return Datatables::of($schemes)
@@ -69,7 +69,7 @@ class InvoiceSchemeController extends Controller
                 ->make(false);
         }
 
-        $invoice_layouts = InvoiceLayout::where('business_id', $business_id)
+        $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                                         ->with(['locations'])
                                         ->get();
 
@@ -106,14 +106,14 @@ class InvoiceSchemeController extends Controller
 
         try {
             $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type']);
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
 
             $input['start_number'] = ($input['number_type'] == 'aleatory') ? '' : $input['start_number'];
             
             if (! empty($request->input('is_default'))) {
                 //get_default
-                $default = InvoiceScheme::where('business_id', $business_id)
+                $default = InvoiceScheme::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                 ->update(['is_default' => 0]);
                 $input['is_default'] = 1;
@@ -160,8 +160,8 @@ class InvoiceSchemeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $invoice = InvoiceScheme::where('business_id', $business_id)->find($id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $invoice = InvoiceScheme::where('business_uid', $business_uid)->find($id);
 
         $number_types = $this->number_types;
 
@@ -255,8 +255,8 @@ class InvoiceSchemeController extends Controller
         if (request()->ajax()) {
             try {
                 //get_default
-                $business_id = request()->session()->get('user.business_id');
-                $default = InvoiceScheme::where('business_id', $business_id)
+                $business_uid = request()->session()->get('user.business_uid');
+                $default = InvoiceScheme::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                  ->update(['is_default' => 0]);
 

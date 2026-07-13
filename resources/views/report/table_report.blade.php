@@ -95,7 +95,7 @@
                             "ajax": {
                                 "url": "/reports/table-report",
                                 "data": function ( d ) {
-                                    d.location_id = $('#tr_location_id').val();
+                                    d.location_uid = $('#tr_location_id').val();
                                     d.start_date = $('#tr_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
                                     d.end_date = $('#tr_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
                                 }

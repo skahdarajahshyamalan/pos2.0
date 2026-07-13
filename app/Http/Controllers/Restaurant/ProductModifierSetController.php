@@ -19,8 +19,8 @@ class ProductModifierSetController extends Controller
     public function edit($id)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $modifer_set = Product::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $modifer_set = Product::where('business_uid', $business_uid)
                         ->where('type', 'modifier')
                         ->where('id', $id)
                         ->with(['modifier_products'])
@@ -36,13 +36,13 @@ class ProductModifierSetController extends Controller
      *
      * @return Response
      */
-    public function product_row($product_id)
+    public function product_row($product_uid)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $product = Product::where('business_id', $business_id)
-                        ->where('id', $product_id)
+            $product = Product::where('business_uid', $business_uid)
+                        ->where('id', $product_uid)
                         ->first();
 
             return view('restaurant.product_modifier_set.product_row')
@@ -62,10 +62,10 @@ class ProductModifierSetController extends Controller
             DB::beginTransaction();
 
             $input = $request->all();
-            $business_id = $request->session()->get('user.business_id');
-            $user_id = $request->session()->get('user.id');
+            $business_uid = $request->session()->get('user.business_uid');
+            $user_uid = $request->session()->get('user.id');
 
-            $modifer_set = Product::where('business_id', $business_id)
+            $modifer_set = Product::where('business_uid', $business_uid)
                     ->where('id', $modifier_set_id)
                     ->where('type', 'modifier')
                     ->first();
@@ -92,7 +92,7 @@ class ProductModifierSetController extends Controller
 
     public function add_selected_modifiers(Request $request)
     {
-        $business_id = $request->session()->get('user.business_id');
+        $business_uid = $request->session()->get('user.business_uid');
         $selected = $request->input('selected');
         $index = $request->input('index');
 

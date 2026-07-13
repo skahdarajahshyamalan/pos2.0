@@ -171,9 +171,9 @@
         $('table#assets_table tbody#capital_account_balances').html('<tr><td colspan="2"><i class="fas fa-sync fa-spin fa-fw"></i></td></tr>');
 
         var end_date = $('input#end_date').val();
-        var location_id = $('#bal_sheet_location_id').val()
+        var location_uid = $('#bal_sheet_location_id').val()
         $.ajax({
-            url: "{{action([\App\Http\Controllers\AccountReportsController::class, 'balanceSheet'])}}?end_date=" + end_date + '&location_id=' + location_id, 
+            url: "{{action([\App\Http\Controllers\AccountReportsController::class, 'balanceSheet'])}}?end_date=" + end_date + '&location_uid=' + location_uid, 
             dataType: "json",
             success: function(result){
                 $('span#supplier_due').text(__currency_trans_from_en(result.supplier_due, true));

@@ -103,27 +103,27 @@ class User extends Authenticatable
     /**
      * Gives locations permitted for the logged in user
      *
-     * @param: int $business_id
+     * @param: int $business_uid
      *
      * @return string or array
      */
-    public function permitted_locations($business_id = null)
+    public function permitted_locations($business_uid = null)
     {
         $user = $this;
 
         if ($user->can('access_all_locations')) {
             return 'all';
         } else {
-            $business_id = ! is_null($business_id) ? $business_id : null;
-            if (empty($business_id) && auth()->check()) {
-                $business_id = auth()->user()->business_id;
+            $business_uid = ! is_null($business_uid) ? $business_uid : null;
+            if (empty($business_uid) && auth()->check()) {
+                $business_uid = auth()->user()->business_uid;
             }
-            if (empty($business_id) && session()->has('business')) {
-                $business_id = session('business.id');
+            if (empty($business_uid) && session()->has('business')) {
+                $business_uid = session('business.id');
             }
 
             $permitted_locations = [];
-            $all_locations = BusinessLocation::where('business_id', $business_id)->get();
+            $all_locations = BusinessLocation::where('business_uid', $business_uid)->get();
             $permissions = $user->permissions->pluck('name')->all();
             foreach ($all_locations as $location) {
                 if (in_array('location.'.$location->id, $permissions)) {
@@ -138,15 +138,15 @@ class User extends Authenticatable
     /**
      * Returns if a user can access the input location
      *
-     * @param: int $location_id
+     * @param: int $location_uid
      *
      * @return bool
      */
-    public static function can_access_this_location($location_id, $business_id = null)
+    public static function can_access_this_location($location_uid, $business_uid = null)
     {
-        $permitted_locations = auth()->user()->permitted_locations($business_id);
+        $permitted_locations = auth()->user()->permitted_locations($business_uid);
 
-        if ($permitted_locations == 'all' || in_array($location_id, $permitted_locations)) {
+        if ($permitted_locations == 'all' || in_array($location_uid, $permitted_locations)) {
             return true;
         }
 
@@ -157,11 +157,11 @@ class User extends Authenticatable
     {
         $user = auth()->user();
         $permitted_locations = $user->permitted_locations();
-        $is_admin = $user->hasAnyPermission('Admin#'.$user->business_id);
+        $is_admin = $user->hasAnyPermission('Admin#'.$user->business_uid);
         if ($permitted_locations != 'all' && ! $user->can('superadmin') && ! $is_admin) {
             $permissions = ['access_all_locations'];
-            foreach ($permitted_locations as $location_id) {
-                $permissions[] = 'location.'.$location_id;
+            foreach ($permitted_locations as $location_uid) {
+                $permissions[] = 'location.'.$location_uid;
             }
 
             return $query->whereHas('permissions', function ($q) use ($permissions) {
@@ -175,14 +175,14 @@ class User extends Authenticatable
     /**
      * Return list of users dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @param $include_commission_agents = false (boolean)
      * @return array users
      */
-    public static function forDropdown($business_id, $prepend_none = true, $include_commission_agents = false, $prepend_all = false, $check_location_permission = false)
+    public static function forDropdown($business_uid, $prepend_none = true, $include_commission_agents = false, $prepend_all = false, $check_location_permission = false)
     {
-        $query = User::where('business_id', $business_id)
+        $query = User::where('business_uid', $business_uid)
                     ->user();
 
         if (! $include_commission_agents) {
@@ -212,13 +212,13 @@ class User extends Authenticatable
     /**
      * Return list of sales commission agents dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @return array users
      */
-    public static function saleCommissionAgentsDropdown($business_id, $prepend_none = true)
+    public static function saleCommissionAgentsDropdown($business_uid, $prepend_none = true)
     {
-        $all_cmmsn_agnts = User::where('business_id', $business_id)
+        $all_cmmsn_agnts = User::where('business_uid', $business_uid)
                         ->where('is_cmmsn_agnt', 1)
                         ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
@@ -235,14 +235,14 @@ class User extends Authenticatable
     /**
      * Return list of users dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @param $prepend_all = false (boolean)
      * @return array users
      */
-    public static function allUsersDropdown($business_id, $prepend_none = true, $prepend_all = false)
+    public static function allUsersDropdown($business_uid, $prepend_none = true, $prepend_all = false)
     {
-        $all_users = User::where('business_id', $business_id)
+        $all_users = User::where('business_uid', $business_uid)
                         ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
         $users = $all_users->pluck('full_name', 'id');
@@ -275,9 +275,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public static function isSelectedContacts($user_id)
+    public static function isSelectedContacts($user_uid)
     {
-        $user = User::findOrFail($user_id);
+        $user = User::findOrFail($user_uid);
 
         return (bool) $user->selected_contacts;
     }
@@ -311,7 +311,7 @@ class User extends Authenticatable
      */
     public function contact()
     {
-        return $this->belongsTo(\Modules\Crm\Entities\CrmContact::class, 'crm_contact_id');
+        return $this->belongsTo(\Modules\Crm\Entities\CrmContact::class, 'crm_contact_uid');
     }
 
     /**

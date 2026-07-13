@@ -15,7 +15,7 @@
       <td><span class="display_currency" data-currency_symbol="true">{{ $payment->amount }}</span></td>
       <td>{{$payment->transaction->contact->name}}</td>
       <td>{{ $payment_types[$payment->method] ?? '' }}</td>
-      <td>@if($payment->transaction->type != 'opening_balance') <a data-href="@if($payment->transaction->type == 'sell'){{action([\App\Http\Controllers\SellController::class, 'show'], [$payment->transaction_id]) }}@else{{action([\App\Http\Controllers\PurchaseController::class, 'show'], [$payment->transaction_id]) }}@endif" href="#" data-container=".view_modal" class="btn-modal">@if($payment->transaction->type == 'sell') {{$payment->transaction->invoice_no}} @else {{$payment->transaction->ref_no}} @endif</a> @else
+      <td>@if($payment->transaction->type != 'opening_balance') <a data-href="@if($payment->transaction->type == 'sell'){{action([\App\Http\Controllers\SellController::class, 'show'], [$payment->transaction_uid]) }}@else{{action([\App\Http\Controllers\PurchaseController::class, 'show'], [$payment->transaction_uid]) }}@endif" href="#" data-container=".view_modal" class="btn-modal">@if($payment->transaction->type == 'sell') {{$payment->transaction->invoice_no}} @else {{$payment->transaction->ref_no}} @endif</a> @else
         @lang('lang_v1.opening_balance_payments')
       @endif</td>
       <td class="no-print">

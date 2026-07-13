@@ -66,7 +66,7 @@
 	<div class="row">
 		<div class="col-md-12 col-sm-12">
 			@component('components.widget', ['class' => 'box-solid'])
-				{!! Form::hidden('location_id', !empty($default_location) ? $default_location->id : null , ['id' => 'location_id', 'data-receipt_printer_type' => !empty($default_location->receipt_printer_type) ? $default_location->receipt_printer_type : 'browser', 'data-default_payment_accounts' => !empty($default_location) ? $default_location->default_payment_accounts : '']); !!}
+				{!! Form::hidden('location_uid', !empty($default_location) ? $default_location->id : null , ['id' => 'location_uid', 'data-receipt_printer_type' => !empty($default_location->receipt_printer_type) ? $default_location->receipt_printer_type : 'browser', 'data-default_payment_accounts' => !empty($default_location) ? $default_location->default_payment_accounts : '']); !!}
 
 				@if(!empty($price_groups))
 					@if(count($price_groups) > 1)
@@ -509,12 +509,12 @@
 			    <div class="clearfix"></div>
 			    <div class="col-md-4  @if($sale_type == 'sales_order') hide @endif">
 			    	<div class="form-group">
-			            {!! Form::label('tax_rate_id', __('sale.order_tax') . ':*' ) !!}
+			            {!! Form::label('tax_rate_uid', __('sale.order_tax') . ':*' ) !!}
 			            <div class="input-group">
 			                <span class="input-group-addon">
 			                    <i class="fa fa-info"></i>
 			                </span>
-			                {!! Form::select('tax_rate_id', $taxes['tax_rates'], $default_sales_tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $default_sales_tax], $taxes['attributes']); !!}
+			                {!! Form::select('tax_rate_uid', $taxes['tax_rates'], $default_sales_tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $default_sales_tax], $taxes['attributes']); !!}
 
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
 							value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
@@ -951,7 +951,7 @@
 			    var default_accounts = $('select#select_location_id').length ? 
 			                $('select#select_location_id')
 			                .find(':selected')
-			                .data('default_payment_accounts') : $('#location_id').data('default_payment_accounts');
+			                .data('default_payment_accounts') : $('#location_uid').data('default_payment_accounts');
 			    var payment_type = $(this).val();
 			    if (payment_type) {
 			        var default_account = default_accounts && default_accounts[payment_type]['account'] ? 
@@ -965,7 +965,7 @@
 			});
 
 		    function setPreferredPaymentMethodDropdown() {
-			    var payment_settings = $('#location_id').data('default_payment_accounts');
+			    var payment_settings = $('#location_uid').data('default_payment_accounts');
 			    payment_settings = payment_settings ? payment_settings : [];
 			    enabled_payment_types = [];
 			    for (var key in payment_settings) {

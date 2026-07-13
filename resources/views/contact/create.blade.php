@@ -200,12 +200,12 @@
             <!-- User in create leads -->
             <div class="col-md-6 lead_additional_div">
                   <div class="form-group">
-                      {!! Form::label('user_id', __('lang_v1.assigned_to') . ':*' ) !!}
+                      {!! Form::label('user_uid', __('lang_v1.assigned_to') . ':*' ) !!}
                       <div class="input-group">
                           <span class="input-group-addon">
                               <i class="fa fa-user"></i>
                           </span>
-                          {!! Form::select('user_id[]', $users ?? [], null , ['class' => 'form-control select2', 'id' => 'user_id', 'multiple', 'required', 'style' => 'width: 100%;']); !!}
+                          {!! Form::select('user_uid[]', $users ?? [], null , ['class' => 'form-control select2', 'id' => 'user_uid', 'multiple', 'required', 'style' => 'width: 100%;']); !!}
                       </div>
                   </div>
             </div>

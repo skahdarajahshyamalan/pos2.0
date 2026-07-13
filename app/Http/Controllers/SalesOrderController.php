@@ -56,10 +56,10 @@ class SalesOrderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false);
+        $customers = Contact::customersDropdown($business_uid, false);
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
@@ -74,11 +74,11 @@ class SalesOrderController extends Controller
 
     public function getSalesOrders($customer_id)
     {
-        $business_id = request()->session()->get('user.business_id');
-        $location_id = request()->input('location_id');
+        $business_uid = request()->session()->get('user.business_uid');
+        $location_uid = request()->input('location_uid');
 
-        $sales_orders = Transaction::where('business_id', $business_id)
-                            ->where('location_id', $location_id)
+        $sales_orders = Transaction::where('business_uid', $business_uid)
+                            ->where('location_uid', $location_uid)
                             ->where('type', 'sales_order')
                             ->whereIn('status', ['partial', 'ordered'])
                             ->where('contact_id', $customer_id)
@@ -103,8 +103,8 @@ class SalesOrderController extends Controller
         }
 
         if ($request->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $transaction = Transaction::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $transaction = Transaction::where('business_uid', $business_uid)
                                 ->findOrFail($id);
 
             $status = $transaction->status;
@@ -129,8 +129,8 @@ class SalesOrderController extends Controller
 
         if ($request->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
-                $transaction = Transaction::where('business_id', $business_id)
+                $business_uid = request()->session()->get('user.business_uid');
+                $transaction = Transaction::where('business_uid', $business_uid)
                                 ->findOrFail($id);
 
                 $transaction_before = $transaction->replicate();

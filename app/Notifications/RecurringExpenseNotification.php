@@ -49,7 +49,7 @@ class RecurringExpenseNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'transaction_id' => $this->expense->id,
+            'transaction_uid' => $this->expense->id,
             'ref_no' => $this->expense->ref_no,
         ];
     }

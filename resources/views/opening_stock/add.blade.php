@@ -11,7 +11,7 @@
 <!-- Main content -->
 <section class="content">
 	{!! Form::open(['url' => action([\App\Http\Controllers\OpeningStockController::class, 'save']), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
-	{!! Form::hidden('product_id', $product->id); !!}
+	{!! Form::hidden('product_uid', $product->id); !!}
 	@include('opening_stock.form-part')
 	<div class="row">
 		<div class="col-sm-12 text-center">

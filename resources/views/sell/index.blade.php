@@ -181,10 +181,10 @@
                         }
                         d.is_direct_sale = 1;
 
-                        d.location_id = $('#sell_list_filter_location_id').val();
+                        d.location_uid = $('#sell_list_filter_location_id').val();
                         d.customer_id = $('#sell_list_filter_customer_id').val();
                         d.payment_status = $('#sell_list_filter_payment_status').val();
-                        d.created_by = $('#created_by').val();
+                        d.created_by_uid = $('#created_by_uid').val();
                         d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
                         d.service_staffs = $('#service_staffs').val();
 
@@ -381,7 +381,7 @@
             });
 
             $(document).on('change',
-                '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status, #sell_list_filter_source, #payment_method',
+                '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by_uid, #sales_cmsn_agnt, #service_staffs, #shipping_status, #sell_list_filter_source, #payment_method',
                 function() {
                     sell_table.ajax.reload();
                 });

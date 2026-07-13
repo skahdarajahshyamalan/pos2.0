@@ -27,10 +27,10 @@ class SetSessionData
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
-                'business_id' => $user->business_id,
+                'business_uid' => $user->business_uid,
                 'language' => $user->language,
             ];
-            $business = Business::findOrFail($user->business_id);
+            $business = Business::findOrFail($user->business_uid);
 
             $currency = $business->currency;
             $currency_data = ['id' => $currency->id,

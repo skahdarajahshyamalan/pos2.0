@@ -15,10 +15,10 @@ class WarrantyController extends Controller
      */
     public function index()
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
-            $warranties = Warranty::where('business_id', $business_id)
+            $warranties = Warranty::where('business_uid', $business_uid)
                          ->select(['id', 'name', 'description', 'duration', 'duration_type']);
 
             return Datatables::of($warranties)
@@ -55,11 +55,11 @@ class WarrantyController extends Controller
      */
     public function store(Request $request)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         try {
             $input = $request->only(['name', 'description', 'duration', 'duration_type']);
-            $input['business_id'] = $business_id;
+            $input['business_uid'] = $business_uid;
 
             $status = Warranty::create($input);
 
@@ -96,10 +96,10 @@ class WarrantyController extends Controller
      */
     public function edit($id)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
-            $warranty = Warranty::where('business_id', $business_id)->find($id);
+            $warranty = Warranty::where('business_uid', $business_uid)->find($id);
 
             return view('warranties.edit')
                 ->with(compact('warranty'));
@@ -115,13 +115,13 @@ class WarrantyController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'description', 'duration', 'duration_type']);
 
-                $warranty = Warranty::where('business_id', $business_id)->findOrFail($id);
+                $warranty = Warranty::where('business_uid', $business_uid)->findOrFail($id);
 
                 $warranty->update($input);
 

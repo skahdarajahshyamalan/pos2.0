@@ -45,13 +45,13 @@ class PurchaseReturnController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
             $purchases_returns = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                     ->join(
                         'business_locations AS BS',
-                        'transactions.location_id',
+                        'transactions.location_uid',
                         '=',
                         'BS.id'
                     )
@@ -65,9 +65,9 @@ class PurchaseReturnController extends Controller
                         'transaction_payments AS TP',
                         'transactions.id',
                         '=',
-                        'TP.transaction_id'
+                        'TP.transaction_uid'
                     )
-                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_return')
                     ->select(
                         'transactions.id',
@@ -87,11 +87,11 @@ class PurchaseReturnController extends Controller
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $purchases_returns->whereIn('transactions.location_id', $permitted_locations);
+                $purchases_returns->whereIn('transactions.location_uid', $permitted_locations);
             }
 
-            if (! empty(request()->location_id)) {
-                $purchases_returns->where('transactions.location_id', request()->location_id);
+            if (! empty(request()->location_uid)) {
+                $purchases_returns->where('transactions.location_uid', request()->location_uid);
             }
 
             if (! empty(request()->supplier_id)) {
@@ -182,7 +182,7 @@ class PurchaseReturnController extends Controller
                 ->make(true);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
         return view('purchase_return.index')->with(compact('business_locations'));
     }
@@ -197,16 +197,16 @@ class PurchaseReturnController extends Controller
         if (! auth()->user()->can('purchase.update')) {
             abort(403, 'Unauthorized action.');
         }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase = Transaction::where('business_id', $business_id)
+        $purchase = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase')
                         ->with(['purchase_lines', 'contact', 'tax', 'return_parent', 'purchase_lines.sub_unit', 'purchase_lines.product', 'purchase_lines.product.unit'])
                         ->find($id);
 
         foreach ($purchase->purchase_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
@@ -234,12 +234,12 @@ class PurchaseReturnController extends Controller
         }
 
         try {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $purchase = Transaction::where('business_id', $business_id)
+            $purchase = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase')
                         ->with(['purchase_lines', 'purchase_lines.sub_unit'])
-                        ->findOrFail($request->input('transaction_id'));
+                        ->findOrFail($request->input('transaction_uid'));
 
             $return_quantities = $request->input('returns');
             $return_total = 0;
@@ -264,9 +264,9 @@ class PurchaseReturnController extends Controller
                 //Decrease quantity in variation location details
                 if ($old_return_qty != $purchase_line->quantity_returned) {
                     $this->productUtil->decreaseProductQuantity(
-                        $purchase_line->product_id,
-                        $purchase_line->variation_id,
-                        $purchase->location_id,
+                        $purchase_line->product_uid,
+                        $purchase_line->variation_uid,
+                        $purchase->location_uid,
                         $purchase_line->quantity_returned,
                         $old_return_qty
                     );
@@ -287,7 +287,7 @@ class PurchaseReturnController extends Controller
                 $return_transaction_data['ref_no'] = $this->transactionUtil->generateReferenceNumber('purchase_return', $ref_count);
             }
 
-            $return_transaction = Transaction::where('business_id', $business_id)
+            $return_transaction = Transaction::where('business_uid', $business_uid)
                                             ->where('type', 'purchase_return')
                                             ->where('return_parent_id', $purchase->id)
                                             ->first();
@@ -299,13 +299,13 @@ class PurchaseReturnController extends Controller
 
                 $this->transactionUtil->activityLog($return_transaction, 'edited', $return_transaction_before);
             } else {
-                $return_transaction_data['business_id'] = $business_id;
-                $return_transaction_data['location_id'] = $purchase->location_id;
+                $return_transaction_data['business_uid'] = $business_uid;
+                $return_transaction_data['location_uid'] = $purchase->location_uid;
                 $return_transaction_data['type'] = 'purchase_return';
                 $return_transaction_data['status'] = 'final';
                 $return_transaction_data['contact_id'] = $purchase->contact_id;
                 $return_transaction_data['transaction_date'] = \Carbon::now();
-                $return_transaction_data['created_by'] = request()->session()->get('user.id');
+                $return_transaction_data['created_by_uid'] = request()->session()->get('user.id');
                 $return_transaction_data['return_parent_id'] = $purchase->id;
 
                 $return_transaction = Transaction::create($return_transaction_data);
@@ -345,15 +345,15 @@ class PurchaseReturnController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase = Transaction::where('business_id', $business_id)
+        $purchase = Transaction::where('business_uid', $business_uid)
                         ->with(['return_parent', 'return_parent.tax', 'purchase_lines', 'contact', 'tax', 'purchase_lines.sub_unit', 'purchase_lines.product', 'purchase_lines.product.unit'])
                         ->find($id);
 
         foreach ($purchase->purchase_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
@@ -399,10 +399,10 @@ class PurchaseReturnController extends Controller
 
         try {
             if (request()->ajax()) {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
                 $purchase_return = Transaction::where('id', $id)
-                                ->where('business_id', $business_id)
+                                ->where('business_uid', $business_uid)
                                 ->where('type', 'purchase_return')
                                 ->with(['purchase_lines'])
                                 ->first();
@@ -414,21 +414,21 @@ class PurchaseReturnController extends Controller
                     $delete_purchase_line_ids = [];
                     foreach ($delete_purchase_lines as $purchase_line) {
                         $delete_purchase_line_ids[] = $purchase_line->id;
-                        $this->productUtil->updateProductQuantity($purchase_return->location_id, $purchase_line->product_id, $purchase_line->variation_id, $purchase_line->quantity_returned, 0, null, false);
+                        $this->productUtil->updateProductQuantity($purchase_return->location_uid, $purchase_line->product_uid, $purchase_line->variation_uid, $purchase_line->quantity_returned, 0, null, false);
                     }
-                    PurchaseLine::where('transaction_id', $purchase_return->id)
+                    PurchaseLine::where('transaction_uid', $purchase_return->id)
                                 ->whereIn('id', $delete_purchase_line_ids)
                                 ->delete();
                 } else {
                     $parent_purchase = Transaction::where('id', $purchase_return->return_parent_id)
-                                ->where('business_id', $business_id)
+                                ->where('business_uid', $business_uid)
                                 ->where('type', 'purchase')
                                 ->with(['purchase_lines'])
                                 ->first();
 
                     $updated_purchase_lines = $parent_purchase->purchase_lines;
                     foreach ($updated_purchase_lines as $purchase_line) {
-                        $this->productUtil->updateProductQuantity($parent_purchase->location_id, $purchase_line->product_id, $purchase_line->variation_id, $purchase_line->quantity_returned, 0, null, false);
+                        $this->productUtil->updateProductQuantity($parent_purchase->location_uid, $purchase_line->product_uid, $purchase_line->variation_uid, $purchase_line->quantity_returned, 0, null, false);
                         $purchase_line->quantity_returned = 0;
                         $purchase_line->save();
                     }
@@ -438,7 +438,7 @@ class PurchaseReturnController extends Controller
                 $purchase_return->delete();
 
                 //Delete account transactions
-                AccountTransaction::where('transaction_id', $id)->delete();
+                AccountTransaction::where('transaction_uid', $id)->delete();
 
                 DB::commit();
 

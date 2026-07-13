@@ -16,14 +16,14 @@
       <div class="row">
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('location_id', __('purchase.business_location').':*') !!}
-            {!! Form::select('location_id', $business_locations, $expense->location_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+            {!! Form::label('location_uid', __('purchase.business_location').':*') !!}
+            {!! Form::select('location_uid', $business_locations, $expense->location_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
           </div>
         </div>
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('expense_category_id', __('expense.expense_category').':') !!}
-            {!! Form::select('expense_category_id', $expense_categories, $expense->expense_category_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+            {!! Form::label('expense_category_uid', __('expense.expense_category').':') !!}
+            {!! Form::select('expense_category_uid', $expense_categories, $expense->expense_category_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
           </div>
         </div>
         <div class="col-sm-4">

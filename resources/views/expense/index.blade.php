@@ -16,8 +16,8 @@
                 @if(auth()->user()->can('all_expense.access'))
                     <div class="col-md-3">
                         <div class="form-group">
-                            {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                            {!! Form::label('location_uid',  __('purchase.business_location') . ':') !!}
+                            {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
 
@@ -30,8 +30,8 @@
 
                      <div class="col-sm-3">
                         <div class="form-group">
-                            {!! Form::label('created_by', __('lang_v1.added_by').':') !!}
-                            {!! Form::select('created_by', $users, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                            {!! Form::label('created_by_uid', __('lang_v1.added_by').':') !!}
+                            {!! Form::select('created_by_uid', $users, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
 
@@ -44,9 +44,9 @@
                 @endif
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('expense_category_id',__('expense.expense_category').':') !!}
-                        {!! Form::select('expense_category_id', $categories, null, ['placeholder' =>
-                        __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'expense_category_id']); !!}
+                        {!! Form::label('expense_category_uid',__('expense.expense_category').':') !!}
+                        {!! Form::select('expense_category_uid', $categories, null, ['placeholder' =>
+                        __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'expense_category_uid']); !!}
                     </div>
                 </div>
 

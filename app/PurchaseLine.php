@@ -25,12 +25,12 @@ class PurchaseLine extends Model
 
     public function product()
     {
-        return $this->belongsTo(\App\Product::class, 'product_id');
+        return $this->belongsTo(\App\Product::class, 'product_uid');
     }
 
     public function variations()
     {
-        return $this->belongsTo(\App\Variation::class, 'variation_id');
+        return $this->belongsTo(\App\Variation::class, 'variation_uid');
     }
 
     /**

@@ -2,13 +2,13 @@
 	<tr class="bg-green">
 		<td>{{$product->name}} ({{$product->sku}})</td>
 		<td>
-			{!! Form::select('products[' . $product->id . '][category_id]', $categories, $product->category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm category_id', 'style' => 'width: 100%;']); !!}
+			{!! Form::select('products[' . $product->id . '][category_uid]', $categories, $product->category_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm category_uid', 'style' => 'width: 100%;']); !!}
 		</td>
 		<td>
-			{!! Form::select('products[' . $product->id . '][sub_category_id]', !empty($sub_categories[$product->category_id]) ? $sub_categories[$product->category_id] : [], $product->sub_category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm sub_category_id', 'style' => 'width: 100%;']); !!}
+			{!! Form::select('products[' . $product->id . '][sub_category_id]', !empty($sub_categories[$product->category_uid]) ? $sub_categories[$product->category_uid] : [], $product->sub_category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm sub_category_id', 'style' => 'width: 100%;']); !!}
 		</td>
 		<td>
-			{!! Form::select('products[' . $product->id . '][brand_id]', $brands, $product->brand_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm', 'style' => 'width: 100%;']); !!}
+			{!! Form::select('products[' . $product->id . '][brand_uid]', $brands, $product->brand_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm', 'style' => 'width: 100%;']); !!}
 		</td>
 		<td>
 			{!! Form::select('products[' . $product->id . '][tax]', $taxes, $product->tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm row_tax', 'style' => 'width: 100%;'],$tax_attributes); !!}

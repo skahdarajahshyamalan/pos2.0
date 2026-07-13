@@ -27,12 +27,12 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                        {!! Form::label('location_uid', __('purchase.business_location').':') !!}
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-map-marker"></i>
                             </span>
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                            {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('messages.please_select'), 'required']); !!}
                         </div>
                     </div>
                 </div>

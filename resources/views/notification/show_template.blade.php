@@ -117,14 +117,14 @@
         </div>
         
         @if(!empty($transaction))
-            {!! Form::hidden('transaction_id', $transaction->id); !!}
+            {!! Form::hidden('transaction_uid', $transaction->id); !!}
         @endif
 
         @if($notification_template['template_for'] == 'send_ledger')
             {!! Form::hidden('contact_id', $contact->id); !!}
             {!! Form::hidden('start_date', $start_date); !!}
             {!! Form::hidden('end_date', $end_date); !!}
-            {!! Form::hidden('location_id', $location_id); !!}
+            {!! Form::hidden('location_uid', $location_uid); !!}
         @endif
         {!! Form::hidden('template_for', $notification_template['template_for']); !!}
         <div class="modal-footer">

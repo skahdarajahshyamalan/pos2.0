@@ -141,9 +141,9 @@
         $('table#trial_balance_table tbody#account_balances_details').html('<tr><td colspan="3"><i class="fas fa-sync fa-spin fa-fw"></i></td></tr>');
 
         var end_date = $('input#end_date').val();
-        var location_id = $('#trial_bal_location_id').val()
+        var location_uid = $('#trial_bal_location_id').val()
         $.ajax({
-            url: "{{action([\App\Http\Controllers\AccountReportsController::class, 'trialBalance'])}}?end_date=" + end_date + '&location_id=' + location_id,
+            url: "{{action([\App\Http\Controllers\AccountReportsController::class, 'trialBalance'])}}?end_date=" + end_date + '&location_uid=' + location_uid,
             dataType: "json",
             success: function(result){
                 $('span#supplier_due').text(__currency_trans_from_en(result.supplier_due, true));

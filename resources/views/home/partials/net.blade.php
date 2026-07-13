@@ -21,7 +21,7 @@
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 update_statistics(@json($dashboard_detail->start_date), @json($dashboard_detail->end_date), "net",
-                    @json($dashboard_detail->index), @json($dashboard_detail->location), {{ $user_id ?? null }});
+                    @json($dashboard_detail->index), @json($dashboard_detail->location), {{ $user_uid ?? null }});
                 // Call your function when the content is ready
             });
         </script>

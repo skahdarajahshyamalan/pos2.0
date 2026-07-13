@@ -35,8 +35,8 @@
         @can('access_sell_return')
         <div class="col-md-3">
             <div class="form-group">
-                {!! Form::label('created_by',  __('report.user') . ':') !!}
-                {!! Form::select('created_by', $sales_representative, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                {!! Form::label('created_by_uid',  __('report.user') . ':') !!}
+                {!! Form::select('created_by_uid', $sales_representative, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
             </div>
         </div>
         @endcan
@@ -87,12 +87,12 @@
                     }
 
                     if($('#sell_list_filter_location_id').length) {
-                        d.location_id = $('#sell_list_filter_location_id').val();
+                        d.location_uid = $('#sell_list_filter_location_id').val();
                     }
                     d.customer_id = $('#sell_list_filter_customer_id').val();
 
-                    if($('#created_by').length) {
-                        d.created_by = $('#created_by').val();
+                    if($('#created_by_uid').length) {
+                        d.created_by_uid = $('#created_by_uid').val();
                     }
                 }
             },
@@ -127,7 +127,7 @@
                 $( row ).find('td:eq(2)').attr('class', 'clickable_td');
             }
         });
-        $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #created_by',  function() {
+        $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #created_by_uid',  function() {
             sell_return_table.ajax.reload();
         });
     })

@@ -167,7 +167,7 @@
 	      			<div class="col-md-12">
 	      				<strong>@lang('lang_v1.product_stock_details')</strong>
 	      			</div>
-	      			<div class="col-md-12" id="view_product_stock_details" data-product_id="{{$product->id}}">
+	      			<div class="col-md-12" id="view_product_stock_details" data-product_uid="{{$product->id}}">
 	      			</div>
 	      		</div>
       		@endif

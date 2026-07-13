@@ -247,7 +247,7 @@
                             "ajax": {
                                 "url": "/bookings/get-todays-bookings",
                                 "data": function ( d ) {
-                                    d.location_id = $('#business_location_id').val();
+                                    d.location_uid = $('#business_location_id').val();
                                 }
                             },
                             columns: [
@@ -301,11 +301,11 @@
             });
         });
 
-        function getLocationTables(location_id){
+        function getLocationTables(location_uid){
             $.ajax({
                 method: "GET",
                 url: '/modules/data/get-pos-details',
-                data: {'location_id': location_id},
+                data: {'location_uid': location_uid},
                 dataType: "html",
                 success: function(result){
                     $('div#restaurant_module_span').html(result);
@@ -321,16 +321,16 @@
         }
 
         function reload_calendar(){
-            var location_id = '';
+            var location_uid = '';
             if($('select#business_location_id').val()){
-                location_id = $('select#business_location_id').val();
+                location_uid = $('select#business_location_id').val();
             }
 
             var events_source = {
                 url: '/bookings',
                 type: 'get',
                 data: {
-                    'location_id': location_id
+                    'location_uid': location_uid
                 }
             }
             $('#calendar').fullCalendar( 'removeEventSource', events_source);

@@ -4,7 +4,7 @@
 		$check_decimal = $product->allow_decimal;
 		$check_decimal_second_unit = $product->su_allow_decimal;
 	@endphp
-	<tr data-variation_id="{{$product->variation_id}}">
+	<tr data-variation_uid="{{$product->variation_uid}}">
 		<td>
 			{{$product->product}}
 			@if($product->type == 'single')
@@ -17,12 +17,12 @@
 		<td>{{@format_quantity($product->alert_quantity)}} {{$product->unit}}</td>
 		<td>
 			<div class="input-group">
-				<input type="hidden" name="purchases[{{$product->variation_id}}][product_id]" 
-                value="{{$product->product_id}}">
-                <input type="hidden" name="purchases[{{$product->variation_id}}][variation_id]" 
-                value="{{$product->variation_id}}">
+				<input type="hidden" name="purchases[{{$product->variation_uid}}][product_uid]" 
+                value="{{$product->product_uid}}">
+                <input type="hidden" name="purchases[{{$product->variation_uid}}][variation_uid]" 
+                value="{{$product->variation_uid}}">
 				<input type="text" 
-                name="purchases[{{$product->variation_id}}][quantity]" 
+                name="purchases[{{$product->variation_uid}}][quantity]" 
                 value="0"
                 class="form-control input-sm input_number mousetrap"
                 required
@@ -43,7 +43,7 @@
 				<label>@lang('lang_v1.second_quantity')</label>
 				<div class="input-group">
 					<input type="text" 
-	                name="purchases[{{$product->variation_id}}][secondary_unit_quantity]" 
+	                name="purchases[{{$product->variation_uid}}][secondary_unit_quantity]" 
 	                value="0"
 	                class="form-control input-sm input_number mousetrap"
 	                required

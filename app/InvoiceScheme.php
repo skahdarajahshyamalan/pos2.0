@@ -21,9 +21,9 @@ class InvoiceScheme extends Model
     /**
      * Returns list of invoice schemes in array format
      */
-    public static function forDropdown($business_id)
+    public static function forDropdown($business_uid)
     {
-        $dropdown = InvoiceScheme::where('business_id', $business_id)
+        $dropdown = InvoiceScheme::where('business_uid', $business_uid)
                                 ->pluck('name', 'id');
 
         return $dropdown;
@@ -32,9 +32,9 @@ class InvoiceScheme extends Model
     /**
      * Retrieves the default invoice scheme
      */
-    public static function getDefault($business_id)
+    public static function getDefault($business_uid)
     {
-        $default = InvoiceScheme::where('business_id', $business_id)
+        $default = InvoiceScheme::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                 ->first();
 

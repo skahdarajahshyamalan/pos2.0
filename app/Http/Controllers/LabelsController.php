@@ -38,29 +38,29 @@ class LabelsController extends Controller
      */
     public function show(Request $request)
     {
-        $business_id = $request->session()->get('user.business_id');
+        $business_uid = $request->session()->get('user.business_uid');
         $purchase_id = $request->get('purchase_id', false);
-        $product_id = $request->get('product_id', false);
+        $product_uid = $request->get('product_uid', false);
 
         //Get products for the business
         $products = [];
         $price_groups = [];
         if ($purchase_id) {
-            $products = $this->transactionUtil->getPurchaseProducts($business_id, $purchase_id);
-        } elseif ($product_id) {
-            $products = $this->productUtil->getDetailsFromProduct($business_id, $product_id);
+            $products = $this->transactionUtil->getPurchaseProducts($business_uid, $purchase_id);
+        } elseif ($product_uid) {
+            $products = $this->productUtil->getDetailsFromProduct($business_uid, $product_uid);
         }
 
         //get price groups
         $price_groups = [];
-        if (! empty($purchase_id) || ! empty($product_id)) {
-            $price_groups = SellingPriceGroup::where('business_id', $business_id)
+        if (! empty($purchase_id) || ! empty($product_uid)) {
+            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                     ->active()
                                     ->pluck('name', 'id');
         }
 
-        $barcode_settings = Barcode::where('business_id', $business_id)
-                                ->orWhereNull('business_id')
+        $barcode_settings = Barcode::where('business_uid', $business_uid)
+                                ->orWhereNull('business_uid')
                                 ->select(DB::raw('CONCAT(name, ", ", COALESCE(description, "")) as name, id, is_default'))
                                 ->get();
         $default = $barcode_settings->where('is_default', 1)->first();
@@ -78,15 +78,15 @@ class LabelsController extends Controller
     public function addProductRow(Request $request)
     {
         if ($request->ajax()) {
-            $product_id = $request->input('product_id');
-            $variation_id = $request->input('variation_id');
-            $business_id = $request->session()->get('user.business_id');
+            $product_uid = $request->input('product_uid');
+            $variation_uid = $request->input('variation_uid');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            if (! empty($product_id)) {
+            if (! empty($product_uid)) {
                 $index = $request->input('row_count');
-                $products = $this->productUtil->getDetailsFromProduct($business_id, $product_id, $variation_id);
+                $products = $this->productUtil->getDetailsFromProduct($business_uid, $product_uid, $variation_uid);
 
-                $price_groups = SellingPriceGroup::where('business_id', $business_id)
+                $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                             ->active()
                                             ->pluck('name', 'id');
 
@@ -107,7 +107,7 @@ class LabelsController extends Controller
             $products = $request->get('products');
             $print = $request->get('print');
             $barcode_setting = $request->get('barcode_setting');
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             $barcode_details = Barcode::find($barcode_setting);
             $barcode_details->stickers_in_one_sheet = $barcode_details->is_continuous ? $barcode_details->stickers_in_one_row : $barcode_details->stickers_in_one_sheet;
@@ -125,7 +125,7 @@ class LabelsController extends Controller
             $product_details_page_wise = [];
             $total_qty = 0;
             foreach ($products as $value) {
-                $details = $this->productUtil->getDetailsFromVariation($value['variation_id'], $business_id, null, false);
+                $details = $this->productUtil->getDetailsFromVariation($value['variation_uid'], $business_uid, null, false);
 
                 if (! empty($value['exp_date'])) {
                     $details->exp_date = $value['exp_date'];
@@ -140,7 +140,7 @@ class LabelsController extends Controller
                 if (! empty($value['price_group_id'])) {
                     $tax_id = $print['price_type'] == 'inclusive' ?: $details->tax_id;
 
-                    $group_prices = $this->productUtil->getVariationGroupPrice($value['variation_id'], $value['price_group_id'], $tax_id);
+                    $group_prices = $this->productUtil->getVariationGroupPrice($value['variation_uid'], $value['price_group_id'], $tax_id);
 
                     $details->sell_price_inc_tax = $group_prices['price_inc_tax'];
                     $details->default_sell_price = $group_prices['price_exc_tax'];

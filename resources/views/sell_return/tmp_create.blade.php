@@ -27,8 +27,8 @@
 	<div class="row">
 		<div class="col-sm-3">
 			<div class="form-group">
-				{!! Form::label('location_id', __('purchase.business_location').':*') !!}
-				{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 
+				{!! Form::label('location_uid', __('purchase.business_location').':*') !!}
+				{!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 
 				'id' => 'select_location_id']); !!}
 			</div>
 		</div>
@@ -40,7 +40,7 @@
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">
-				{!! Form::hidden('location_id', $default_location, ['id' => 'location_id']); !!}
+				{!! Form::hidden('location_uid', $default_location, ['id' => 'location_uid']); !!}
 
 				<div class="col-sm-3">
 					<div class="form-group">

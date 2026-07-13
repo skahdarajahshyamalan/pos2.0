@@ -37,13 +37,13 @@
         <div class="clearfix"></div>
         <div class="col-sm-8 col-sm-offset-2">
           <div class="form-group">
-            {!! Form::label('location_id', __('business.business_location') . ':') !!}
-              {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2',
+            {!! Form::label('location_uid', __('business.business_location') . ':') !!}
+              {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2',
               'placeholder' => __('lang_v1.select_location')]); !!}
           </div>
         </div>
         @else
-          {!! Form::hidden('location_id', array_key_first($business_locations->toArray()) ); !!}
+          {!! Form::hidden('location_uid', array_key_first($business_locations->toArray()) ); !!}
         @endif
         <div class="col-sm-8 col-sm-offset-2">
           <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right">@lang('cash_register.open_register')</button>

@@ -57,10 +57,10 @@ class DashboardConfiguratorController extends Controller
      */
     public function edit($id)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //get the configuration.
-        $dashboard = DashboardConfiguration::where('business_id', $business_id)->findorfail($id);
+        $dashboard = DashboardConfiguration::where('business_uid', $business_uid)->findorfail($id);
         $dashboard->configuration = json_decode($dashboard->configuration, true);
 
         //Get all widgets
@@ -88,9 +88,9 @@ class DashboardConfiguratorController extends Controller
 
         try {
             $input = $request->only(['configuration']);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $dashboard = DashboardConfiguration::where('business_id', $business_id)->findOrFail($id);
+            $dashboard = DashboardConfiguration::where('business_uid', $business_uid)->findOrFail($id);
             $dashboard->configuration = $input['configuration'];
             $dashboard->save();
 

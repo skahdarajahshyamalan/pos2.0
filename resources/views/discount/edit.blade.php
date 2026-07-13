@@ -24,20 +24,20 @@
         </div>
         <div class="col-md-6 @if(!empty($variations)) hide @endif" id="brand_input">
           <div class="form-group">
-            {!! Form::label('brand_id', __('product.brand') . ':') !!}
-              {!! Form::select('brand_id', $brands, $discount->brand_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'style' => 'width: 100%;']); !!}
+            {!! Form::label('brand_uid', __('product.brand') . ':') !!}
+              {!! Form::select('brand_uid', $brands, $discount->brand_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'style' => 'width: 100%;']); !!}
           </div>
         </div>
         <div class="col-sm-6 @if(!empty($variations)) hide @endif" id="category_input">
           <div class="form-group">
-            {!! Form::label('category_id', __('product.category') . ':') !!}
-              {!! Form::select('category_id', $categories, $discount->category_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'style' => 'width: 100%;']); !!}
+            {!! Form::label('category_uid', __('product.category') . ':') !!}
+              {!! Form::select('category_uid', $categories, $discount->category_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'style' => 'width: 100%;']); !!}
           </div>
         </div>
         <div class="col-sm-6">
           <div class="form-group">
-            {!! Form::label('location_id', __('sale.location') . ':*') !!}
-              {!! Form::select('location_id', $locations, $discount->location_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
+            {!! Form::label('location_uid', __('sale.location') . ':*') !!}
+              {!! Form::select('location_uid', $locations, $discount->location_uid, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
         <div class="col-md-6">

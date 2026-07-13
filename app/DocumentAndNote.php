@@ -44,7 +44,7 @@ class DocumentAndNote extends Model
      */
     public function createdBy()
     {
-        return $this->belongsTo(\App\User::class, 'created_by');
+        return $this->belongsTo(\App\User::class, 'created_by_uid');
     }
 
     public function getActivitylogOptions(): LogOptions

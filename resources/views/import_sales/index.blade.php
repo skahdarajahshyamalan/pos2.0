@@ -102,7 +102,7 @@
                     <tr>
                         <th>@lang('lang_v1.import_batch')</th>
                         <th>@lang('lang_v1.import_time')</th>
-                        <th>@lang('business.created_by')</th>
+                        <th>@lang('business.created_by_uid')</th>
                         <th>@lang('lang_v1.invoices')</th>
                         @can('sell.delete')
                             <th class="not-export">@lang('messages.action')</th>
@@ -114,7 +114,7 @@
                         <tr>
                             <td>{{$key}}</td>
                             <td>{{@format_datetime($value['import_time'])}}</td>
-                            <td>{{$value['created_by']}}</td>
+                            <td>{{$value['created_by_uid']}}</td>
                             <td>
                                 {{implode(', ', $value['invoices'])}} <br>
                                 <p class="text-muted text-right">

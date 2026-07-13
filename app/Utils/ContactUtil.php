@@ -11,13 +11,13 @@ class ContactUtil extends Util
     /**
      * Returns Walk In Customer for a Business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array/false
      */
-    public function getWalkInCustomer($business_id, $array = true)
+    public function getWalkInCustomer($business_uid, $array = true)
     {
         $contact = Contact::whereIn('type', ['customer', 'both'])
-                    ->where('contacts.business_id', $business_id)
+                    ->where('contacts.business_uid', $business_uid)
                     ->where('contacts.is_default', 1)
                     ->leftjoin('customer_groups as cg', 'cg.id', '=', 'contacts.customer_group_id')
                     ->select('contacts.*',
@@ -40,11 +40,11 @@ class ContactUtil extends Util
     /**
      * Returns the customer group
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  int  $customer_id
      * @return array
      */
-    public function getCustomerGroup($business_id, $customer_id)
+    public function getCustomerGroup($business_uid, $customer_id)
     {
         $cg = [];
 
@@ -54,7 +54,7 @@ class ContactUtil extends Util
 
         $contact = Contact::leftjoin('customer_groups as CG', 'contacts.customer_group_id', 'CG.id')
             ->where('contacts.id', $customer_id)
-            ->where('contacts.business_id', $business_id)
+            ->where('contacts.business_uid', $business_uid)
             ->select('CG.*')
             ->first();
 
@@ -64,23 +64,23 @@ class ContactUtil extends Util
     /**
      * Returns the contact info
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  int  $contact_id
      * @return array
      */
-    public function getContactInfo($business_id, $contact_id)
+    public function getContactInfo($business_uid, $contact_id)
     {
         $contact = Contact::where('contacts.id', $contact_id)
-                    ->where('contacts.business_id', $business_id)
+                    ->where('contacts.business_uid', $business_uid)
                     ->leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
                     ->with(['business'])
                     ->select(
                         DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
-                        DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as purchase_paid"),
-                        DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
+                        DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as purchase_paid"),
+                        DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as invoice_received"),
                         DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
-                        DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid"),
+                        DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as opening_balance_paid"),
                         'contacts.*'
                     )->first();
 
@@ -92,17 +92,17 @@ class ContactUtil extends Util
         //Check Contact id
         $count = 0;
         if (! empty($input['contact_id'])) {
-            $count = Contact::where('business_id', $input['business_id'])
+            $count = Contact::where('business_uid', $input['business_uid'])
                             ->where('contact_id', $input['contact_id'])
                             ->count();
         }
         if ($count == 0) {
             //Update reference count
-            $ref_count = $this->setAndGetReferenceCount('contacts', $input['business_id']);
+            $ref_count = $this->setAndGetReferenceCount('contacts', $input['business_uid']);
 
             if (empty($input['contact_id'])) {
                 //Generate reference number
-                $input['contact_id'] = $this->generateReferenceNumber('contacts', $ref_count, $input['business_id']);
+                $input['contact_id'] = $this->generateReferenceNumber('contacts', $ref_count, $input['business_uid']);
             }
 
             $opening_balance = isset($input['opening_balance']) ? $input['opening_balance'] : 0;
@@ -127,7 +127,7 @@ class ContactUtil extends Util
             //Add opening balance
             if (! empty($opening_balance)) {
                 $transactionUtil = new TransactionUtil();
-                $transactionUtil->createOpeningBalanceTransaction($contact->business_id, $contact->id, $opening_balance, $contact->created_by, false);
+                $transactionUtil->createOpeningBalanceTransaction($contact->business_uid, $contact->id, $opening_balance, $contact->created_by_uid, false);
             }
 
             $output = ['success' => true,
@@ -141,12 +141,12 @@ class ContactUtil extends Util
         }
     }
 
-    public function updateContact($input, $id, $business_id)
+    public function updateContact($input, $id, $business_uid)
     {
         $count = 0;
         //Check Contact id
         if (! empty($input['contact_id'])) {
-            $count = Contact::where('business_id', $business_id)
+            $count = Contact::where('business_uid', $business_uid)
                     ->where('contact_id', $input['contact_id'])
                     ->where('id', '!=', $id)
                     ->count();
@@ -170,7 +170,7 @@ class ContactUtil extends Util
                 unset($input['assigned_to_users']);
             }
 
-            $contact = Contact::where('business_id', $business_id)->findOrFail($id);
+            $contact = Contact::where('business_uid', $business_uid)->findOrFail($id);
             foreach ($input as $key => $value) {
                 $contact->$key = $value;
             }
@@ -196,7 +196,7 @@ class ContactUtil extends Util
             } else {
                 //Add opening balance
                 if (! empty($opening_balance)) {
-                    $transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $opening_balance, $contact->created_by, false);
+                    $transactionUtil->createOpeningBalanceTransaction($business_uid, $contact->id, $opening_balance, $contact->created_by_uid, false);
                 }
             }
 
@@ -211,11 +211,11 @@ class ContactUtil extends Util
         return $output;
     }
 
-    public function getContactQuery($business_id, $type, $contact_ids = [])
+    public function getContactQuery($business_uid, $type, $contact_ids = [])
     {
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
-                    ->where('contacts.business_id', $business_id);
+                    ->where('contacts.business_uid', $business_uid);
 
         if ($type == 'supplier') {
             $query->onlySuppliers();
@@ -234,7 +234,7 @@ class ContactUtil extends Util
             'contacts.*',
             'cg.name as customer_group',
             DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
-            DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid"),
+            DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as opening_balance_paid"),
             DB::raw('MAX(DATE(transaction_date)) as max_transaction_date'),
             DB::raw("SUM(IF(t.type = 'ledger_discount', final_total, 0)) as total_ledger_discount"),
             't.transaction_date',
@@ -243,18 +243,18 @@ class ContactUtil extends Util
         if (in_array($type, ['supplier', 'both'])) {
             $query->addSelect([
                 DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
-                DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as purchase_paid"),
+                DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as purchase_paid"),
                 DB::raw("SUM(IF(t.type = 'purchase_return', final_total, 0)) as total_purchase_return"),
-                DB::raw("SUM(IF(t.type = 'purchase_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as purchase_return_paid"),
+                DB::raw("SUM(IF(t.type = 'purchase_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as purchase_return_paid"),
             ]);
         }
 
         if (in_array($type, ['customer', 'both'])) {
             $query->addSelect([
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
-                DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
+                DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as invoice_received"),
                 DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
-                DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
+                DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as sell_return_paid"),
             ]);
         }
         $query->groupBy('contacts.id');

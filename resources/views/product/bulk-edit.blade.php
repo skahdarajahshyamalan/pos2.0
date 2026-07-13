@@ -72,7 +72,7 @@
 	                }
 	            },
 	            select: function(event, ui) {
-	                addProductRow(ui.item.product_id);
+	                addProductRow(ui.item.product_uid);
 	            },
 	        }).autocomplete('instance')._renderItem = function(ul, item) {
 		        var string = '<li>' + item.name + ' (' + item.sku + ')' + '</li>';
@@ -157,7 +157,7 @@
 		__write_number(tr.find('input.profit_percent'), profit_percent);
 	});
 
-	$(document).on('change', 'select.category_id', function() {
+	$(document).on('change', 'select.category_uid', function() {
 		var cat = $(this).val();
 		var tr = $(this).closest('tr');
 	    $.ajax({
@@ -173,15 +173,15 @@
 	    });
 	});
 
-	function addProductRow(product_id) {
-		if ($('#product_' + product_id).length == 0) {
+	function addProductRow(product_uid) {
+		if ($('#product_' + product_uid).length == 0) {
 			$.ajax({
-		        url: '/products/get-product-to-edit/' + product_id,
+		        url: '/products/get-product-to-edit/' + product_uid,
 		        dataType: 'html',
 		        success: function(result) {
 		            if (result) {
 		                $(result).insertAfter('#product_table_head');
-		                $('#product_' + product_id ).find('.select2').each( function() {
+		                $('#product_' + product_uid ).find('.select2').each( function() {
 		                	$(this).select2();
 		                });
 		            }

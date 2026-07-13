@@ -349,7 +349,7 @@ $(document).ready( function(){
         'ajax': {
             url: "{{action([\App\Http\Controllers\ContactController::class, 'getSupplierStockReport'], [$contact->id])}}",
             data: function (d) {
-                d.location_id = $('#sr_location_id').val();
+                d.location_uid = $('#sr_location_id').val();
             }
         },
         columns: [
@@ -488,7 +488,7 @@ function get_contact_ledger() {
     var end_date = '';
     var transaction_types = $('input.transaction_types:checked').map(function(i, e) {return e.value}).toArray();
     var show_payments = $('input#show_payments').is(':checked');
-    var location_id = $('#ledger_location').val();
+    var location_uid = $('#ledger_location').val();
 
     if($('#ledger_date_range').val()) {
         start_date = $('#ledger_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
@@ -502,7 +502,7 @@ function get_contact_ledger() {
         show_payments: show_payments,
         end_date: end_date,
         format: format,
-        location_id: location_id
+        location_uid: location_uid
     }
     $.ajax({
         url: '/contacts/ledger?contact_id={{$contact->id}}',
@@ -529,9 +529,9 @@ $(document).on('click', '#send_ledger', function() {
     var end_date = $('#ledger_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
     var format = $('input[name="ledger_format"]:checked').val();
 
-    var location_id = $('#ledger_location').val();
+    var location_uid = $('#ledger_location').val();
 
-    var url = "{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], [$contact->id, 'send_ledger'])}}" + '?start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_id=' + location_id;
+    var url = "{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], [$contact->id, 'send_ledger'])}}" + '?start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_uid=' + location_uid;
 
     $.ajax({
         url: url,
@@ -550,9 +550,9 @@ $(document).on('click', '#print_ledger_pdf', function() {
 
     var format = $('input[name="ledger_format"]:checked').val();
 
-    var location_id = $('#ledger_location').val();
+    var location_uid = $('#ledger_location').val();
 
-    var url = $(this).data('href') + '&start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_id=' + location_id;
+    var url = $(this).data('href') + '&start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_uid=' + location_uid;
     window.open(url);
 });
 

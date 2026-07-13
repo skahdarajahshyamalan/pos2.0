@@ -58,7 +58,7 @@ class AutoSendPaymentReminder extends Command
                                         ->get();
 
             foreach ($templates as $template) {
-                $business = Business::with(['currency'])->where('id', $template->business_id)->first();
+                $business = Business::with(['currency'])->where('id', $template->business_uid)->first();
 
                 $data = [
                     'subject' => $template->subject ?? '',
@@ -82,7 +82,7 @@ class AutoSendPaymentReminder extends Command
                 ];
 
                 if (! empty($data['auto_send']) || ! empty($data['auto_send_sms'])) {
-                    $overdue_sells = Transaction::where('transactions.business_id', $business->id)
+                    $overdue_sells = Transaction::where('transactions.business_uid', $business->id)
                                     ->where('transactions.type', 'sell')
                                     ->where('transactions.status', 'final')
                                     ->leftjoin('activity_log as a', function ($join) {

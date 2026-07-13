@@ -139,7 +139,7 @@
             <div class="checkbox">
               <label>
                 {!! Form::checkbox('location_permissions[]', 'location.' . $location->id, false, 
-                [ 'class' => 'input-icheck']); !!} {{ $location->name }} @if(!empty($location->location_id))({{ $location->location_id}}) @endif
+                [ 'class' => 'input-icheck']); !!} {{ $location->name }} @if(!empty($location->location_uid))({{ $location->location_uid}}) @endif
               </label>
             </div>
           </div>

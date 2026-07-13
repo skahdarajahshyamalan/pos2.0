@@ -63,17 +63,17 @@ class Transaction extends Model
 
     public function payment_lines()
     {
-        return $this->hasMany(\App\TransactionPayment::class, 'transaction_id');
+        return $this->hasMany(\App\TransactionPayment::class, 'transaction_uid');
     }
 
     public function location()
     {
-        return $this->belongsTo(\App\BusinessLocation::class, 'location_id');
+        return $this->belongsTo(\App\BusinessLocation::class, 'location_uid');
     }
 
     public function business()
     {
-        return $this->belongsTo(\App\Business::class, 'business_id');
+        return $this->belongsTo(\App\Business::class, 'business_uid');
     }
 
     public function tax()
@@ -88,7 +88,7 @@ class Transaction extends Model
 
     public function sales_person()
     {
-        return $this->belongsTo(\App\User::class, 'created_by');
+        return $this->belongsTo(\App\User::class, 'created_by_uid');
     }
 
     public function sale_commission_agent()
@@ -405,7 +405,7 @@ class Transaction extends Model
     {
         $sales_orders = null;
         if (! empty($this->sales_order_ids)) {
-            $sales_orders = Transaction::where('business_id', $this->business_id)
+            $sales_orders = Transaction::where('business_uid', $this->business_uid)
                                 ->where('type', 'sales_order')
                                 ->whereIn('id', $this->sales_order_ids)
                                 ->get();

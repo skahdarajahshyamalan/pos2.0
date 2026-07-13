@@ -20,9 +20,9 @@ class BarcodeController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $barcodes = Barcode::where('business_id', $business_id)
+            $barcodes = Barcode::where('business_uid', $business_uid)
                         ->select(['name', 'description', 'id', 'is_default']);
 
             return Datatables::of($barcodes)
@@ -84,12 +84,12 @@ class BarcodeController extends Controller
             $input = $request->only(['name', 'description', 'width', 'height', 'top_margin',
                 'left_margin', 'row_distance', 'col_distance',
                 'stickers_in_one_row', 'paper_width', ]);
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
 
             if (! empty($request->input('is_default'))) {
                 //get_default
-                $default = Barcode::where('business_id', $business_id)
+                $default = Barcode::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                 ->update(['is_default' => 0]);
                 $input['is_default'] = 1;
@@ -140,8 +140,8 @@ class BarcodeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $barcode = Barcode::where('business_id', $business_id)->find($id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $barcode = Barcode::where('business_uid', $business_uid)->find($id);
 
         return view('barcode.edit')
             ->with(compact('barcode'));
@@ -243,8 +243,8 @@ class BarcodeController extends Controller
         if (request()->ajax()) {
             try {
                 //get_default
-                $business_id = request()->session()->get('user.business_id');
-                $default = Barcode::where('business_id', $business_id)
+                $business_uid = request()->session()->get('user.business_uid');
+                $default = Barcode::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                  ->update(['is_default' => 0]);
 

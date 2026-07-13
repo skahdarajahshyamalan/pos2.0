@@ -114,14 +114,14 @@ class Business extends Model
     /**
      * Updates a business based on the input provided.
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  array  $details
      * @return object
      */
-    public static function update_business($business_id, $details)
+    public static function update_business($business_uid, $details)
     {
         if (! empty($details)) {
-            Business::where('id', $business_id)
+            Business::where('id', $business_uid)
                 ->update($details);
         }
     }

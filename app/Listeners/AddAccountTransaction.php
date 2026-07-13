@@ -38,7 +38,7 @@ class AddAccountTransaction
             $this->transactionUtil->updateContactBalance($event->transactionPayment->payment_for, $event->transactionPayment->amount, 'deduct');
         }
 
-        if (! $this->moduleUtil->isModuleEnabled('account', $event->transactionPayment->business_id)) {
+        if (! $this->moduleUtil->isModuleEnabled('account', $event->transactionPayment->business_uid)) {
             return true;
         }
 
@@ -50,8 +50,8 @@ class AddAccountTransaction
                 'account_id' => $event->formInput['account_id'],
                 'type' => $type,
                 'operation_date' => $event->transactionPayment->paid_on,
-                'created_by' => $event->transactionPayment->created_by,
-                'transaction_id' => $event->transactionPayment->transaction_id,
+                'created_by_uid' => $event->transactionPayment->created_by_uid,
+                'transaction_uid' => $event->transactionPayment->transaction_uid,
                 'transaction_payment_id' => $event->transactionPayment->id,
             ];
 

@@ -22,8 +22,8 @@
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                {!! Form::label('location_id', __('business.business_location') . ':*') !!}
-                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control', 'required', 'placeholder' => __('messages.please_select')]); !!}
+                {!! Form::label('location_uid', __('business.business_location') . ':*') !!}
+                {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control', 'required', 'placeholder' => __('messages.please_select')]); !!}
             </div>
         </div>
     </div>

@@ -16,9 +16,9 @@ class GroupTaxController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $tax_rates = TaxRate::where('business_id', $business_id)
+            $tax_rates = TaxRate::where('business_uid', $business_uid)
                         ->where('is_tax_group', '1')
                         ->with(['sub_taxes']);
 
@@ -51,8 +51,8 @@ class GroupTaxController extends Controller
      */
     public function create()
     {
-        $business_id = request()->session()->get('user.business_id');
-        $taxes = TaxRate::where('business_id', $business_id)->where('is_tax_group', '0')->pluck('name', 'id');
+        $business_uid = request()->session()->get('user.business_uid');
+        $taxes = TaxRate::where('business_uid', $business_uid)->where('is_tax_group', '0')->pluck('name', 'id');
 
         return view('tax_group.create')
                 ->with(compact('taxes'));
@@ -68,8 +68,8 @@ class GroupTaxController extends Controller
     {
         try {
             $input['name'] = $request->input('name');
-            $input['business_id'] = $request->session()->get('user.business_id');
-            $input['created_by'] = $request->session()->get('user.id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
+            $input['created_by_uid'] = $request->session()->get('user.id');
             $sub_tax_ids = $request->input('taxes');
 
             $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
@@ -117,10 +117,10 @@ class GroupTaxController extends Controller
     public function edit($id)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $tax_rate = TaxRate::where('business_id', $business_id)->with(['sub_taxes'])->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $tax_rate = TaxRate::where('business_uid', $business_uid)->with(['sub_taxes'])->find($id);
 
-            $taxes = TaxRate::where('business_id', $business_id)->where('is_tax_group', '0')->pluck('name', 'id');
+            $taxes = TaxRate::where('business_uid', $business_uid)->where('is_tax_group', '0')->pluck('name', 'id');
 
             $sub_taxes = [];
             foreach ($tax_rate->sub_taxes as $sub_tax) {
@@ -143,7 +143,7 @@ class GroupTaxController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
                 $sub_tax_ids = $request->input('taxes');
 
                 $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
@@ -152,7 +152,7 @@ class GroupTaxController extends Controller
                     $amount += $sub_tax->amount;
                 }
 
-                $tax_rate = TaxRate::where('business_id', $business_id)->findOrFail($id);
+                $tax_rate = TaxRate::where('business_uid', $business_uid)->findOrFail($id);
                 $tax_rate->name = $request->input('name');
                 $tax_rate->amount = $amount;
                 $tax_rate->save();
@@ -183,9 +183,9 @@ class GroupTaxController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $tax_rate = TaxRate::where('business_id', $business_id)->findOrFail($id);
+                $tax_rate = TaxRate::where('business_uid', $business_uid)->findOrFail($id);
                 $tax_rate->delete();
 
                 $output = ['success' => true,

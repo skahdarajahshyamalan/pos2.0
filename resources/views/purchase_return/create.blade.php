@@ -28,8 +28,8 @@
 				</div>
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('location_id', __('purchase.business_location').':*') !!}
-						{!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+						{!! Form::label('location_uid', __('purchase.business_location').':*') !!}
+						{!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
 					</div>
 				</div>
 				<div class="col-sm-3">

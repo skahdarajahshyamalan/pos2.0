@@ -47,16 +47,16 @@ class CombinedPurchaseReturnController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse();
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                         ->ExcludeForTaxGroup()
                         ->get();
 
@@ -79,20 +79,20 @@ class CombinedPurchaseReturnController extends Controller
         try {
             DB::beginTransaction();
 
-            $input_data = $request->only(['location_id', 'transaction_date', 'final_total', 'ref_no',
+            $input_data = $request->only(['location_uid', 'transaction_date', 'final_total', 'ref_no',
                 'tax_id', 'tax_amount', 'contact_id', ]);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not
-            if (! $this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse();
             }
 
-            $user_id = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.id');
 
             $input_data['type'] = 'purchase_return';
-            $input_data['business_id'] = $business_id;
-            $input_data['created_by'] = $user_id;
+            $input_data['business_uid'] = $business_uid;
+            $input_data['created_by_uid'] = $user_uid;
             $input_data['transaction_date'] = $this->productUtil->uf_date($input_data['transaction_date'], true);
             $input_data['total_before_tax'] = $input_data['final_total'] - $input_data['tax_amount'];
 
@@ -114,8 +114,8 @@ class CombinedPurchaseReturnController extends Controller
                 foreach ($products as $product) {
                     $unit_price = $this->productUtil->num_uf($product['unit_price']);
                     $return_line = [
-                        'product_id' => $product['product_id'],
-                        'variation_id' => $product['variation_id'],
+                        'product_uid' => $product['product_uid'],
+                        'variation_uid' => $product['variation_uid'],
                         'quantity' => 0,
                         'purchase_price' => $unit_price,
                         'pp_without_discount' => $unit_price,
@@ -129,9 +129,9 @@ class CombinedPurchaseReturnController extends Controller
 
                     //Decrease available quantity
                     $this->productUtil->decreaseProductQuantity(
-                        $product['product_id'],
-                        $product['variation_id'],
-                        $input_data['location_id'],
+                        $product['product_uid'],
+                        $product['variation_uid'],
+                        $input_data['location_uid'],
                         $this->productUtil->num_uf($product['quantity'])
                     );
                 }
@@ -173,21 +173,21 @@ class CombinedPurchaseReturnController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase_return = Transaction::where('business_id', $business_id)
+        $purchase_return = Transaction::where('business_uid', $business_uid)
                                     ->with(['contact'])
                                     ->find($id);
-        $location_id = $purchase_return->location_id;
+        $location_uid = $purchase_return->location_uid;
         $purchase_lines = PurchaseLine::join(
                             'products AS p',
-                            'purchase_lines.product_id',
+                            'purchase_lines.product_uid',
                             '=',
                             'p.id'
                         )
                         ->join(
                             'variations AS variations',
-                            'purchase_lines.variation_id',
+                            'purchase_lines.variation_uid',
                             '=',
                             'variations.id'
                         )
@@ -197,21 +197,21 @@ class CombinedPurchaseReturnController extends Controller
                             '=',
                             'pv.id'
                         )
-                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_id) {
-                            $join->on('variations.id', '=', 'vld.variation_id')
-                                ->where('vld.location_id', '=', $location_id);
+                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
+                            $join->on('variations.id', '=', 'vld.variation_uid')
+                                ->where('vld.location_uid', '=', $location_uid);
                         })
-                        ->leftjoin('units', 'units.id', '=', 'p.unit_id')
-                        ->where('purchase_lines.transaction_id', $id)
+                        ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
+                        ->where('purchase_lines.transaction_uid', $id)
                         ->select(
                             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                            'p.id as product_id',
+                            'p.id as product_uid',
                             'p.enable_stock',
                             'pv.is_dummy as is_dummy',
                             'variations.sub_sku',
                             'vld.qty_available',
-                            'variations.id as variation_id',
+                            'variations.id as variation_uid',
                             'units.short_name as unit',
                             'units.allow_decimal as unit_allow_decimal',
                             'purchase_lines.purchase_price',
@@ -227,9 +227,9 @@ class CombinedPurchaseReturnController extends Controller
             $purchase_lines[$key]->formatted_qty_available = $this->productUtil->num_f($purchase_lines[$key]->qty_available);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                         ->ExcludeForTaxGroup()
                         ->get();
 
@@ -255,14 +255,14 @@ class CombinedPurchaseReturnController extends Controller
 
             $input_data = $request->only(['transaction_date', 'final_total',
                 'tax_id', 'tax_amount', 'contact_id', ]);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             if (! empty($request->input('ref_no'))) {
                 $input_data['ref_no'] = $request->input('ref_no');
             }
 
             //Check if subscribed or not
-            if (! $this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse();
             }
 
@@ -278,7 +278,7 @@ class CombinedPurchaseReturnController extends Controller
 
             $products = $request->input('products');
             $purchase_return_id = $request->input('purchase_return_id');
-            $purchase_return = Transaction::where('business_id', $business_id)
+            $purchase_return = Transaction::where('business_uid', $business_uid)
                                 ->where('type', 'purchase_return')
                                 ->find($purchase_return_id);
 
@@ -293,24 +293,24 @@ class CombinedPurchaseReturnController extends Controller
                         $updated_purchase_lines[] = $return_line->id;
 
                         $this->productUtil->decreaseProductQuantity(
-                            $product['product_id'],
-                            $product['variation_id'],
-                            $purchase_return->location_id,
+                            $product['product_uid'],
+                            $product['variation_uid'],
+                            $purchase_return->location_uid,
                             $this->productUtil->num_uf($product['quantity']),
                             $return_line->quantity_returned
                         );
                     } else {
                         $return_line = new PurchaseLine([
-                            'product_id' => $product['product_id'],
-                            'variation_id' => $product['variation_id'],
+                            'product_uid' => $product['product_uid'],
+                            'variation_uid' => $product['variation_uid'],
                             'quantity' => 0,
                         ]);
 
                         //Decrease available quantity
                         $this->productUtil->decreaseProductQuantity(
-                            $product['product_id'],
-                            $product['variation_id'],
-                            $purchase_return->location_id,
+                            $product['product_uid'],
+                            $product['variation_uid'],
+                            $purchase_return->location_uid,
                             $this->productUtil->num_uf($product['quantity'])
                         );
                     }
@@ -326,15 +326,15 @@ class CombinedPurchaseReturnController extends Controller
                 $purchase_return->update($input_data);
 
                 //If purchase line deleted add return quantity to stock
-                $deleted_purchase_lines = PurchaseLine::where('transaction_id', $purchase_return_id)
+                $deleted_purchase_lines = PurchaseLine::where('transaction_uid', $purchase_return_id)
                             ->whereNotIn('id', $updated_purchase_lines)
                             ->get();
 
                 foreach ($deleted_purchase_lines as $dpl) {
-                    $this->productUtil->updateProductQuantity($purchase_return->location_id, $dpl->product_id, $dpl->variation_id, $dpl->quantity_returned, 0, null, false);
+                    $this->productUtil->updateProductQuantity($purchase_return->location_uid, $dpl->product_uid, $dpl->variation_uid, $dpl->quantity_returned, 0, null, false);
                 }
 
-                PurchaseLine::where('transaction_id', $purchase_return_id)
+                PurchaseLine::where('transaction_uid', $purchase_return_id)
                             ->whereNotIn('id', $updated_purchase_lines)
                             ->delete();
 
@@ -372,11 +372,11 @@ class CombinedPurchaseReturnController extends Controller
     {
         if (request()->ajax()) {
             $row_index = $request->input('row_index');
-            $variation_id = $request->input('variation_id');
-            $location_id = $request->input('location_id');
+            $variation_uid = $request->input('variation_uid');
+            $location_uid = $request->input('location_uid');
 
-            $business_id = $request->session()->get('user.business_id');
-            $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id);
+            $business_uid = $request->session()->get('user.business_uid');
+            $product = $this->productUtil->getDetailsFromVariation($variation_uid, $business_uid, $location_uid);
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
 
             return view('purchase_return.partials.product_table_row')

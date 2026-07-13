@@ -31,29 +31,29 @@ class LocationSettingsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($location_id)
+    public function index($location_uid)
     {
         //Check for locations access permission
         if (! auth()->user()->can('business_settings.access') ||
-            ! auth()->user()->can_access_this_location($location_id)
+            ! auth()->user()->can_access_this_location($location_uid)
         ) {
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $location = BusinessLocation::where('business_id', $business_id)
-                        ->findorfail($location_id);
+        $location = BusinessLocation::where('business_uid', $business_uid)
+                        ->findorfail($location_uid);
 
-        $printers = Printer::forDropdown($business_id);
+        $printers = Printer::forDropdown($business_uid);
 
         $printReceiptOnInvoice = $this->printReceiptOnInvoice;
         $receiptPrinterType = $this->receiptPrinterType;
 
-        $invoice_layouts = InvoiceLayout::where('business_id', $business_id)
+        $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
-        $invoice_schemes = InvoiceScheme::where('business_id', $business_id)
+        $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
                             ->pluck('name', 'id');
 
@@ -67,12 +67,12 @@ class LocationSettingsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function updateSettings($location_id, Request $request)
+    public function updateSettings($location_uid, Request $request)
     {
         try {
             //Check for locations access permission
             if (! auth()->user()->can('business_settings.access') ||
-                ! auth()->user()->can_access_this_location($location_id)
+                ! auth()->user()->can_access_this_location($location_uid)
             ) {
                 abort(403, 'Unauthorized action.');
             }
@@ -84,10 +84,10 @@ class LocationSettingsController extends Controller
                 $input['receipt_printer_type'] = 'browser';
             }
 
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $location = BusinessLocation::where('business_id', $business_id)
-                            ->findorfail($location_id);
+            $location = BusinessLocation::where('business_uid', $business_uid)
+                            ->findorfail($location_uid);
 
             $location->fill($input);
             $location->update();

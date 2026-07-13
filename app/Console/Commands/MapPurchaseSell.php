@@ -65,9 +65,9 @@ class MapPurchaseSell extends Command
             //DB::statement('Update variation_location_details set qty_available = 0');
 
             //Step 2
-            // $qty_sums = DB::select('Select SUM(pl.quantity) as qty, pl.product_id, pl.variation_id, transactions.location_id from purchase_lines as pl join transactions on pl.transaction_id = transactions.id group by transactions.location_id, pl.product_id, pl.variation_id');
+            // $qty_sums = DB::select('Select SUM(pl.quantity) as qty, pl.product_uid, pl.variation_uid, transactions.location_uid from purchase_lines as pl join transactions on pl.transaction_uid = transactions.id group by transactions.location_uid, pl.product_uid, pl.variation_uid');
             // foreach ($qty_sums as $key => $value) {
-            //     DB::statement('update variation_location_details set qty_available = qty_available + ? where variation_id = ? and product_id = ? and location_id = ?', [$value->qty, $value->variation_id, $value->product_id, $value->location_id]);
+            //     DB::statement('update variation_location_details set qty_available = qty_available + ? where variation_uid = ? and product_uid = ? and location_uid = ?', [$value->qty, $value->variation_uid, $value->product_uid, $value->location_uid]);
             // }
 
             //Step 3: Delete existing mapping and sold quantity.
@@ -81,7 +81,7 @@ class MapPurchaseSell extends Command
 
             foreach ($businesses as $business) {
                 //Get all transactions
-                $transactions = Transaction::where('business_id', $business->id)
+                $transactions = Transaction::where('business_uid', $business->id)
                                     ->with('sell_lines')
                                     ->where('type', 'sell')
                                     ->where('status', 'final')
@@ -94,7 +94,7 @@ class MapPurchaseSell extends Command
                 foreach ($transactions as $transaction) {
                     $business_formatted = ['id' => $business->id,
                         'accounting_method' => $business->accounting_method,
-                        'location_id' => $transaction->location_id,
+                        'location_uid' => $transaction->location_uid,
                         'pos_settings' => $pos_settings,
                     ];
 
@@ -109,7 +109,7 @@ class MapPurchaseSell extends Command
                 foreach ($transactions as $transaction) {
                     $business_formatted = ['id' => $business->id,
                         'accounting_method' => $business->accounting_method,
-                        'location_id' => $transaction->location_id,
+                        'location_uid' => $transaction->location_uid,
                         'pos_settings' => $pos_settings,
                     ];
 

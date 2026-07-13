@@ -35,7 +35,7 @@
                         <td>
                           {!! Form::text('product_variation[' . $loop->parent->index . '][variations][' . $loop->index . '][value]',
                           $variation->name, ['class' => 'form-control input-sm variation_value_name', 'required']); !!}
-                          {!! Form::hidden('product_variation[' . $loop->parent->index . '][variations][' . $loop->index . '][variation_id]', $variation->id); !!}
+                          {!! Form::hidden('product_variation[' . $loop->parent->index . '][variations][' . $loop->index . '][variation_uid]', $variation->id); !!}
                         </td>
                         <td class="drag-select">
                           {!! Form::number('product_variation[' . $loop->parent->index . '][variations][' . $loop->index . '][default_purchase_price]',

@@ -9,9 +9,9 @@ class ProductsExport implements FromArray
 {
     public function array(): array
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $products = Product::where('business_id', $business_id)
+        $products = Product::where('business_uid', $business_uid)
                     ->with(['brand', 'unit', 'category', 'sub_category', 'product_variations', 'product_variations.variations', 'product_tax', 'rack_details', 'product_locations'])
                     ->select('products.*')
                     ->get();
@@ -35,7 +35,7 @@ class ProductsExport implements FromArray
             $position_details = [];
             foreach ($product->product_locations as $l) {
                 foreach ($product->rack_details as $rd) {
-                    if ($rd->location_id == $l->id) {
+                    if ($rd->location_uid == $l->id) {
                         $rack_details[] = $rd->rack;
                         $row_details[] = $rd->row;
                         $position_details[] = $rd->position;

@@ -69,7 +69,7 @@ class HomeController extends Controller
             return redirect()->action([\Modules\Crm\Http\Controllers\DashboardController::class, 'index']);
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $is_admin = $this->businessUtil->is_admin(auth()->user());
 
@@ -77,16 +77,16 @@ class HomeController extends Controller
             return view('home.index');
         }
 
-        $fy = $this->businessUtil->getCurrentFinancialYear($business_id);
+        $fy = $this->businessUtil->getCurrentFinancialYear($business_uid);
 
         $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
         //ensure start date starts from at least 30 days before to get sells last 30 days
         $least_30_days = \Carbon::parse($fy['start'])->subDays(30)->format('Y-m-d');
 
         //get all sells
-        $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_id, $least_30_days, $fy['end']);
+        $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_uid, $least_30_days, $fy['end']);
 
-        $all_locations = BusinessLocation::forDropdown($business_id)->toArray();
+        $all_locations = BusinessLocation::forDropdown($business_uid)->toArray();
 
         //Chart for sells last 30 days
         $labels = [];
@@ -112,7 +112,7 @@ class HomeController extends Controller
         foreach ($all_locations as $loc_id => $loc_name) {
             $values = [];
             foreach ($dates as $date) {
-                $total_sell_on_date_location = $sells_this_fy->where('date', $date)->where('location_id', $loc_id)->sum('total_sells');
+                $total_sell_on_date_location = $sells_this_fy->where('date', $date)->where('location_uid', $loc_id)->sum('total_sells');
 
                 if (! empty($total_sell_on_date_location)) {
                     $values[] = (float) $total_sell_on_date_location;
@@ -169,7 +169,7 @@ class HomeController extends Controller
         foreach ($all_locations as $loc_id => $loc_name) {
             $values_data = [];
             foreach ($fy_months as $month) {
-                $total_sell_in_month_year_location = $sells_this_fy->where('yearmonth', $month)->where('location_id', $loc_id)->sum('total_sells');
+                $total_sell_in_month_year_location = $sells_this_fy->where('yearmonth', $month)->where('location_uid', $loc_id)->sum('total_sells');
 
                 if (! empty($total_sell_in_month_year_location)) {
                     $values_data[] = (float) $total_sell_in_month_year_location;
@@ -223,17 +223,17 @@ class HomeController extends Controller
         if (request()->ajax()) {
             $start = request()->start;
             $end = request()->end;
-            $location_id = request()->location_id;
-            $business_id = request()->session()->get('user.business_id');
+            $location_uid = request()->location_uid;
+            $business_uid = request()->session()->get('user.business_uid');
 
             // get user id parameter
-            $created_by = request()->user_id;
+            $created_by_uid = request()->user_uid;
 
-            $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start, $end, $location_id, $created_by);
+            $purchase_details = $this->transactionUtil->getPurchaseTotals($business_uid, $start, $end, $location_uid, $created_by_uid);
 
-            $sell_details = $this->transactionUtil->getSellTotals($business_id, $start, $end, $location_id, $created_by);
+            $sell_details = $this->transactionUtil->getSellTotals($business_uid, $start, $end, $location_uid, $created_by_uid);
 
-            $total_ledger_discount = $this->transactionUtil->getTotalLedgerDiscount($business_id, $start, $end);
+            $total_ledger_discount = $this->transactionUtil->getTotalLedgerDiscount($business_uid, $start, $end);
 
             $purchase_details['purchase_due'] = $purchase_details['purchase_due'] - $total_ledger_discount['total_purchase_discount'];
 
@@ -242,12 +242,12 @@ class HomeController extends Controller
             ];
 
             $transaction_totals = $this->transactionUtil->getTransactionTotals(
-                $business_id,
+                $business_uid,
                 $transaction_types,
                 $start,
                 $end,
-                $location_id,
-                $created_by
+                $location_uid,
+                $created_by_uid
             );
 
             $total_purchase_inc_tax = ! empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
@@ -256,11 +256,11 @@ class HomeController extends Controller
             $output = $purchase_details;
             $output['total_purchase'] = $total_purchase_inc_tax;
             $output['total_purchase_return'] = $total_purchase_return_inc_tax;
-            $output['total_purchase_return_paid'] = $this->transactionUtil->getTotalPurchaseReturnPaid($business_id, $start, $end, $location_id);
+            $output['total_purchase_return_paid'] = $this->transactionUtil->getTotalPurchaseReturnPaid($business_uid, $start, $end, $location_uid);
 
             $total_sell_inc_tax = ! empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
             $total_sell_return_inc_tax = ! empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
-            $output['total_sell_return_paid'] = $this->transactionUtil->getTotalSellReturnPaid($business_id, $start, $end, $location_id);
+            $output['total_sell_return_paid'] = $this->transactionUtil->getTotalSellReturnPaid($business_uid, $start, $end, $location_uid);
 
             $output['total_sell'] = $total_sell_inc_tax;
             $output['total_sell_return'] = $total_sell_return_inc_tax;
@@ -283,9 +283,9 @@ class HomeController extends Controller
     public function getProductStockAlert()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $permitted_locations = auth()->user()->permitted_locations();
-            $products = $this->productUtil->getProductAlert($business_id, $permitted_locations);
+            $products = $this->productUtil->getProductAlert($business_uid, $permitted_locations);
 
             return Datatables::of($products)
                 ->editColumn('product', function ($row) {
@@ -319,7 +319,7 @@ class HomeController extends Controller
     public function getPurchasePaymentDues()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $today = \Carbon::now()->format('Y-m-d H:i:s');
 
             $query = Transaction::join(
@@ -332,9 +332,9 @@ class HomeController extends Controller
                         'transaction_payments as tp',
                         'transactions.id',
                         '=',
-                        'tp.transaction_id'
+                        'tp.transaction_uid'
                     )
-                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase')
                     ->where('transactions.payment_status', '!=', 'paid')
                     ->whereRaw("DATEDIFF( DATE_ADD( transaction_date, INTERVAL IF(transactions.pay_term_type = 'days', transactions.pay_term_number, 30 * transactions.pay_term_number) DAY), '$today') <= 7");
@@ -342,11 +342,11 @@ class HomeController extends Controller
             //Check for permitted locations of a user
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $query->whereIn('transactions.location_id', $permitted_locations);
+                $query->whereIn('transactions.location_uid', $permitted_locations);
             }
 
-            if (! empty(request()->input('location_id'))) {
-                $query->where('transactions.location_id', request()->input('location_id'));
+            if (! empty(request()->input('location_uid'))) {
+                $query->where('transactions.location_uid', request()->input('location_uid'));
             }
 
             $dues = $query->select(
@@ -394,7 +394,7 @@ class HomeController extends Controller
     public function getSalesPaymentDues()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $today = \Carbon::now()->format('Y-m-d H:i:s');
 
             $query = Transaction::join(
@@ -407,9 +407,9 @@ class HomeController extends Controller
                         'transaction_payments as tp',
                         'transactions.id',
                         '=',
-                        'tp.transaction_id'
+                        'tp.transaction_uid'
                     )
-                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'sell')
                     ->where('transactions.payment_status', '!=', 'paid')
                     ->whereNotNull('transactions.pay_term_number')
@@ -419,11 +419,11 @@ class HomeController extends Controller
             //Check for permitted locations of a user
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $query->whereIn('transactions.location_id', $permitted_locations);
+                $query->whereIn('transactions.location_uid', $permitted_locations);
             }
 
-            if (! empty(request()->input('location_id'))) {
-                $query->where('transactions.location_id', request()->input('location_id'));
+            if (! empty(request()->input('location_uid'))) {
+                $query->where('transactions.location_uid', request()->input('location_uid'));
             }
 
             $dues = $query->select(
@@ -523,16 +523,16 @@ class HomeController extends Controller
 
     public function getCalendar()
     {
-        $business_id = request()->session()->get('user.business_id');
-        $is_admin = $this->restUtil->is_admin(auth()->user(), $business_id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $is_admin = $this->restUtil->is_admin(auth()->user(), $business_uid);
         $is_superadmin = auth()->user()->can('superadmin');
         if (request()->ajax()) {
             $data = [
                 'start_date' => request()->start,
                 'end_date' => request()->end,
-                'user_id' => ($is_admin || $is_superadmin) && ! empty(request()->user_id) ? request()->user_id : auth()->user()->id,
-                'location_id' => ! empty(request()->location_id) ? request()->location_id : null,
-                'business_id' => $business_id,
+                'user_uid' => ($is_admin || $is_superadmin) && ! empty(request()->user_uid) ? request()->user_uid : auth()->user()->id,
+                'location_uid' => ! empty(request()->location_uid) ? request()->location_uid : null,
+                'business_uid' => $business_uid,
                 'events' => request()->events ?? [],
                 'color' => '#007FFF',
             ];
@@ -551,10 +551,10 @@ class HomeController extends Controller
             return $events;
         }
 
-        $all_locations = BusinessLocation::forDropdown($business_id)->toArray();
+        $all_locations = BusinessLocation::forDropdown($business_uid)->toArray();
         $users = [];
         if ($is_admin) {
-            $users = User::forDropdown($business_id, false);
+            $users = User::forDropdown($business_uid, false);
         }
 
         $event_types = [
@@ -588,7 +588,7 @@ class HomeController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
                 $model_id = $request->input('model_id');
                 $model = $request->input('model_type');
@@ -597,10 +597,10 @@ class HomeController extends Controller
                 DB::beginTransaction();
 
                 //find model to which medias are to be attached
-                $model_to_be_attached = $model::where('business_id', $business_id)
+                $model_to_be_attached = $model::where('business_uid', $business_uid)
                                         ->findOrFail($model_id);
 
-                Media::uploadMedia($business_id, $model_to_be_attached, $request, 'file', false, $model_media_type);
+                Media::uploadMedia($business_uid, $model_to_be_attached, $request, 'file', false, $model_media_type);
 
                 DB::commit();
 

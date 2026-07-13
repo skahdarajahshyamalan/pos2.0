@@ -1,7 +1,7 @@
 @php
 	$quantity = isset($quantity) ? $quantity: 1;
 	$multiplier = isset($multiplier) ? $multiplier: 1;
-	$unit_id = isset($unit_id) ? $unit_id: null;
+	$unit_uid = isset($unit_uid) ? $unit_uid: null;
 @endphp
 
 @foreach($variations as $variation)
@@ -25,7 +25,7 @@
                     @foreach($sub_units as $key => $value)
                         <option value="{{$key}}" 
                        data-multiplier="{{$value['multiplier']}}"
-                       @if($unit_id == $key) selected @endif
+                       @if($unit_uid == $key) selected @endif
                         >
                             {{$value['name']}}
                         </option>

@@ -16,14 +16,14 @@
               {!! Form::open(['url' => action([\App\Http\Controllers\ReportController::class, 'getStockExpiryReport']), 'method' => 'get', 'id' => 'stock_report_filter_form' ]) !!}
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                        {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                        {!! Form::label('location_uid',  __('purchase.business_location') . ':') !!}
+                        {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('category_id', __('product.category') . ':') !!}
-                        {!! Form::select('category', $categories, null, ['placeholder' => __('lang_v1.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'category_id']); !!}
+                        {!! Form::label('category_uid', __('product.category') . ':') !!}
+                        {!! Form::select('category', $categories, null, ['placeholder' => __('lang_v1.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'category_uid']); !!}
                     </div>
                 </div>
                 <div class="col-md-3">

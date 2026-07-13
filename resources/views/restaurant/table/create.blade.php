@@ -18,8 +18,8 @@
         @php $default_location = null; @endphp
       @endif
       <div class="form-group">
-        {!! Form::label('location_id', __('purchase.business_location').':*') !!}
-        {!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+        {!! Form::label('location_uid', __('purchase.business_location').':*') !!}
+        {!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
       </div>
       
       <div class="form-group">

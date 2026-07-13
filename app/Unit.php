@@ -30,13 +30,13 @@ class Unit extends Model
     /**
      * Return list of units for a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  bool  $show_none = true
      * @return array
      */
-    public static function forDropdown($business_id, $show_none = false, $only_base = true)
+    public static function forDropdown($business_uid, $show_none = false, $only_base = true)
     {
-        $query = Unit::where('business_id', $business_id);
+        $query = Unit::where('business_uid', $business_uid);
         if ($only_base) {
             $query->whereNull('base_unit_id');
         }

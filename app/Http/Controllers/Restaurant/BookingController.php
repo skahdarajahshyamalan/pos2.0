@@ -38,19 +38,19 @@ class BookingController extends Controller
         if (! auth()->user()->can('crud_all_bookings') && ! auth()->user()->can('crud_own_bookings')) {
             abort(403, 'Unauthorized action.');
         }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $user_id = request()->has('user_id') ? request()->user_id : null;
-        if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->restUtil->is_admin(auth()->user(), $business_id)) {
-            $user_id = request()->session()->get('user.id');
+        $user_uid = request()->has('user_uid') ? request()->user_uid : null;
+        if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->restUtil->is_admin(auth()->user(), $business_uid)) {
+            $user_uid = request()->session()->get('user.id');
         }
         if (request()->ajax()) {
             $filters = [
                 'start_date' => request()->start,
                 'end_date' => request()->end,
-                'user_id' => $user_id,
-                'location_id' => ! empty(request()->location_id) ? request()->location_id : null,
-                'business_id' => $business_id,
+                'user_uid' => $user_uid,
+                'location_uid' => ! empty(request()->location_uid) ? request()->location_uid : null,
+                'business_uid' => $business_uid,
             ];
 
             $events = $this->restUtil->getBookingsForCalendar($filters);
@@ -58,14 +58,14 @@ class BookingController extends Controller
             return $events;
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
-        $customers = Contact::customersDropdown($business_id, false);
+        $customers = Contact::customersDropdown($business_uid, false);
 
-        $correspondents = User::forDropdown($business_id, false);
+        $correspondents = User::forDropdown($business_uid, false);
 
         $types = Contact::getContactTypes();
-        $customer_groups = CustomerGroup::forDropdown($business_id);
+        $customer_groups = CustomerGroup::forDropdown($business_uid);
 
         return view('restaurant.booking.index', compact('business_locations', 'customers', 'correspondents', 'types', 'customer_groups'));
     }
@@ -93,8 +93,8 @@ class BookingController extends Controller
         }
         try {
             if ($request->ajax()) {
-                $business_id = request()->session()->get('user.business_id');
-                $user_id = request()->session()->get('user.id');
+                $business_uid = request()->session()->get('user.business_uid');
+                $user_uid = request()->session()->get('user.id');
 
                 $input = $request->input();
                 $booking_start = $this->commonUtil->uf_date($input['booking_start'], true);
@@ -102,8 +102,8 @@ class BookingController extends Controller
                 $date_range = [$booking_start, $booking_end];
 
                 //Check if booking is available for the required input
-                $query = Booking::where('business_id', $business_id)
-                                ->where('location_id', $input['location_id'])
+                $query = Booking::where('business_uid', $business_uid)
+                                ->where('location_uid', $input['location_uid'])
                                 ->where('contact_id', $input['contact_id'])
                                 ->where(function ($q) use ($date_range) {
                                     $q->whereBetween('booking_start', $date_range)
@@ -116,8 +116,8 @@ class BookingController extends Controller
 
                 $existing_booking = $query->first();
                 if (empty($existing_booking)) {
-                    $input['business_id'] = $business_id;
-                    $input['created_by'] = $user_id;
+                    $input['business_uid'] = $business_uid;
+                    $input['created_by_uid'] = $user_uid;
                     $input['booking_start'] = $booking_start;
                     $input['booking_end'] = $booking_end;
                     $booking = Booking::createBooking($input);
@@ -129,7 +129,7 @@ class BookingController extends Controller
                     //Send notification to customer
                     if (isset($input['send_notification']) && $input['send_notification'] == 1) {
                         $output['send_notification'] = 1;
-                        $output['notification_url'] = action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $booking->id, 'template_for' => 'new_booking']);
+                        $output['notification_url'] = action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_uid' => $booking->id, 'template_for' => 'new_booking']);
                     }
                 } else {
                     $time_range = $this->commonUtil->format_date($existing_booking->booking_start, true).' ~ '.
@@ -165,8 +165,8 @@ class BookingController extends Controller
     public function show($id)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $booking = Booking::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $booking = Booking::where('business_uid', $business_uid)
                                 ->where('id', $id)
                                 ->with(['table', 'customer', 'correspondent', 'waiter', 'location'])
                                 ->first();
@@ -210,8 +210,8 @@ class BookingController extends Controller
             abort(403, 'Unauthorized action.');
         }
         try {
-            $business_id = $request->session()->get('user.business_id');
-            $booking = Booking::where('business_id', $business_id)
+            $business_uid = $request->session()->get('user.business_uid');
+            $booking = Booking::where('business_uid', $business_uid)
                                 ->find($id);
             if (! empty($booking)) {
                 $booking->booking_status = $request->booking_status;
@@ -243,8 +243,8 @@ class BookingController extends Controller
             abort(403, 'Unauthorized action.');
         }
         try {
-            $business_id = request()->session()->get('user.business_id');
-            $booking = Booking::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $booking = Booking::where('business_uid', $business_uid)
                                 ->where('id', $id)
                                 ->delete();
             $output = ['success' => 1,
@@ -273,26 +273,26 @@ class BookingController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
             $today = \Carbon::now()->format('Y-m-d');
-            $query = Booking::where('business_id', $business_id)
+            $query = Booking::where('business_uid', $business_uid)
                         ->where('booking_status', 'booked')
                         ->whereDate('booking_start', $today)
                         ->with(['table', 'customer', 'correspondent', 'waiter', 'location']);
 
-            if (! empty(request()->location_id)) {
-                $query->where('location_id', request()->location_id);
+            if (! empty(request()->location_uid)) {
+                $query->where('location_uid', request()->location_uid);
             }
 
-            if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->commonUtil->is_admin(auth()->user(), $business_id)) {
-                $query->where(function ($query) use ($user_id) {
-                    $query->where('created_by', $user_id)
-                        ->orWhere('correspondent_id', $user_id)
-                        ->orWhere('waiter_id', $user_id);
+            if (! auth()->user()->hasPermissionTo('crud_all_bookings') && ! $this->commonUtil->is_admin(auth()->user(), $business_uid)) {
+                $query->where(function ($query) use ($user_uid) {
+                    $query->where('created_by_uid', $user_uid)
+                        ->orWhere('correspondent_id', $user_uid)
+                        ->orWhere('waiter_id', $user_uid);
                 });
 
-                //$query->where('created_by', $user_id);
+                //$query->where('created_by_uid', $user_uid);
             }
 
             return Datatables::of($query)

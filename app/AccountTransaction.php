@@ -27,7 +27,7 @@ class AccountTransaction extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(\App\Transaction::class, 'transaction_id');
+        return $this->belongsTo(\App\Transaction::class, 'transaction_uid');
     }
 
     /**
@@ -66,8 +66,8 @@ class AccountTransaction extends Model
             'type' => $data['type'],
             'sub_type' => ! empty($data['sub_type']) ? $data['sub_type'] : null,
             'operation_date' => ! empty($data['operation_date']) ? $data['operation_date'] : \Carbon::now(),
-            'created_by' => $data['created_by'],
-            'transaction_id' => ! empty($data['transaction_id']) ? $data['transaction_id'] : null,
+            'created_by_uid' => $data['created_by_uid'],
+            'transaction_uid' => ! empty($data['transaction_uid']) ? $data['transaction_uid'] : null,
             'transaction_payment_id' => ! empty($data['transaction_payment_id']) ? $data['transaction_payment_id'] : null,
             'note' => ! empty($data['note']) ? $data['note'] : null,
             'transfer_transaction_id' => ! empty($data['transfer_transaction_id']) ? $data['transfer_transaction_id'] : null,
@@ -107,8 +107,8 @@ class AccountTransaction extends Model
                     'account_id' => $transaction_payment->account_id,
                     'type' => empty($transaction_type) ? $transaction_payment->payment_type : self::getAccountTransactionType($transaction_type),
                     'operation_date' => $transaction_payment->paid_on,
-                    'created_by' => $transaction_payment->created_by,
-                    'transaction_id' => $transaction_payment->transaction_id,
+                    'created_by_uid' => $transaction_payment->created_by_uid,
+                    'transaction_uid' => $transaction_payment->transaction_uid,
                     'transaction_payment_id' => $transaction_payment->id,
                 ];
 

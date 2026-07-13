@@ -21,7 +21,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-search"></i>
                         </span>
-                        <input type="hidden" value="" id="variation_id">
+                        <input type="hidden" value="" id="variation_uid">
                         {!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'), 'autofocus']); !!}
                     </div>
                 </div>
@@ -39,12 +39,12 @@
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                    {!! Form::label('location_uid', __('purchase.business_location').':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
                             <i class="fa fa-map-marker"></i>
                         </span>
-                        {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%;', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                        {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%;', 'placeholder' => __('messages.please_select'), 'required']); !!}
                     </div>
                 </div>
             </div>

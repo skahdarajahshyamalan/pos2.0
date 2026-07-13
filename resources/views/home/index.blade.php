@@ -1055,7 +1055,7 @@
                         d.for_dashboard_sales_order = true;
 
                         if ($('#so_location').length > 0) {
-                            d.location_id = $('#so_location').val();
+                            d.location_uid = $('#so_location').val();
                         }
                     }
                 },
@@ -1194,7 +1194,7 @@
                             d.from_dashboard = true;
 
                             if ($('#po_location').length > 0) {
-                                d.location_id = $('#po_location').val();
+                                d.location_uid = $('#po_location').val();
                             }
                         },
                     },
@@ -1259,7 +1259,7 @@
                             d.from_dashboard = true;
 
                             if ($('#pr_location').length > 0) {
-                                d.location_id = $('#pr_location').val();
+                                d.location_uid = $('#pr_location').val();
                             }
                         },
                     },
@@ -1343,7 +1343,7 @@
                     "data": function(d) {
                         d.only_pending_shipments = true;
                         if ($('#pending_shipments_location').length > 0) {
-                            d.location_id = $('#pending_shipments_location').val();
+                            d.location_uid = $('#pending_shipments_location').val();
                         }
                     }
                 },

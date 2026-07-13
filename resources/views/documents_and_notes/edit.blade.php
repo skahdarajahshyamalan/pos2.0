@@ -16,7 +16,7 @@
                    </div>
                 </div>
             </div>
-            <!-- model id like project_id, user_id -->
+            <!-- model id like project_id, user_uid -->
             {!! Form::hidden('notable_id', $document_note->notable_id, ['class' => 'form-control']) !!}
             <!-- model name like App\User -->
             {!! Form::hidden('notable_type', $notable_type, ['class' => 'form-control']) !!}
@@ -39,7 +39,7 @@
                     <input type="hidden" id="docus_notes_media" name="file_name[]" value="">
                 </div>
             </div>
-            @if(Auth::user()->id == $document_note->created_by)
+            @if(Auth::user()->id == $document_note->created_by_uid)
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">

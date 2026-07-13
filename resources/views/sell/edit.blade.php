@@ -31,7 +31,7 @@
 <input type="hidden" id="item_addition_method" value="{{$business_details->item_addition_method}}">
 	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'update'], ['po' => $transaction->id ]), 'method' => 'put', 'id' => 'edit_sell_form', 'files' => true, 'data-transaction-id' => $transaction->id ]) !!}
 
-	{!! Form::hidden('location_id', $transaction->location_id, ['id' => 'location_id', 'data-receipt_printer_type' => !empty($location_printer_type) ? $location_printer_type : 'browser', 'data-default_payment_accounts' => $transaction->location->default_payment_accounts]); !!}
+	{!! Form::hidden('location_uid', $transaction->location_uid, ['id' => 'location_uid', 'data-receipt_printer_type' => !empty($location_printer_type) ? $location_printer_type : 'browser', 'data-default_payment_accounts' => $transaction->location->default_payment_accounts]); !!}
 
 	@if($transaction->type == 'sales_order')
 	 	<input type="hidden" id="sale_type" value="{{$transaction->type}}">
@@ -304,7 +304,7 @@
 				<!-- Call restaurant module if defined -->
 		        @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
 		        	<span id="restaurant_module_span" 
-		        		data-transaction_id="{{$transaction->id}}">
+		        		data-transaction_uid="{{$transaction->id}}">
 		        	</span>
 		        @endif
 			@endcomponent
@@ -459,12 +459,12 @@
 			    <div class="clearfix"></div>
 			    <div class="col-md-4 @if($transaction->type == 'sales_order') hide @endif">
 			    	<div class="form-group">
-			            {!! Form::label('tax_rate_id', __('sale.order_tax') . ':*' ) !!}
+			            {!! Form::label('tax_rate_uid', __('sale.order_tax') . ':*' ) !!}
 			            <div class="input-group">
 			                <span class="input-group-addon">
 			                    <i class="fa fa-info"></i>
 			                </span>
-			                {!! Form::select('tax_rate_id', $taxes['tax_rates'], $transaction->tax_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $business_details->default_sales_tax], $taxes['attributes']); !!}
+			                {!! Form::select('tax_rate_uid', $taxes['tax_rates'], $transaction->tax_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $business_details->default_sales_tax], $taxes['attributes']); !!}
 
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
 							value="{{@num_format($transaction->tax?->amount)}}" data-default="{{$business_details->tax_calculation_amount}}">

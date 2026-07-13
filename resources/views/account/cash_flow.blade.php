@@ -123,7 +123,7 @@
                         d.type = $('#transaction_type').val();
                         d.start_date = start,
                         d.end_date = end
-                        d.location_id = $('#cash_flow_location_id').val();
+                        d.location_uid = $('#cash_flow_location_id').val();
 
                     }
                 },

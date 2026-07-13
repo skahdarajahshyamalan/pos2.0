@@ -42,12 +42,12 @@ class InvoiceLayout extends Model
     /**
      * Return list of invoice layouts for a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array
      */
-    public static function forDropdown($business_id)
+    public static function forDropdown($business_uid)
     {
-        $layouts = InvoiceLayout::where('business_id', $business_id)
+        $layouts = InvoiceLayout::where('business_uid', $business_uid)
                     ->pluck('name', 'id');
 
         return $layouts;

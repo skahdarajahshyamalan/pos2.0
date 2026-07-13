@@ -81,9 +81,9 @@ class Media extends Model
     /**
      * Uploads files from the request and add's medias to the supplied model.
      *
-     * @param  int  $business_id, obj $model, $obj $request, string $file_name
+     * @param  int  $business_uid, obj $model, $obj $request, string $file_name
      */
-    public static function uploadMedia($business_id, $model, $request, $file_name, $is_single = false, $model_media_type = null)
+    public static function uploadMedia($business_uid, $model, $request, $file_name, $is_single = false, $model_media_type = null)
     {
         //If app environment is demo return null
         if (config('app.env') == 'demo') {
@@ -129,7 +129,7 @@ class Media extends Model
                 $uploaded_files = $uploaded_files[0];
             }
             // attach media to model
-            Media::attachMediaToModel($model, $business_id, $uploaded_files, $request, $model_media_type);
+            Media::attachMediaToModel($model, $business_uid, $uploaded_files, $request, $model_media_type);
         }
     }
 
@@ -174,9 +174,9 @@ class Media extends Model
     /**
      * Deletes resource from database and storage
      */
-    public static function deleteMedia($business_id, $media_id)
+    public static function deleteMedia($business_uid, $media_id)
     {
-        $media = Media::where('business_id', $business_id)
+        $media = Media::where('business_uid', $business_uid)
                         ->findOrFail($media_id);
 
         $media_path = public_path('uploads/media/'.$media->file_name);
@@ -192,7 +192,7 @@ class Media extends Model
         return $this->belongsTo(\App\User::class, 'uploaded_by');
     }
 
-    public static function attachMediaToModel($model, $business_id, $uploaded_files, $request = null, $model_media_type = null)
+    public static function attachMediaToModel($model, $business_uid, $uploaded_files, $request = null, $model_media_type = null)
     {
         if (! empty($uploaded_files)) {
             if (is_array($uploaded_files)) {
@@ -200,7 +200,7 @@ class Media extends Model
                 foreach ($uploaded_files as $value) {
                     $media_obj[] = new \App\Media([
                         'file_name' => $value,
-                        'business_id' => $business_id,
+                        'business_uid' => $business_uid,
                         'description' => ! empty($request->description) ? $request->description : null,
                         'uploaded_by' => ! empty($request->uploaded_by) ? $request->uploaded_by : auth()->user()->id,
                         'model_media_type' => $model_media_type,
@@ -214,7 +214,7 @@ class Media extends Model
 
                 $media_obj = new \App\Media([
                     'file_name' => $uploaded_files,
-                    'business_id' => $business_id,
+                    'business_uid' => $business_uid,
                     'description' => ! empty($request->description) ? $request->description : null,
                     'uploaded_by' => ! empty($request->uploaded_by) ? $request->uploaded_by : auth()->user()->id,
                     'model_media_type' => $model_media_type,

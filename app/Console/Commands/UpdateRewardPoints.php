@@ -66,7 +66,7 @@ class UpdateRewardPoints extends Command
                     $transaction_date_to_be_expired = $transaction_date_to_be_expired->subYears($business->rp_expiry_period);
                 }
 
-                $transactions = Transaction::where('business_id', $business->id)
+                $transactions = Transaction::where('business_uid', $business->id)
                                         ->where('type', 'sell')
                                         ->where('status', 'final')
                                         ->whereDate('transaction_date', '<=', $transaction_date_to_be_expired->format('Y-m-d'))

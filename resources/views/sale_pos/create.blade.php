@@ -30,8 +30,8 @@
 
                             {{-- <div class="box box-solid mb-12 @if (!isMobile()) mb-40 @endif"> --}}
                                 <div class="box-body pb-0">
-                                    {!! Form::hidden('location_id', $default_location->id ?? null, [
-                                        'id' => 'location_id',
+                                    {!! Form::hidden('location_uid', $default_location->id ?? null, [
+                                        'id' => 'location_uid',
                                         'data-receipt_printer_type' => !empty($default_location->receipt_printer_type)
                                             ? $default_location->receipt_printer_type
                                             : 'browser',

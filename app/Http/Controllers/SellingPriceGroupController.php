@@ -42,9 +42,9 @@ class SellingPriceGroupController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $price_groups = SellingPriceGroup::where('business_id', $business_id)
+            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                         ->select(['name', 'description', 'id', 'is_active']);
 
             return Datatables::of($price_groups)
@@ -93,8 +93,8 @@ class SellingPriceGroupController extends Controller
 
         try {
             $input = $request->only(['name', 'description']);
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
 
             $spg = SellingPriceGroup::create($input);
 
@@ -140,8 +140,8 @@ class SellingPriceGroupController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $spg = SellingPriceGroup::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $spg = SellingPriceGroup::where('business_uid', $business_uid)->find($id);
 
             return view('selling_price_group.edit')
                 ->with(compact('spg'));
@@ -164,9 +164,9 @@ class SellingPriceGroupController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'description']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
-                $spg = SellingPriceGroup::where('business_id', $business_id)->findOrFail($id);
+                $spg = SellingPriceGroup::where('business_uid', $business_uid)->findOrFail($id);
                 $spg->name = $input['name'];
                 $spg->description = $input['description'];
                 $spg->save();
@@ -200,9 +200,9 @@ class SellingPriceGroupController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $spg = SellingPriceGroup::where('business_id', $business_id)->findOrFail($id);
+                $spg = SellingPriceGroup::where('business_uid', $business_uid)->findOrFail($id);
                 $spg->delete();
 
                 $output = ['success' => true,
@@ -240,12 +240,12 @@ class SellingPriceGroupController extends Controller
      */
     public function export()
     {
-        $business_id = request()->user()->business_id;
-        $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->get();
+        $business_uid = request()->user()->business_uid;
+        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->get();
 
-        $variations = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+        $variations = Variation::join('products as p', 'variations.product_uid', '=', 'p.id')
                             ->join('product_variations as pv', 'variations.product_variation_id', '=', 'pv.id')
-                            ->where('p.business_id', $business_id)
+                            ->where('p.business_uid', $business_uid)
                             ->whereIn('p.type', ['single', 'variable'])
                             ->select('sub_sku', 'p.name as product_name', 'variations.name as variation_name', 'p.type', 'variations.id', 'pv.name as product_variation_name', 'sell_price_inc_tax')
                             ->with(['group_prices'])
@@ -308,8 +308,8 @@ class SellingPriceGroupController extends Controller
                 //Remove header row
                 $imported_data = array_splice($parsed_array[0], 1);
 
-                $business_id = $request->session()->get('user.business_id');
-                $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->get();
+                $business_uid = $request->session()->get('user.business_uid');
+                $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->get();
 
                 //Get price group names from headers
                 $imported_pgs = [];
@@ -324,8 +324,8 @@ class SellingPriceGroupController extends Controller
 
                 foreach ($imported_data as $key => $value) {
                     $variation = Variation::where('sub_sku', $value[1])
-                                        ->join('products', 'products.id', '=', 'variations.product_id')
-                                        ->where('products.business_id', $business_id)
+                                        ->join('products', 'products.id', '=', 'variations.product_uid')
+                                        ->where('products.business_uid', $business_uid)
                                         ->select('variations.*')
                                         ->first();
                     if (empty($variation)) {
@@ -364,7 +364,7 @@ class SellingPriceGroupController extends Controller
 
                             if (! is_null($value[$k])) {
                                 VariationGroupPrice::updateOrCreate(
-                                    ['variation_id' => $variation->id,
+                                    ['variation_uid' => $variation->id,
                                         'price_group_id' => $price_group->first()->id,
                                     ],
                                     ['price_inc_tax' => $value[$k],
@@ -408,8 +408,8 @@ class SellingPriceGroupController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $spg = SellingPriceGroup::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $spg = SellingPriceGroup::where('business_uid', $business_uid)->find($id);
             $spg->is_active = $spg->is_active == 1 ? 0 : 1;
             $spg->save();
 

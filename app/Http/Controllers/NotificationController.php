@@ -38,14 +38,14 @@ class NotificationController extends Controller
      */
     public function getTemplate($id, $template_for)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $notification_template = NotificationTemplate::getTemplate($business_id, $template_for);
+        $notification_template = NotificationTemplate::getTemplate($business_uid, $template_for);
 
         $contact = null;
         $transaction = null;
         if ($template_for == 'new_booking') {
-            $transaction = Booking::where('business_id', $business_id)
+            $transaction = Booking::where('business_uid', $business_uid)
                             ->with(['customer'])
                             ->find($id);
 
@@ -53,7 +53,7 @@ class NotificationController extends Controller
         } elseif ($template_for == 'send_ledger') {
             $contact = Contact::find($id);
         } else {
-            $transaction = Transaction::where('business_id', $business_id)
+            $transaction = Transaction::where('business_uid', $business_uid)
                             ->with(['contact'])
                             ->find($id);
 
@@ -82,10 +82,10 @@ class NotificationController extends Controller
         $start_date = request()->input('start_date');
         $end_date = request()->input('end_date');
         $ledger_format = request()->input('format');
-        $location_id = request()->input('location_id');
+        $location_uid = request()->input('location_uid');
 
         return view('notification.show_template')
-                ->with(compact('notification_template', 'transaction', 'tags', 'template_name', 'contact', 'start_date', 'end_date', 'ledger_format', 'location_id'));
+                ->with(compact('notification_template', 'transaction', 'tags', 'template_name', 'contact', 'start_date', 'end_date', 'ledger_format', 'location_uid'));
     }
 
     /**
@@ -112,10 +112,10 @@ class NotificationController extends Controller
 
             $emails_array = array_map('trim', explode(',', $data['to_email']));
 
-            $transaction_id = $request->input('transaction_id');
-            $business_id = request()->session()->get('business.id');
+            $transaction_uid = $request->input('transaction_uid');
+            $business_uid = request()->session()->get('business.id');
 
-            $transaction = ! empty($transaction_id) ? Transaction::find($transaction_id) : null;
+            $transaction = ! empty($transaction_uid) ? Transaction::find($transaction_uid) : null;
 
             $orig_data = [
                 'email_body' => $data['email_body'],
@@ -125,14 +125,14 @@ class NotificationController extends Controller
             ];
 
             if ($request->input('template_for') == 'new_booking') {
-                $tag_replaced_data = $this->notificationUtil->replaceBookingTags($business_id, $orig_data, $transaction_id);
+                $tag_replaced_data = $this->notificationUtil->replaceBookingTags($business_uid, $orig_data, $transaction_uid);
 
                 $data['email_body'] = $tag_replaced_data['email_body'];
                 $data['sms_body'] = $tag_replaced_data['sms_body'];
                 $data['subject'] = $tag_replaced_data['subject'];
                 $data['whatsapp_text'] = $tag_replaced_data['whatsapp_text'];
             } else {
-                $tag_replaced_data = $this->notificationUtil->replaceTags($business_id, $orig_data, $transaction_id);
+                $tag_replaced_data = $this->notificationUtil->replaceTags($business_uid, $orig_data, $transaction_uid);
 
                 $data['email_body'] = $tag_replaced_data['email_body'];
                 $data['sms_body'] = $tag_replaced_data['sms_body'];
@@ -151,7 +151,7 @@ class NotificationController extends Controller
                 if (in_array('email', $notification_type)) {
                     if (! empty($request->input('attach_pdf'))) {
                         $data['pdf_name'] = 'INVOICE-'.$transaction->invoice_no.'.pdf';
-                        $data['pdf'] = $this->transactionUtil->getEmailAttachmentForGivenTransaction($business_id, $transaction_id, true);
+                        $data['pdf'] = $this->transactionUtil->getEmailAttachmentForGivenTransaction($business_uid, $transaction_uid, true);
                     }
 
                     Notification::route('mail', $emails_array)
@@ -175,7 +175,7 @@ class NotificationController extends Controller
                 if (in_array('email', $notification_type)) {
                     if ($request->input('template_for') == 'purchase_order') {
                         $data['pdf_name'] = 'PO-'.$transaction->ref_no.'.pdf';
-                        $data['pdf'] = $this->transactionUtil->getPurchaseOrderPdf($business_id, $transaction_id, true);
+                        $data['pdf'] = $this->transactionUtil->getPurchaseOrderPdf($business_uid, $transaction_uid, true);
                     }
                     Notification::route('mail', $emails_array)
                                     ->notify(new SupplierNotification($data));

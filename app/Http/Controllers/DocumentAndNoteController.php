@@ -35,27 +35,27 @@ class DocumentAndNoteController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
-            //model id like project_id, user_id
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
+            //model id like project_id, user_uid
             $notable_id = request()->get('notable_id');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
-            $document_note = DocumentAndNote::where('business_id', $business_id)
+            $document_note = DocumentAndNote::where('business_uid', $business_uid)
                 ->where('notable_id', $notable_id)
-                ->where(function ($query) use ($user_id) {
+                ->where(function ($query) use ($user_uid) {
                     $query->where('is_private', 0)
-                        ->orWhere(function ($q) use ($user_id) {
+                        ->orWhere(function ($q) use ($user_uid) {
                             $q->where('is_private', 1)
-                              ->where('created_by', $user_id);
+                              ->where('created_by_uid', $user_uid);
                         });
                 })
                 ->where('notable_type', $notable_type)
                 ->with('createdBy', 'media')
                 ->select('*');
 
-            $permissions = $this->__getPermission($business_id, $notable_id, $notable_type);
+            $permissions = $this->__getPermission($business_uid, $notable_id, $notable_type);
 
             if (! empty($permissions) && in_array('view', $permissions)) {
                 return Datatables::of($document_note)
@@ -151,7 +151,7 @@ class DocumentAndNoteController extends Controller
      *
      * @return array of permissions
      */
-    private function __getPermission($business_id, $notable_id, $notable_type)
+    private function __getPermission($business_uid, $notable_id, $notable_type)
     {
         $permissions = [];
 
@@ -170,7 +170,7 @@ class DocumentAndNoteController extends Controller
         } else {
             //If not found in main app, get from modules.
             $module_parameters = [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'notable_id' => $notable_id,
                 'notable_type' => $notable_type,
             ];
@@ -191,7 +191,7 @@ class DocumentAndNoteController extends Controller
      */
     public function create()
     {
-        //model id like project_id, user_id
+        //model id like project_id, user_uid
         $notable_id = request()->get('notable_id');
         //model name like App\User
         $notable_type = request()->get('notable_type');
@@ -210,14 +210,14 @@ class DocumentAndNoteController extends Controller
     {
         try {
 
-            //model id like project_id, user_id
+            //model id like project_id, user_uid
             $notable_id = request()->get('notable_id');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
             $input = $request->only('heading', 'description', 'is_private');
-            $input['business_id'] = request()->session()->get('user.business_id');
-            $input['created_by'] = request()->session()->get('user.id');
+            $input['business_uid'] = request()->session()->get('user.business_uid');
+            $input['created_by_uid'] = request()->session()->get('user.id');
 
             DB::beginTransaction();
 
@@ -226,15 +226,15 @@ class DocumentAndNoteController extends Controller
             }
 
             //find model to which document is to be added
-            $model = $notable_type::where('business_id', $input['business_id'])
+            $model = $notable_type::where('business_uid', $input['business_uid'])
                 ->findOrFail($notable_id);
 
             $model_note = $model->documentsAndnote()->create($input);
 
             if (! empty($request->get('file_name')[0])) {
                 $file_names = explode(',', $request->get('file_name')[0]);
-                $business_id = request()->session()->get('user.business_id');
-                Media::attachMediaToModel($model_note, $business_id, $file_names);
+                $business_uid = request()->session()->get('user.business_uid');
+                Media::attachMediaToModel($model_note, $business_uid, $file_names);
             }
 
             DB::commit();
@@ -265,13 +265,13 @@ class DocumentAndNoteController extends Controller
      */
     public function show($id)
     {
-        //model id like project_id, user_id
+        //model id like project_id, user_uid
         $notable_id = request()->get('notable_id');
         //model name like App\User
         $notable_type = request()->get('notable_type');
 
-        $business_id = request()->session()->get('user.business_id');
-        $document_note = DocumentAndNote::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $document_note = DocumentAndNote::where('business_uid', $business_uid)
             ->where('notable_id', $notable_id)
             ->where('notable_type', $notable_type)
             ->with('media', 'createdBy')
@@ -289,13 +289,13 @@ class DocumentAndNoteController extends Controller
      */
     public function edit($id)
     {
-        //model id like project_id, user_id
+        //model id like project_id, user_uid
         $notable_id = request()->get('notable_id');
         //model name like App\User
         $notable_type = request()->get('notable_type');
 
-        $business_id = request()->session()->get('user.business_id');
-        $document_note = DocumentAndNote::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $document_note = DocumentAndNote::where('business_uid', $business_uid)
         ->where('notable_id', $notable_id)
         ->where('notable_type', $notable_type)
         ->findOrFail($id);
@@ -315,17 +315,17 @@ class DocumentAndNoteController extends Controller
     {
         try {
 
-            //model id like project_id, user_id
+            //model id like project_id, user_uid
             $notable_id = request()->get('notable_id');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
             $input = $request->only('heading', 'description');
             $input['is_private'] = ! empty($request->get('is_private')) ? 1 : 0;
 
-            $document_note = DocumentAndNote::where('business_id', $business_id)
+            $document_note = DocumentAndNote::where('business_uid', $business_uid)
                 ->where('notable_id', $notable_id)
                 ->where('notable_type', $notable_type)
                 ->findOrFail($id);
@@ -343,8 +343,8 @@ class DocumentAndNoteController extends Controller
 
             if (! empty($request->get('file_name')[0])) {
                 $file_names = explode(',', $request->get('file_name')[0]);
-                $business_id = request()->session()->get('user.business_id');
-                Media::attachMediaToModel($document_note, $business_id, $file_names);
+                $business_uid = request()->session()->get('user.business_uid');
+                Media::attachMediaToModel($document_note, $business_uid, $file_names);
             }
 
             DB::commit();
@@ -376,13 +376,13 @@ class DocumentAndNoteController extends Controller
     public function destroy($id)
     {
         try {
-            $business_id = request()->session()->get('user.business_id');
-            //model id like project_id, user_id
+            $business_uid = request()->session()->get('user.business_uid');
+            //model id like project_id, user_uid
             $notable_id = request()->get('notable_id');
             //model name like App\User
             $notable_type = request()->get('notable_type');
 
-            $document_note = DocumentAndNote::where('business_id', $business_id)
+            $document_note = DocumentAndNote::where('business_uid', $business_uid)
                 ->where('notable_id', $notable_id)
                 ->where('notable_type', $notable_type)
                 ->findOrFail($id);
@@ -450,10 +450,10 @@ class DocumentAndNoteController extends Controller
     public function getDocAndNoteIndexPage(Request $request)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $notable_type = $request->get('notable_type');
             $notable_id = $request->get('notable_id');
-            $permissions = $this->__getPermission($business_id, $notable_id, $notable_type);
+            $permissions = $this->__getPermission($business_uid, $notable_id, $notable_type);
 
             return view('documents_and_notes.index')
                 ->with(compact('permissions', 'notable_type', 'notable_id'));

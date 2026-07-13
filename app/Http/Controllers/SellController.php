@@ -82,7 +82,7 @@ class SellController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         $is_woocommerce = $this->moduleUtil->isModuleInstalled('Woocommerce');
         $is_crm = $this->moduleUtil->isModuleInstalled('Crm');
         $is_tables_enabled = $this->transactionUtil->isModuleEnabled('tables');
@@ -90,29 +90,29 @@ class SellController extends Controller
         $is_types_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
 
         if (request()->ajax()) {
-            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_uid);
             $with = [];
             $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
             $sale_type = ! empty(request()->input('sale_type')) ? request()->input('sale_type') : 'sell';
 
-            $sells = $this->transactionUtil->getListSells($business_id, $sale_type);
+            $sells = $this->transactionUtil->getListSells($business_uid, $sale_type);
 
             // Apply all filters in a single reusable method
-            $this->applySellListFilters($sells, $business_id, $sale_type, false);
+            $this->applySellListFilters($sells, $business_uid, $sale_type, false);
 
             // Create cache key based on all filters for count query optimization
             $cache_key_params = [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'sale_type' => $sale_type,
-                'location_id' => request()->input('location_id'),
+                'location_uid' => request()->input('location_uid'),
                 'customer_id' => request()->input('customer_id'),
                 'payment_status' => request()->input('payment_status'),
                 'payment_method' => request()->input('payment_method'),
                 'start_date' => request()->input('start_date'),
                 'end_date' => request()->input('end_date'),
-                'created_by' => request()->input('created_by'),
-                'user_id' => auth()->id(),
+                'created_by_uid' => request()->input('created_by_uid'),
+                'user_uid' => auth()->id(),
                 'only_shipments' => request()->input('only_shipments'),
                 'shipping_status' => request()->input('shipping_status'),
                 'source' => request()->input('source'),
@@ -134,10 +134,10 @@ class SellController extends Controller
             $cache_key = 'sell_list_count_' . md5(json_encode($cache_key_params));
 
             // Get total count using cache (expires in 60 seconds)
-            $total_records = Cache::remember($cache_key, 300, function () use ($business_id, $sale_type) {
-                $count_query = $this->transactionUtil->getListSells($business_id, $sale_type, true);
+            $total_records = Cache::remember($cache_key, 300, function () use ($business_uid, $sale_type) {
+                $count_query = $this->transactionUtil->getListSells($business_uid, $sale_type, true);
                 // Apply same filters (count-safe)
-                $this->applySellListFilters($count_query, $business_id, $sale_type, true);
+                $this->applySellListFilters($count_query, $business_uid, $sale_type, true);
                 // IMPORTANT: do NOT groupBy here; just count distinct ids
                 return $count_query->distinct('transactions.id')->count('transactions.id');
             });
@@ -184,7 +184,7 @@ class SellController extends Controller
                 }
             }
 
-            //$business_details = $this->businessUtil->getDetails($business_id);
+            //$business_details = $this->businessUtil->getDetails($business_uid);
             if ($is_crm) {
                 // Ensure crm_is_order_request is available for UI labels
                 $sells->addSelect('transactions.crm_is_order_request');
@@ -349,7 +349,7 @@ class SellController extends Controller
                                 }
                             }
 
-                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>'.__('lang_v1.new_sale_notification').'</a></li>';
+                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_uid' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>'.__('lang_v1.new_sale_notification').'</a></li>';
                         } else {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'viewMedia'], ['model_id' => $row->id, 'model_type' => \App\Transaction::class, 'model_media_type' => 'shipping_document']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>'.__('lang_v1.shipping_documents').'</a></li>';
                         }
@@ -491,7 +491,7 @@ class SellController extends Controller
                         } elseif ($row->zatca_status == 'success') {
                             $status = '<small class="label bg-light-green tw-dw-btn-xs no-print">' . ucfirst($row->zatca_status) . '</small>';
                         } elseif ($row->zatca_status == 'failed') {
-                                $lastDoc = \Modules\ZatcaIntegrationKsa\Entities\ZatcaDocument::where('transaction_id', $row->id)
+                                $lastDoc = \Modules\ZatcaIntegrationKsa\Entities\ZatcaDocument::where('transaction_uid', $row->id)
                                     ->where('sent_to_zatca_status', 'failed')
                                     ->orderBy('created_at', 'desc')
                                     ->latest()
@@ -527,31 +527,31 @@ class SellController extends Controller
                       ->make(true);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);
-        $sales_representative = User::forDropdown($business_id, false, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false);
+        $customers = Contact::customersDropdown($business_uid, false);
+        $sales_representative = User::forDropdown($business_uid, false, false, true);
 
         //Commission agent filter
         $is_cmsn_agent_enabled = request()->session()->get('business.sales_cmsn_agnt');
         $commission_agents = [];
         if (! empty($is_cmsn_agent_enabled)) {
-            $commission_agents = User::forDropdown($business_id, false, true, true);
+            $commission_agents = User::forDropdown($business_uid, false, true, true);
         }
 
         //Service staff filter
         $service_staffs = null;
         if ($this->productUtil->isModuleEnabled('service_staff')) {
-            $service_staffs = $this->productUtil->serviceStaffDropdown($business_id);
+            $service_staffs = $this->productUtil->serviceStaffDropdown($business_uid);
         }
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
-        $sources = $this->transactionUtil->getSources($business_id);
+        $sources = $this->transactionUtil->getSources($business_uid);
         if ($is_woocommerce) {
             $sources['woocommerce'] = 'Woocommerce';
         }
 
-        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, true, $business_uid);
 
 
         return view('sell.index')
@@ -577,21 +577,21 @@ class SellController extends Controller
             }
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not, then check for users quota
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse();
-        } elseif (! $this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
-            return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action([\App\Http\Controllers\SellController::class, 'index']));
+        } elseif (! $this->moduleUtil->isQuotaAvailable('invoices', $business_uid)) {
+            return $this->moduleUtil->quotaExpiredResponse('invoices', $business_uid, action([\App\Http\Controllers\SellController::class, 'index']));
         }
 
-        $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
+        $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_uid);
 
-        $business_details = $this->businessUtil->getDetails($business_id);
-        $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
+        $business_details = $this->businessUtil->getDetails($business_uid);
+        $taxes = TaxRate::forBusinessDropdown($business_uid, true, true);
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false, true);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
 
@@ -604,9 +604,9 @@ class SellController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id);
+            $commission_agent = User::forDropdown($business_uid);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id);
+            $commission_agent = User::saleCommissionAgentsDropdown($business_uid);
         }
 
         $types = [];
@@ -619,13 +619,13 @@ class SellController extends Controller
         if (auth()->user()->can('supplier.create') && auth()->user()->can('customer.create')) {
             $types['both'] = __('lang_v1.both_supplier_customer');
         }
-        $customer_groups = CustomerGroup::forDropdown($business_id);
+        $customer_groups = CustomerGroup::forDropdown($business_uid);
 
         $payment_line = $this->dummyPaymentLine;
-        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, true, $business_uid);
 
         //Selling Price Group Dropdown
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
         $default_price_group_id = ! empty($default_location->selling_price_group_id) && array_key_exists($default_location->selling_price_group_id, $price_groups) ? $default_location->selling_price_group_id : null;
 
@@ -633,10 +633,10 @@ class SellController extends Controller
 
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-        $invoice_schemes = InvoiceScheme::forDropdown($business_id);
-        $default_invoice_schemes = InvoiceScheme::getDefault($business_id);
+        $invoice_schemes = InvoiceScheme::forDropdown($business_uid);
+        $default_invoice_schemes = InvoiceScheme::getDefault($business_uid);
         if (! empty($default_location) && !empty($default_location->sale_invoice_scheme_id)) {
-            $default_invoice_schemes = InvoiceScheme::where('business_id', $business_id)
+            $default_invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                                         ->findorfail($default_location->sale_invoice_scheme_id);
         }
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
@@ -644,13 +644,13 @@ class SellController extends Controller
         //Types of service
         $types_of_service = [];
         if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
-            $types_of_service = TypesOfService::forDropdown($business_id);
+            $types_of_service = TypesOfService::forDropdown($business_uid);
         }
 
         //Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {
-            $accounts = Account::forDropdown($business_id, true, false);
+            $accounts = Account::forDropdown($business_uid, true, false);
         }
 
         $status = request()->get('status', '');
@@ -664,7 +664,7 @@ class SellController extends Controller
         $is_order_request_enabled = false;
         $is_crm = $this->moduleUtil->isModuleInstalled('Crm');
         if ($is_crm) {
-            $crm_settings = Business::where('id', auth()->user()->business_id)
+            $crm_settings = Business::where('id', auth()->user()->business_uid)
                                 ->value('crm_settings');
             $crm_settings = ! empty($crm_settings) ? json_decode($crm_settings, true) : [];
 
@@ -674,7 +674,7 @@ class SellController extends Controller
         }
 
         //Added check because $users is of no use if enable_contact_assign if false
-        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
+        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_uid, false, false, false, true) : [];
 
         $change_return = $this->dummyPaymentLine;
 
@@ -732,17 +732,17 @@ class SellController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
 
-        $business_id = request()->session()->get('user.business_id');
-        $taxes = TaxRate::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $taxes = TaxRate::where('business_uid', $business_uid)
                             ->pluck('name', 'id');
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                     ->where('id', $id)
                     ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
                         $q->whereNull('parent_sell_line_id');
                     }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
 
         if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-            $query->where('transactions.created_by', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
         }
 
         $sell = $query->firstOrFail();
@@ -755,7 +755,7 @@ class SellController extends Controller
         $line_taxes = [];
         foreach ($sell->sell_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_uid, $value);
                 $sell->sell_lines[$key] = $formated_sell_line;
             }
 
@@ -768,7 +768,7 @@ class SellController extends Controller
             }
         }
 
-        $payment_types = $this->transactionUtil->payment_types($sell->location_id, true);
+        $payment_types = $this->transactionUtil->payment_types($sell->location_uid, true);
         $order_taxes = [];
         if (! empty($sell->tax)) {
             if ($sell->tax->is_tax_group) {
@@ -778,7 +778,7 @@ class SellController extends Controller
             }
         }
 
-        $business_details = $this->businessUtil->getDetails($business_id);
+        $business_details = $this->businessUtil->getDetails($business_uid);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
         $shipping_status_colors = $this->shipping_status_colors;
@@ -838,18 +838,18 @@ class SellController extends Controller
                 'msg' => __('lang_v1.return_exist')]);
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $moduleUtil = new ModuleUtil();
 
-        if (! $moduleUtil->isSubscribed($business_id)) {
+        if (! $moduleUtil->isSubscribed($business_uid)) {
             return $moduleUtil->expiredResponse();
         }
 
-        $business_details = $this->businessUtil->getDetails($business_id);
-        $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
+        $business_details = $this->businessUtil->getDetails($business_uid);
+        $taxes = TaxRate::forBusinessDropdown($business_uid, true, true);
 
-        $transaction = Transaction::where('business_id', $business_id)
+        $transaction = Transaction::where('business_uid', $business_uid)
                             ->with(['price_group', 'types_of_service', 'media', 'media.uploaded_by_user'])
                             ->whereIn('type', ['sell', 'sales_order'])
                             ->findorfail($id);
@@ -867,18 +867,18 @@ class SellController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $location_id = $transaction->location_id;
-        $location_printer_type = BusinessLocation::find($location_id)->receipt_printer_type;
+        $location_uid = $transaction->location_uid;
+        $location_printer_type = BusinessLocation::find($location_uid)->receipt_printer_type;
 
         $sell_details = TransactionSellLine::join(
                             'products AS p',
-                            'transaction_sell_lines.product_id',
+                            'transaction_sell_lines.product_uid',
                             '=',
                             'p.id'
                         )
                         ->join(
                             'variations AS variations',
-                            'transaction_sell_lines.variation_id',
+                            'transaction_sell_lines.variation_uid',
                             '=',
                             'variations.id'
                         )
@@ -888,17 +888,17 @@ class SellController extends Controller
                             '=',
                             'pv.id'
                         )
-                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_id) {
-                            $join->on('variations.id', '=', 'vld.variation_id')
-                                ->where('vld.location_id', '=', $location_id);
+                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_uid) {
+                            $join->on('variations.id', '=', 'vld.variation_uid')
+                                ->where('vld.location_uid', '=', $location_uid);
                         })
-                        ->leftjoin('units', 'units.id', '=', 'p.unit_id')
+                        ->leftjoin('units', 'units.id', '=', 'p.unit_uid')
                         ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
-                        ->where('transaction_sell_lines.transaction_id', $id)
+                        ->where('transaction_sell_lines.transaction_uid', $id)
                         ->with(['warranties', 'so_line'])
                         ->select(
                             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                            'p.id as product_id',
+                            'p.id as product_uid',
                             'p.image as product_image',
                             'p.enable_stock',
                             'p.name as product_actual_name',
@@ -909,7 +909,7 @@ class SellController extends Controller
                             'variations.sub_sku',
                             'p.barcode_type',
                             'p.enable_sr_no',
-                            'variations.id as variation_id',
+                            'variations.id as variation_uid',
                             'units.short_name as unit',
                             'units.allow_decimal as unit_allow_decimal',
                             'u.short_name as second_unit',
@@ -928,7 +928,7 @@ class SellController extends Controller
                             'transaction_sell_lines.line_discount_type',
                             'transaction_sell_lines.line_discount_amount',
                             'transaction_sell_lines.res_service_staff_id',
-                            'units.id as unit_id',
+                            'units.id as unit_uid',
                             'transaction_sell_lines.sub_unit_id',
                             'transaction_sell_lines.so_line_id',
                             DB::raw('vld.qty_available + transaction_sell_lines.quantity AS qty_available')
@@ -938,7 +938,7 @@ class SellController extends Controller
         if (! empty($sell_details)) {
             foreach ($sell_details as $key => $value) {
 
-                $variation = Variation::with('media')->findOrFail($value->variation_id);
+                $variation = Variation::with('media')->findOrFail($value->variation_uid);
                 $sell_details[$key]->media = $variation->media;
 
                 //If modifier or combo sell line then unset
@@ -954,7 +954,7 @@ class SellController extends Controller
                     $sell_details[$key]->formatted_qty_available = $this->productUtil->num_f($value->qty_available, false, null, true);
                     $lot_numbers = [];
                     if (request()->session()->get('business.enable_lot_number') == 1) {
-                        $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($value->variation_id, $business_id, $location_id);
+                        $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($value->variation_uid, $business_uid, $location_uid);
                         foreach ($lot_number_obj as $lot_number) {
                             //If lot number is selected added ordered quantity to lot quantity available
                             if ($value->lot_no_line_id == $lot_number->purchase_line_id) {
@@ -968,7 +968,7 @@ class SellController extends Controller
                     $sell_details[$key]->lot_numbers = $lot_numbers;
 
                     if (! empty($value->sub_unit_id)) {
-                        $value = $this->productUtil->changeSellLineUnit($business_id, $value);
+                        $value = $this->productUtil->changeSellLineUnit($business_uid, $value);
                         $sell_details[$key] = $value;
                     }
 
@@ -981,13 +981,13 @@ class SellController extends Controller
                         if (count($sell_line_modifiers) > 0) {
                             $sell_details[$key]->modifiers = $sell_line_modifiers;
                             foreach ($sell_line_modifiers as $sell_line_modifier) {
-                                $modifiers_ids[] = $sell_line_modifier->variation_id;
+                                $modifiers_ids[] = $sell_line_modifier->variation_uid;
                             }
                         }
                         $sell_details[$key]->modifiers_ids = $modifiers_ids;
 
                         //add product modifier sets for edit
-                        $this_product = Product::find($sell_details[$key]->product_id);
+                        $this_product = Product::find($sell_details[$key]->product_uid);
                         if (count($this_product->modifier_sets) > 0) {
                             $sell_details[$key]->product_ms = $this_product->modifier_sets;
                         }
@@ -1007,13 +1007,13 @@ class SellController extends Controller
                         $combo_variations = [];
                         foreach ($sell_line_combos as $combo_line) {
                             $combo_variations[] = [
-                                'variation_id' => $combo_line['variation_id'],
+                                'variation_uid' => $combo_line['variation_uid'],
                                 'quantity' => $combo_line['quantity'] / $sell_details[$key]->quantity_ordered,
-                                'unit_id' => null,
+                                'unit_uid' => null,
                             ];
                         }
                         $sell_details[$key]->qty_available =
-                        $this->productUtil->calculateComboQuantity($location_id, $combo_variations);
+                        $this->productUtil->calculateComboQuantity($location_uid, $combo_variations);
 
                         if ($transaction->status == 'final') {
                             $sell_details[$key]->qty_available = $sell_details[$key]->qty_available + $sell_details[$key]->quantity_ordered;
@@ -1028,9 +1028,9 @@ class SellController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id);
+            $commission_agent = User::forDropdown($business_uid);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id);
+            $commission_agent = User::saleCommissionAgentsDropdown($business_uid);
         }
 
         $types = [];
@@ -1043,7 +1043,7 @@ class SellController extends Controller
         if (auth()->user()->can('supplier.create') && auth()->user()->can('customer.create')) {
             $types['both'] = __('lang_v1.both_supplier_customer');
         }
-        $customer_groups = CustomerGroup::forDropdown($business_id);
+        $customer_groups = CustomerGroup::forDropdown($business_uid);
 
         $transaction->transaction_date = $this->transactionUtil->format_date($transaction->transaction_date, true);
 
@@ -1051,20 +1051,20 @@ class SellController extends Controller
 
         $waiters = [];
         if ($this->productUtil->isModuleEnabled('service_staff') && ! empty($pos_settings['inline_service_staff'])) {
-            $waiters = $this->productUtil->serviceStaffDropdown($business_id);
+            $waiters = $this->productUtil->serviceStaffDropdown($business_uid);
         }
 
         $invoice_schemes = [];
         $default_invoice_schemes = null;
 
         if ($transaction->status == 'draft') {
-            $invoice_schemes = InvoiceScheme::forDropdown($business_id);
-            $default_invoice_schemes = InvoiceScheme::getDefault($business_id);
+            $invoice_schemes = InvoiceScheme::forDropdown($business_uid);
+            $default_invoice_schemes = InvoiceScheme::getDefault($business_uid);
         }
 
         $redeem_details = [];
         if (request()->session()->get('business.enable_rp') == 1) {
-            $redeem_details = $this->transactionUtil->getRewardRedeemDetails($business_id, $transaction->contact_id);
+            $redeem_details = $this->transactionUtil->getRewardRedeemDetails($business_uid, $transaction->contact_id);
 
             $redeem_details['points'] += $transaction->rp_redeemed;
             $redeem_details['points'] -= $transaction->rp_earned;
@@ -1076,21 +1076,21 @@ class SellController extends Controller
         //Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {
-            $accounts = Account::forDropdown($business_id, true, false);
+            $accounts = Account::forDropdown($business_uid, true, false);
         }
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
         $common_settings = session()->get('business.common_settings');
         $is_warranty_enabled = ! empty($common_settings['enable_product_warranty']) ? true : false;
-        $warranties = $is_warranty_enabled ? Warranty::forDropdown($business_id) : [];
+        $warranties = $is_warranty_enabled ? Warranty::forDropdown($business_uid) : [];
 
         $statuses = Transaction::sell_statuses();
 
         $is_order_request_enabled = false;
         $is_crm = $this->moduleUtil->isModuleInstalled('Crm');
         if ($is_crm) {
-            $crm_settings = Business::where('id', auth()->user()->business_id)
+            $crm_settings = Business::where('id', auth()->user()->business_uid)
                                 ->value('crm_settings');
             $crm_settings = ! empty($crm_settings) ? json_decode($crm_settings, true) : [];
 
@@ -1101,7 +1101,7 @@ class SellController extends Controller
 
         $sales_orders = [];
         if (! empty($pos_settings['enable_sales_order']) || $is_order_request_enabled) {
-            $sales_orders = Transaction::where('business_id', $business_id)
+            $sales_orders = Transaction::where('business_uid', $business_uid)
                                 ->where('type', 'sales_order')
                                 ->where('contact_id', $transaction->contact_id)
                                 ->where(function ($q) use ($transaction) {
@@ -1114,7 +1114,7 @@ class SellController extends Controller
                                 ->pluck('invoice_no', 'id');
         }
 
-        $payment_types = $this->transactionUtil->payment_types($transaction->location_id, false, $business_id);
+        $payment_types = $this->transactionUtil->payment_types($transaction->location_uid, false, $business_uid);
 
         $payment_lines = $this->transactionUtil->getPaymentDetails($id);
         //If no payment lines found then add dummy payment line.
@@ -1124,12 +1124,12 @@ class SellController extends Controller
 
         $change_return = $this->dummyPaymentLine;
 
-        $customer_due = $this->transactionUtil->getContactDue($transaction->contact_id, $transaction->business_id);
+        $customer_due = $this->transactionUtil->getContactDue($transaction->contact_id, $transaction->business_uid);
 
         $customer_due = $customer_due != 0 ? $this->transactionUtil->num_f($customer_due, true) : '';
 
         //Added check because $users is of no use if enable_contact_assign if false
-        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
+        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_uid, false, false, false, true) : [];
 
         return view('sell.edit')
             ->with(compact('business_details', 'taxes', 'sell_details', 'transaction', 'commission_agent', 'types', 'customer_groups', 'pos_settings', 'waiters', 'invoice_schemes', 'default_invoice_schemes', 'redeem_details', 'edit_discount', 'edit_price', 'shipping_statuses', 'warranties', 'statuses', 'sales_orders', 'payment_types', 'accounts', 'payment_lines', 'change_return', 'is_order_request_enabled', 'customer_due', 'users'));
@@ -1146,12 +1146,12 @@ class SellController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false);
+        $customers = Contact::customersDropdown($business_uid, false);
 
-        $sales_representative = User::forDropdown($business_id, false, false, true);
+        $sales_representative = User::forDropdown($business_uid, false, false, true);
 
         return view('sale_pos.draft')
             ->with(compact('business_locations', 'customers', 'sales_representative'));
@@ -1168,12 +1168,12 @@ class SellController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false);
+        $customers = Contact::customersDropdown($business_uid, false);
 
-        $sales_representative = User::forDropdown($business_id, false, false, true);
+        $sales_representative = User::forDropdown($business_uid, false, false, true);
 
         return view('sale_pos.quotations')
                 ->with(compact('business_locations', 'customers', 'sales_representative'));
@@ -1187,24 +1187,24 @@ class SellController extends Controller
     public function getDraftDatables()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $is_quotation = request()->input('is_quotation', 0);
 
             $is_woocommerce = $this->moduleUtil->isModuleInstalled('Woocommerce');
 
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
+                ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.id')
                 ->join(
                     'business_locations AS bl',
-                    'transactions.location_id',
+                    'transactions.location_uid',
                     '=',
                     'bl.id'
                 )
                 ->leftJoin('transaction_sell_lines as tsl', function ($join) {
-                    $join->on('transactions.id', '=', 'tsl.transaction_id')
+                    $join->on('transactions.id', '=', 'tsl.transaction_uid')
                         ->whereNull('tsl.parent_sell_line_id');
                 })
-                ->where('transactions.business_id', $business_id)
+                ->where('transactions.business_uid', $business_uid)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'draft')
                 ->select(
@@ -1227,17 +1227,17 @@ class SellController extends Controller
                 $sells->where('transactions.sub_status', 'quotation');
 
                 if (! auth()->user()->can('quotation.view_all') && auth()->user()->can('quotation.view_own')) {
-                    $sells->where('transactions.created_by', request()->session()->get('user.id'));
+                    $sells->where('transactions.created_by_uid', request()->session()->get('user.id'));
                 }
             } else {
                 if (! auth()->user()->can('draft.view_all') && auth()->user()->can('draft.view_own')) {
-                    $sells->where('transactions.created_by', request()->session()->get('user.id'));
+                    $sells->where('transactions.created_by_uid', request()->session()->get('user.id'));
                 }
             }
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $sells->whereIn('transactions.location_id', $permitted_locations);
+                $sells->whereIn('transactions.location_uid', $permitted_locations);
             }
 
             if (! empty(request()->start_date) && ! empty(request()->end_date)) {
@@ -1247,17 +1247,17 @@ class SellController extends Controller
                             ->whereDate('transaction_date', '<=', $end);
             }
 
-            if (request()->has('location_id')) {
-                $location_id = request()->get('location_id');
-                if (! empty($location_id)) {
-                    $sells->where('transactions.location_id', $location_id);
+            if (request()->has('location_uid')) {
+                $location_uid = request()->get('location_uid');
+                if (! empty($location_uid)) {
+                    $sells->where('transactions.location_uid', $location_uid);
                 }
             }
 
-            if (request()->has('created_by')) {
-                $created_by = request()->get('created_by');
-                if (! empty($created_by)) {
-                    $sells->where('transactions.created_by', $created_by);
+            if (request()->has('created_by_uid')) {
+                $created_by_uid = request()->get('created_by_uid');
+                if (! empty($created_by_uid)) {
+                    $sells->where('transactions.created_by_uid', $created_by_uid);
                 }
             }
 
@@ -1343,7 +1343,7 @@ class SellController extends Controller
                                         __("lang_v1.copy_quotation").'</a>
                                     </li>
                                     <li>
-                                        <a href="#" data-href="'.action("\App\Http\Controllers\NotificationController@getTemplate", ["transaction_id" => $row->id,"template_for" => "new_quotation"]).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_quotation_notification") . '
+                                        <a href="#" data-href="'.action("\App\Http\Controllers\NotificationController@getTemplate", ["transaction_uid" => $row->id,"template_for" => "new_quotation"]).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_quotation_notification") . '
                                         </a>
                                     </li>';
 
@@ -1412,10 +1412,10 @@ class SellController extends Controller
         }
 
         try {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
 
-            $transaction = Transaction::where('business_id', $business_id)
+            $transaction = Transaction::where('business_uid', $business_uid)
                             ->where('type', 'sell')
                             ->findorfail($id);
             $duplicate_transaction_data = [];
@@ -1427,11 +1427,11 @@ class SellController extends Controller
             $duplicate_transaction_data['status'] = 'draft';
             $duplicate_transaction_data['payment_status'] = null;
             $duplicate_transaction_data['transaction_date'] = \Carbon::now();
-            $duplicate_transaction_data['created_by'] = $user_id;
+            $duplicate_transaction_data['created_by_uid'] = $user_uid;
             $duplicate_transaction_data['invoice_token'] = null;
 
             DB::beginTransaction();
-            $duplicate_transaction_data['invoice_no'] = $this->transactionUtil->getInvoiceNumber($business_id, 'draft', $duplicate_transaction_data['location_id']);
+            $duplicate_transaction_data['invoice_no'] = $this->transactionUtil->getInvoiceNumber($business_uid, 'draft', $duplicate_transaction_data['location_uid']);
 
             //Create duplicate transaction
             $duplicate_transaction = Transaction::create($duplicate_transaction_data);
@@ -1442,7 +1442,7 @@ class SellController extends Controller
             foreach ($transaction->sell_lines as $sell_line) {
                 $new_sell_line = [];
                 foreach ($sell_line->toArray() as $key => $value) {
-                    if (! in_array($key, ['id', 'transaction_id', 'created_at', 'updated_at', 'lot_no_line_id'])) {
+                    if (! in_array($key, ['id', 'transaction_uid', 'created_at', 'updated_at', 'lot_no_line_id'])) {
                         $new_sell_line[$key] = $value;
                     }
                 }
@@ -1491,13 +1491,13 @@ class SellController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $transaction = Transaction::where('business_id', $business_id)
+        $transaction = Transaction::where('business_uid', $business_uid)
                                 ->with(['media', 'media.uploaded_by_user'])
                                 ->findorfail($id);
 
-        $users = User::forDropdown($business_id, false, false, false);
+        $users = User::forDropdown($business_uid, false, false, false);
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
@@ -1532,9 +1532,9 @@ class SellController extends Controller
             ]);
 
 
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $transaction = Transaction::where('business_id', $business_id)
+            $transaction = Transaction::where('business_uid', $business_uid)
                                 ->findOrFail($id);
 
             $transaction_before = $transaction->replicate();
@@ -1573,22 +1573,22 @@ class SellController extends Controller
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false);
+        $customers = Contact::customersDropdown($business_uid, false);
 
-        $sales_representative = User::forDropdown($business_id, false, false, true);
+        $sales_representative = User::forDropdown($business_uid, false, false, true);
 
         $is_service_staff_enabled = $this->transactionUtil->isModuleEnabled('service_staff');
 
         //Service staff filter
         $service_staffs = null;
         if ($this->productUtil->isModuleEnabled('service_staff')) {
-            $service_staffs = $this->productUtil->serviceStaffDropdown($business_id);
+            $service_staffs = $this->productUtil->serviceStaffDropdown($business_uid);
         }
 
-        $delevery_person = User::forDropdown($business_id, false, false, true);
+        $delevery_person = User::forDropdown($business_uid, false, false, true);
 
         return view('sell.shipments')->with(compact('shipping_statuses'))
                 ->with(compact('business_locations', 'customers', 'sales_representative', 'is_service_staff_enabled', 'service_staffs', 'delevery_person'));
@@ -1598,9 +1598,9 @@ class SellController extends Controller
     {
         if (request()->ajax()) {
             $model_type = request()->input('model_type');
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $query = Media::where('business_id', $business_id)
+            $query = Media::where('business_uid', $business_uid)
                         ->where('model_id', $model_id)
                         ->where('model_type', $model_type);
 
@@ -1633,7 +1633,7 @@ class SellController extends Controller
      *
      * $for_count=true omits HAVING that depends on selected aliases.
      */
-    protected function applySellListFilters($query, $business_id, $sale_type, $for_count = false)
+    protected function applySellListFilters($query, $business_uid, $sale_type, $for_count = false)
     {
         // Exclude project invoices from sell list
         if ($sale_type == 'sell') {
@@ -1646,14 +1646,14 @@ class SellController extends Controller
         // Location permissions
         $permitted_locations = auth()->user()->permitted_locations();
         if ($permitted_locations != 'all') {
-            $query->whereIn('transactions.location_id', $permitted_locations);
+            $query->whereIn('transactions.location_uid', $permitted_locations);
         }
 
         // Created by filter
-        if (request()->has('created_by')) {
-            $created_by = request()->get('created_by');
-            if (! empty($created_by)) {
-                $query->where('transactions.created_by', $created_by);
+        if (request()->has('created_by_uid')) {
+            $created_by_uid = request()->get('created_by_uid');
+            if (! empty($created_by_uid)) {
+                $query->where('transactions.created_by_uid', $created_by_uid);
             }
         }
 
@@ -1661,7 +1661,7 @@ class SellController extends Controller
         if (! auth()->user()->can('direct_sell.view')) {
             $query->where(function ($q) {
                 if (auth()->user()->hasAnyPermission(['view_own_sell_only', 'access_own_shipping'])) {
-                    $q->where('transactions.created_by', request()->session()->get('user.id'));
+                    $q->where('transactions.created_by_uid', request()->session()->get('user.id'));
                 }
 
                 if (auth()->user()->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
@@ -1723,10 +1723,10 @@ class SellController extends Controller
         }
 
         // Location filter
-        if (request()->has('location_id')) {
-            $location_id = request()->get('location_id');
-            if (! empty($location_id)) {
-                $query->where('transactions.location_id', $location_id);
+        if (request()->has('location_uid')) {
+            $location_uid = request()->get('location_uid');
+            if (! empty($location_uid)) {
+                $query->where('transactions.location_uid', $location_uid);
             }
         }
 
@@ -1798,12 +1798,12 @@ class SellController extends Controller
             $query->where('transactions.res_waiter_id', request()->res_waiter_id);
         }
 
-        // Sub type / created_by / status
+        // Sub type / created_by_uid / status
         if (! empty(request()->input('sub_type'))) {
             $query->where('transactions.sub_type', request()->input('sub_type'));
         }
-        if (! empty(request()->input('created_by'))) {
-            $query->where('transactions.created_by', request()->input('created_by'));
+        if (! empty(request()->input('created_by_uid'))) {
+            $query->where('transactions.created_by_uid', request()->input('created_by_uid'));
         }
         if (! empty(request()->input('status'))) {
             $query->where('transactions.status', request()->input('status'));
@@ -1842,7 +1842,7 @@ class SellController extends Controller
         // Sales order view restrictions
         if ($sale_type == 'sales_order') {
             if (! auth()->user()->can('so.view_all') && auth()->user()->can('so.view_own')) {
-                $query->where('transactions.created_by', request()->session()->get('user.id'));
+                $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
             }
         }
 
@@ -1884,15 +1884,15 @@ class SellController extends Controller
      */
     public function checkInvoiceNumber(Request $request)
     {
-        $business_id = $request->session()->get('user.business_id');
+        $business_uid = $request->session()->get('user.business_uid');
         $invoice_no = $request->input('invoice_no');
-        $transaction_id = $request->input('transaction_id');
+        $transaction_uid = $request->input('transaction_uid');
 
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                         ->where('invoice_no', $invoice_no);
         
-        if (!empty($transaction_id)) {
-            $query->where('id', '!=', $transaction_id);
+        if (!empty($transaction_uid)) {
+            $query->where('id', '!=', $transaction_uid);
         }
         
         $count = $query->count();

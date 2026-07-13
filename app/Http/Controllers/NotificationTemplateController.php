@@ -35,7 +35,7 @@ class NotificationTemplateController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $general_notifications = NotificationTemplate::generalNotifications();
 
@@ -71,9 +71,9 @@ class NotificationTemplateController extends Controller
 
     private function __getTemplateDetails($notifications)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         foreach ($notifications as $key => $value) {
-            $notification_template = NotificationTemplate::getTemplate($business_id, $key);
+            $notification_template = NotificationTemplate::getTemplate($business_uid, $key);
             $notifications[$key]['subject'] = $notification_template['subject'];
             $notifications[$key]['email_body'] = $notification_template['email_body'];
             $notifications[$key]['sms_body'] = $notification_template['sms_body'];
@@ -101,12 +101,12 @@ class NotificationTemplateController extends Controller
         }
 
         $template_data = $request->input('template_data');
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         foreach ($template_data as $key => $value) {
             NotificationTemplate::updateOrCreate(
                 [
-                    'business_id' => $business_id,
+                    'business_uid' => $business_uid,
                     'template_for' => $key,
                 ],
                 [

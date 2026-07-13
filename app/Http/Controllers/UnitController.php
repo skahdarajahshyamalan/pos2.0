@@ -38,9 +38,9 @@ class UnitController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $unit = Unit::where('business_id', $business_id)
+            $unit = Unit::where('business_uid', $business_uid)
                         ->with(['base_unit'])
                         ->select(['actual_name', 'short_name', 'allow_decimal', 'id',
                             'base_unit_id', 'base_unit_multiplier', ]);
@@ -89,14 +89,14 @@ class UnitController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $quick_add = false;
         if (! empty(request()->input('quick_add'))) {
             $quick_add = true;
         }
 
-        $units = Unit::forDropdown($business_id);
+        $units = Unit::forDropdown($business_uid);
 
         return view('unit.create')
                 ->with(compact('quick_add', 'units'));
@@ -116,8 +116,8 @@ class UnitController extends Controller
 
         try {
             $input = $request->only(['actual_name', 'short_name', 'allow_decimal']);
-            $input['business_id'] = $request->session()->get('user.business_id');
-            $input['created_by'] = $request->session()->get('user.id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
+            $input['created_by_uid'] = $request->session()->get('user.id');
 
             if ($request->has('define_base_unit')) {
                 if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {
@@ -169,10 +169,10 @@ class UnitController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $unit = Unit::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $unit = Unit::where('business_uid', $business_uid)->find($id);
 
-            $units = Unit::forDropdown($business_id);
+            $units = Unit::forDropdown($business_uid);
 
             return view('unit.edit')
                 ->with(compact('unit', 'units'));
@@ -195,9 +195,9 @@ class UnitController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['actual_name', 'short_name', 'allow_decimal']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
-                $unit = Unit::where('business_id', $business_id)->findOrFail($id);
+                $unit = Unit::where('business_uid', $business_uid)->findOrFail($id);
                 $unit->actual_name = $input['actual_name'];
                 $unit->short_name = $input['short_name'];
                 $unit->allow_decimal = $input['allow_decimal'];
@@ -245,12 +245,12 @@ class UnitController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $unit = Unit::where('business_id', $business_id)->findOrFail($id);
+                $unit = Unit::where('business_uid', $business_uid)->findOrFail($id);
 
                 //check if any product associated with the unit
-                $exists = Product::where('unit_id', $unit->id)
+                $exists = Product::where('unit_uid', $unit->id)
                                 ->exists();
                 if (! $exists) {
                     $unit->delete();

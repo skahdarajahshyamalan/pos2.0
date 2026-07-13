@@ -235,7 +235,7 @@
                 }
                 if (missing.length === 0) return;
                 const qs = encodeURIComponent(missing.join(','));
-                const url = `/pos/variations/bulk?ids=${qs}&location_id=${encodeURIComponent(locationId)}`;
+                const url = `/pos/variations/bulk?ids=${qs}&location_uid=${encodeURIComponent(locationId)}`;
                 try {
                     const data = await $.ajax({
                         url: url,
@@ -274,8 +274,8 @@
                 const contactIdObj = storedArrayData.find((item) => item.name === "contact_id");
                 const contactId = contactIdObj ? contactIdObj.value : null;
 
-                const locationIdObj = storedArrayData.find((item) => item.name === "location_id");
-                const location_id = locationIdObj ? locationIdObj.value : null;
+                const locationIdObj = storedArrayData.find((item) => item.name === "location_uid");
+                const location_uid = locationIdObj ? locationIdObj.value : null;
 
                 const final_total_item = storedArrayData.find((item) => item.name === "final_total");
                 const final_total = final_total_item ? final_total_item.value : null;
@@ -391,16 +391,16 @@
                 // One-time bulk fetch for all needed variations
                 const neededVariationIds = [];
                 resultArray.forEach(function(prod) {
-                    if (prod && prod.variation_id) neededVariationIds.push(prod.variation_id);
+                    if (prod && prod.variation_uid) neededVariationIds.push(prod.variation_uid);
                 });
-                await fetchProductsBulkOnce(neededVariationIds, location_id);
+                await fetchProductsBulkOnce(neededVariationIds, location_uid);
 
                 let totalQuantity = 0;
 
                 // Loop through formatted data and append rows to table
                 for (let i = 0; i < resultArray.length; i++) {
                     const product = resultArray[i];
-                    const single_product = productsCache.get(makeProductKey(product.variation_id, location_id)) || null;
+                    const single_product = productsCache.get(makeProductKey(product.variation_uid, location_uid)) || null;
 
                     // Determine product image URL
                     let imageUrl = `${base_path}/img/default.png`; // Default image

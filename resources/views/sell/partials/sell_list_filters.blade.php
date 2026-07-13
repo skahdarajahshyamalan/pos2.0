@@ -31,11 +31,11 @@
     </div>
 </div>
 @endif
-@if((empty($only) || in_array('created_by', $only)) && !empty($sales_representative))
+@if((empty($only) || in_array('created_by_uid', $only)) && !empty($sales_representative))
 <div class="col-md-3">
     <div class="form-group">
-        {!! Form::label('created_by',  __('report.user') . ':') !!}
-        {!! Form::select('created_by', $sales_representative, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+        {!! Form::label('created_by_uid',  __('report.user') . ':') !!}
+        {!! Form::select('created_by_uid', $sales_representative, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
     </div>
 </div>
 @endif

@@ -86,7 +86,7 @@
                 url: '/reports/purchase-report',
                 data: function(d) {
                     if ($('#purchase_list_filter_location_id').length) {
-                        d.location_id = $('#purchase_list_filter_location_id').val();
+                        d.location_uid = $('#purchase_list_filter_location_id').val();
                     }
                     if ($('#purchase_list_filter_supplier_id').length) {
                         d.supplier_id = $('#purchase_list_filter_supplier_id').val();

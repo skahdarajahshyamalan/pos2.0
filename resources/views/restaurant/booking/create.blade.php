@@ -24,7 +24,7 @@
 								<span class="input-group-addon">
 									<i class="fa fa-map-marker"></i>
 								</span>
-								{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control', 'placeholder' => __('purchase.business_location'), 'required', 'id' => 'booking_location_id']); !!}
+								{!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control', 'placeholder' => __('purchase.business_location'), 'required', 'id' => 'booking_location_id']); !!}
 							</div>
 						</div>
 					</div>

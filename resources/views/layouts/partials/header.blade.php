@@ -101,7 +101,7 @@
                                     @lang('essentials::lang.add_to_do')
                                 </a>
                             @endif
-                            @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_id))
+                            @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_uid))
                                 <a href="#" id="start_tour"
                                     class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">

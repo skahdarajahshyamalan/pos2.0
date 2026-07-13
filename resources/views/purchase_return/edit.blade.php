@@ -18,7 +18,7 @@
 				<div class="col-sm-3">
 					<div class="form-group">
 						<input type="hidden" name="purchase_return_id" value="{{$purchase_return->id}}">
-						<input type="hidden" id="location_id" value="{{$purchase_return->location_id}}">
+						<input type="hidden" id="location_uid" value="{{$purchase_return->location_uid}}">
 						{!! Form::label('supplier_id', __('purchase.supplier') . ':*') !!}
 						<div class="input-group">
 							<span class="input-group-addon">

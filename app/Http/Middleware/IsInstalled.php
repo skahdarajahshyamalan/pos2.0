@@ -30,7 +30,7 @@ class IsInstalled
             //             'path' => app_path(),
             //             'license_code' => config('author.envato_purchase_code', 0),
             //             'email' => config('mail.from.address'),
-            //             'product_id' => config('author.pid', 0)
+            //             'product_uid' => config('author.pid', 0)
             //         ]
             //     ];
 

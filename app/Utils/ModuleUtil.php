@@ -136,13 +136,13 @@ class ModuleUtil extends Util
     /**
      * This function check if a business has active subscription packages
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return bool
      */
-    public function isSubscribed($business_id)
+    public function isSubscribed($business_uid)
     {
         if ($this->isSuperadminInstalled()) {
-            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
+            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_uid);
 
             if (empty($package)) {
                 return false;
@@ -155,19 +155,19 @@ class ModuleUtil extends Util
     /**
      * This function checks if a business has
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  string  $permission
      * @param  string  $callback_function = null
      * @return bool
      */
-    public function hasThePermissionInSubscription($business_id, $permission, $callback_function = null)
+    public function hasThePermissionInSubscription($business_uid, $permission, $callback_function = null)
     {
         if ($this->isSuperadminInstalled()) {
             if (auth()->user()->can('superadmin')) {
                 return true;
             }
 
-            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
+            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_uid);
 
             if (empty($package)) {
                 return false;
@@ -232,9 +232,9 @@ class ModuleUtil extends Util
         }
     }
 
-    public function countBusinessLocation($business_id, $is_active = null)
+    public function countBusinessLocation($business_uid, $is_active = null)
     {
-        $query = BusinessLocation::where('business_id', $business_id);
+        $query = BusinessLocation::where('business_uid', $business_uid);
 
         if (! empty($is_active)) {
             $query->where('is_active', $is_active);
@@ -244,18 +244,18 @@ class ModuleUtil extends Util
         return $count;
     }
 
-    public function countUsers($business_id)
+    public function countUsers($business_uid)
     {
-        $count = User::where('business_id', $business_id)
+        $count = User::where('business_uid', $business_uid)
                                     ->where('allow_login', 1)
                                     ->count();
 
         return $count;
     }
 
-    public function countProducts($business_id, $start_dt, $end_dt, $is_active = null)
+    public function countProducts($business_uid, $start_dt, $end_dt, $is_active = null)
     {
-        $query = Product::where('business_id', $business_id);
+        $query = Product::where('business_uid', $business_uid);
 
         if (! empty($start_dt) && ! empty($start_dt)) {
             $query->whereBetween('created_at', [$start_dt, $end_dt]);
@@ -275,14 +275,14 @@ class ModuleUtil extends Util
      * Check if business can subscribe to a package based on current resource counts
      *
      * @param  object  $package
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array ['success' => bool, 'msg' => string]
      */
-    public function checkPackageLimitsBeforeSubscription($package, $business_id)
+    public function checkPackageLimitsBeforeSubscription($package, $business_uid)
     {
         // Check user limit
         if ($package->user_count > 0) {
-            $current_user_count = $this->countUsers($business_id);
+            $current_user_count = $this->countUsers($business_uid);
             if ($current_user_count > $package->user_count) {
                 return [
                     'success' => false,
@@ -296,7 +296,7 @@ class ModuleUtil extends Util
 
         //Check location limit
         if ($package->location_count > 0) {
-            $current_location_count = $this->countBusinessLocation($business_id, true);
+            $current_location_count = $this->countBusinessLocation($business_uid, true);
             if ($current_location_count > $package->location_count) {
                 return [
                     'success' => false,
@@ -312,9 +312,9 @@ class ModuleUtil extends Util
         return ['success' => true, 'msg' => ''];
     }
 
-    public function countInvoice($business_id, $start_dt, $end_dt)
+    public function countInvoice($business_uid, $start_dt, $end_dt)
     {
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                             ->where('type', 'sell')
                             ->where('status', 'final');
 
@@ -327,7 +327,7 @@ class ModuleUtil extends Util
         return $count;
     }
 
-    public function getResourceCount($business_id, $package)
+    public function getResourceCount($business_uid, $package)
     {
         $is_available = $this->isSuperadminInstalled();
 
@@ -339,10 +339,10 @@ class ModuleUtil extends Util
             $end_dt = $package->end_date->endOfDay()->toDateTimeString();
         }
         $output = [
-            'locations_created' => $this->countBusinessLocation($business_id),
-            'users_created' => $this->countUsers($business_id),
-            'products_created' => $this->countProducts($business_id, $start_dt, $end_dt),
-            'invoices_created' => $this->countInvoice($business_id, $start_dt, $end_dt),
+            'locations_created' => $this->countBusinessLocation($business_uid),
+            'users_created' => $this->countUsers($business_uid),
+            'products_created' => $this->countProducts($business_uid, $start_dt, $end_dt),
+            'invoices_created' => $this->countInvoice($business_uid, $start_dt, $end_dt),
         ];
 
         return $output;
@@ -352,16 +352,16 @@ class ModuleUtil extends Util
      * This function check if a business has available quota for various types.
      *
      * @param  string  $type
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  int  $total_rows default 0
      * @return bool
      */
-    public function isQuotaAvailable($type, $business_id, $total_rows = 0)
+    public function isQuotaAvailable($type, $business_uid, $total_rows = 0)
     {
         $is_available = $this->isSuperadminInstalled();
 
         if ($is_available) {
-            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
+            $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_uid);
 
             if (empty($package)) {
                 return false;
@@ -377,7 +377,7 @@ class ModuleUtil extends Util
                 if ($max_allowed == 0) {
                     return true;
                 } else {
-                    $count = $this->countBusinessLocation($business_id);
+                    $count = $this->countBusinessLocation($business_uid);
                     if ($count >= $max_allowed) {
                         return false;
                     }
@@ -388,7 +388,7 @@ class ModuleUtil extends Util
                 if ($max_allowed == 0) {
                     return true;
                 } else {
-                    $count = $this->countUsers($business_id);
+                    $count = $this->countUsers($business_uid);
                     if ($count >= $max_allowed) {
                         return false;
                     }
@@ -398,7 +398,7 @@ class ModuleUtil extends Util
                 if ($max_allowed == 0) {
                     return true;
                 } else {
-                    $count = $this->countProducts($business_id, $start_dt, $end_dt);
+                    $count = $this->countProducts($business_uid, $start_dt, $end_dt);
 
                     $total_products = $count + $total_rows;
                     if ($total_products >= $max_allowed) {
@@ -411,7 +411,7 @@ class ModuleUtil extends Util
                 if ($max_allowed == 0) {
                     return true;
                 } else {
-                    $count = $this->countInvoice($business_id, $start_dt, $end_dt);
+                    $count = $this->countInvoice($business_uid, $start_dt, $end_dt);
                     if ($count >= $max_allowed) {
                         return false;
                     }
@@ -426,11 +426,11 @@ class ModuleUtil extends Util
      * This function returns the response for expired quota
      *
      * @param  string  $type
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  string  $redirect_url = null
      * @return \Illuminate\Http\Response
      */
-    public function quotaExpiredResponse($type, $business_id, $redirect_url = null)
+    public function quotaExpiredResponse($type, $business_uid, $redirect_url = null)
     {
         if ($type == 'locations') {
             if (request()->ajax()) {
@@ -472,12 +472,12 @@ class ModuleUtil extends Util
         }
     }
 
-    public function accountsDropdown($business_id, $prepend_none = false, $closed = false, $show_balance = false)
+    public function accountsDropdown($business_uid, $prepend_none = false, $closed = false, $show_balance = false)
     {
         $dropdown = [];
 
         if ($this->isModuleEnabled('account')) {
-            $dropdown = Account::forDropdown($business_id, $prepend_none, $closed, $show_balance);
+            $dropdown = Account::forDropdown($business_uid, $prepend_none, $closed, $show_balance);
         }
 
         return $dropdown;

@@ -68,8 +68,8 @@ class InvoiceLayoutController extends Controller
                 'table_product_label', 'table_qty_label', 'table_unit_price_label',
                 'table_subtotal_label', 'client_id_label', 'date_label', 'quotation_heading', 'quotation_no_prefix', 'design', 'client_tax_label', 'cat_code_label', 'cn_heading', 'cn_no_label', 'cn_amount_label', 'sales_person_label', 'prev_bal_label', 'date_time_format', 'common_settings', 'change_return_label', 'round_off_label', 'qr_code_fields', 'commission_agent_label', 'previous_balance_due_label',]);
 
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
 
             //Set value for checkboxes
             $checkboxes = ['show_business_name', 'show_location_name', 'show_landmark', 'show_city', 'show_state', 'show_country', 'show_zip_code', 'show_mobile_number', 'show_alternate_number', 'show_email', 'show_tax_1', 'show_tax_2', 'show_logo', 'show_barcode', 'show_payments', 'show_customer', 'show_client_id',
@@ -94,7 +94,7 @@ class InvoiceLayoutController extends Controller
 
             if (! empty($request->input('is_default'))) {
                 //get_default
-                $default = InvoiceLayout::where('business_id', $business_id)
+                $default = InvoiceLayout::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                 ->update(['is_default' => 0]);
                 $input['is_default'] = 1;
@@ -188,7 +188,7 @@ class InvoiceLayoutController extends Controller
                 'table_subtotal_label', 'client_id_label', 'date_label', 'quotation_heading', 'quotation_no_prefix', 'design',
                 'client_tax_label', 'cat_code_label', 'cn_heading', 'cn_no_label', 'cn_amount_label',
                 'sales_person_label', 'prev_bal_label', 'date_time_format', 'change_return_label', 'round_off_label', 'commission_agent_label', 'previous_balance_due_label',]);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             $checkboxes = ['show_business_name', 'show_location_name', 'show_landmark', 'show_city', 'show_state', 'show_country', 'show_zip_code', 'show_mobile_number', 'show_alternate_number', 'show_email', 'show_tax_1', 'show_tax_2', 'show_logo', 'show_barcode', 'show_payments', 'show_customer', 'show_client_id',
                 'show_brand', 'show_sku', 'show_cat_code', 'show_sale_description', 'show_sales_person',
@@ -212,7 +212,7 @@ class InvoiceLayoutController extends Controller
 
             if (! empty($request->input('is_default'))) {
                 //get_default
-                $default = InvoiceLayout::where('business_id', $business_id)
+                $default = InvoiceLayout::where('business_uid', $business_uid)
                                 ->where('is_default', 1)
                                 ->update(['is_default' => 0]);
                 $input['is_default'] = 1;
@@ -234,7 +234,7 @@ class InvoiceLayoutController extends Controller
             $input['qr_code_fields'] = ! empty($request->input('qr_code_fields')) ? json_encode($request->input('qr_code_fields')) : null;
 
             InvoiceLayout::where('id', $id)
-                        ->where('business_id', $business_id)
+                        ->where('business_uid', $business_uid)
                         ->update($input);
             $output = ['success' => 1,
                 'msg' => __('invoice.layout_updated_success'),

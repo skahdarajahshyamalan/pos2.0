@@ -20,9 +20,9 @@ class ExpenseCategoryController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $expense_category = ExpenseCategory::where('business_id', $business_id)
+            $expense_category = ExpenseCategory::where('business_uid', $business_uid)
                         ->select(['name', 'code', 'id', 'parent_id']);
 
             return Datatables::of($expense_category)
@@ -59,8 +59,8 @@ class ExpenseCategoryController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $categories = ExpenseCategory::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNull('parent_id')
                         ->pluck('name', 'id');
 
@@ -81,7 +81,7 @@ class ExpenseCategoryController extends Controller
 
         try {
             $input = $request->only(['name', 'code']);
-            $input['business_id'] = $request->session()->get('user.business_id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
 
             if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
                 $input['parent_id'] = $request->input('parent_id');
@@ -126,10 +126,10 @@ class ExpenseCategoryController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $expense_category = ExpenseCategory::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $expense_category = ExpenseCategory::where('business_uid', $business_uid)->find($id);
 
-            $categories = ExpenseCategory::where('business_id', $business_id)
+            $categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNull('parent_id')
                         ->pluck('name', 'id');
 
@@ -154,9 +154,9 @@ class ExpenseCategoryController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'code']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
-                $expense_category = ExpenseCategory::where('business_id', $business_id)->findOrFail($id);
+                $expense_category = ExpenseCategory::where('business_uid', $business_uid)->findOrFail($id);
                 $expense_category->name = $input['name'];
                 $expense_category->code = $input['code'];
 
@@ -197,13 +197,13 @@ class ExpenseCategoryController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $expense_category = ExpenseCategory::where('business_id', $business_id)->findOrFail($id);
+                $expense_category = ExpenseCategory::where('business_uid', $business_uid)->findOrFail($id);
                 $expense_category->delete();
 
                 //delete sub categories also
-                ExpenseCategory::where('business_id', $business_id)->where('parent_id', $id)->delete();
+                ExpenseCategory::where('business_uid', $business_uid)->where('parent_id', $id)->delete();
 
                 $output = ['success' => true,
                     'msg' => __('expense.deleted_success'),
@@ -223,10 +223,10 @@ class ExpenseCategoryController extends Controller
     public function getSubCategories(Request $request)
     {
         if (! empty($request->input('cat_id'))) {
-            $category_id = $request->input('cat_id');
-            $business_id = $request->session()->get('user.business_id');
-            $sub_categories = ExpenseCategory::where('business_id', $business_id)
-                        ->where('parent_id', $category_id)
+            $category_uid = $request->input('cat_id');
+            $business_uid = $request->session()->get('user.business_uid');
+            $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
+                        ->where('parent_id', $category_uid)
                         ->select(['name', 'id'])
                         ->get();
         }

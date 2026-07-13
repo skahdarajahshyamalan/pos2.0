@@ -52,7 +52,7 @@ class LedgerDiscountController extends Controller
     public function store(Request $request)
     {
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
             $input = $request->only(['date', 'amount', 'note', 'contact_id']);
 
             $contact = Contact::find($input['contact_id']);
@@ -66,14 +66,14 @@ class LedgerDiscountController extends Controller
                 $sub_type = $request->input('sub_type');
             }
             $transaction_data = [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'final_total' => $this->commonUtil->num_uf($input['amount']),
                 'total_before_tax' => $this->commonUtil->num_uf($input['amount']),
                 'status' => 'final',
                 'type' => 'ledger_discount',
                 'sub_type' => $sub_type,
                 'contact_id' => $input['contact_id'],
-                'created_by' => auth()->user()->id,
+                'created_by_uid' => auth()->user()->id,
                 'additional_notes' => $input['note'],
                 'transaction_date' => $this->commonUtil->uf_date($input['date'], true),
             ];
@@ -117,9 +117,9 @@ class LedgerDiscountController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $discount = Transaction::where('business_id', $business_id)
+        $discount = Transaction::where('business_uid', $business_uid)
                     ->where('type', 'ledger_discount')
                     ->find($id);
 
@@ -138,7 +138,7 @@ class LedgerDiscountController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
             $input = $request->only(['date', 'amount', 'note', 'contact_id']);
 
             $transaction_data = [
@@ -152,7 +152,7 @@ class LedgerDiscountController extends Controller
                 $transaction_data['sub_type'] = $request->input('sub_type');
             }
 
-            Transaction::where('business_id', $business_id)
+            Transaction::where('business_uid', $business_uid)
                     ->where('type', 'ledger_discount')
                     ->where('id', $id)
                     ->update($transaction_data);
@@ -183,10 +183,10 @@ class LedgerDiscountController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         try {
-            Transaction::where('business_id', $business_id)
+            Transaction::where('business_uid', $business_uid)
                     ->where('type', 'ledger_discount')
                     ->where('id', $id)
                     ->delete();

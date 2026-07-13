@@ -97,7 +97,7 @@
                             .endDate.format('YYYY-MM-DD');
                     }
 
-                    d.user_id = $('#al_users_filter').val();
+                    d.user_uid = $('#al_users_filter').val();
                     d.subject_type = $('#subject_type').val();
                 }
             },
@@ -105,7 +105,7 @@
                 { data: 'created_at', name: 'created_at'  },
                 { data: 'subject_type', "orderable": false, "searchable": false},
                 { data: 'description', name: 'description'},
-                { data: 'created_by', name: 'created_by'},
+                { data: 'created_by_uid', name: 'created_by_uid'},
                 { data: 'note', name: 'note'}
             ]
         });  

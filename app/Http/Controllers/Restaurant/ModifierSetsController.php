@@ -35,9 +35,9 @@ class ModifierSetsController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $modifer_set = Product::where('business_id', $business_id)
+            $modifer_set = Product::where('business_uid', $business_uid)
                             ->where('type', 'modifier')
                             ->with(['variations', 'modifier_products']);
 
@@ -109,16 +109,16 @@ class ModifierSetsController extends Controller
             }
 
             $input = $request->all();
-            $business_id = $request->session()->get('user.business_id');
-            $user_id = $request->session()->get('user.id');
+            $business_uid = $request->session()->get('user.business_uid');
+            $user_uid = $request->session()->get('user.id');
 
             $modifer_set_data = [
                 'name' => $input['name'],
                 'type' => 'modifier',
                 'sku' => ' ',
                 'tax_type' => 'inclusive',
-                'business_id' => $business_id,
-                'created_by' => $user_id,
+                'business_uid' => $business_uid,
+                'created_by_uid' => $user_uid,
             ];
 
             DB::beginTransaction();
@@ -183,9 +183,9 @@ class ModifierSetsController extends Controller
         }
 
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $modifer_set = Product::where('business_id', $business_id)
+            $modifer_set = Product::where('business_uid', $business_uid)
                             ->where('id', $id)
                             ->with(['variations'])
                             ->first();
@@ -215,10 +215,10 @@ class ModifierSetsController extends Controller
             DB::beginTransaction();
 
             $input = $request->all();
-            $business_id = $request->session()->get('user.business_id');
-            $user_id = $request->session()->get('user.id');
+            $business_uid = $request->session()->get('user.business_uid');
+            $user_uid = $request->session()->get('user.id');
 
-            $modifer_set = Product::where('business_id', $business_id)
+            $modifer_set = Product::where('business_uid', $business_uid)
                     ->where('id', $id)
                     ->where('type', 'modifier')
                     ->first();
@@ -293,9 +293,9 @@ class ModifierSetsController extends Controller
 
         try {
             DB::beginTransaction();
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            Product::where('business_id', $business_id)
+            Product::where('business_uid', $business_uid)
                 ->where('type', 'modifier')
                 ->where('id', $id)
                 ->delete();

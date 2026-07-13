@@ -47,7 +47,7 @@
 
 				{{ method_field('PUT') }}
 
-				{!! Form::hidden('location_id', $transaction->location_id, ['id' => 'location_id', 'data-receipt_printer_type' => !empty($location_printer_type) ? $location_printer_type : 'browser', 'data-default_accounts' => $transaction->location->default_payment_accounts]); !!}
+				{!! Form::hidden('location_uid', $transaction->location_uid, ['id' => 'location_uid', 'data-receipt_printer_type' => !empty($location_printer_type) ? $location_printer_type : 'browser', 'data-default_accounts' => $transaction->location->default_payment_accounts]); !!}
 
 				<!-- /.box-header -->
 				<div class="box-body">
@@ -177,7 +177,7 @@
 						<!-- Call restaurant module if defined -->
 				        @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
 				        	<span id="restaurant_module_span" 
-				        		data-transaction_id="{{$transaction->id}}">
+				        		data-transaction_uid="{{$transaction->id}}">
 				          		<div class="col-md-3"></div>
 				        	</span>
 				        @endif

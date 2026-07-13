@@ -60,9 +60,9 @@ class Contact extends Authenticatable
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
             $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
             $query->where(function ($q) {
-                $user_id = auth()->user()->id;
-                $q->where('contacts.created_by', $user_id)
-                    ->orWhere('ucas.user_id', $user_id);
+                $user_uid = auth()->user()->id;
+                $q->where('contacts.created_by_uid', $user_uid)
+                    ->orWhere('ucas.user_uid', $user_uid);
             });
         }
 
@@ -84,9 +84,9 @@ class Contact extends Authenticatable
         if (auth()->check() && ! auth()->user()->can('customer.view') && auth()->user()->can('customer.view_own')) {
             $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
             $query->where(function ($q) {
-                $user_id = auth()->user()->id;
-                $q->where('contacts.created_by', $user_id)
-                    ->orWhere('ucas.user_id', $user_id);
+                $user_uid = auth()->user()->id;
+                $q->where('contacts.created_by_uid', $user_uid)
+                    ->orWhere('ucas.user_uid', $user_uid);
             });
         }
 
@@ -100,9 +100,9 @@ class Contact extends Authenticatable
     {
         $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
         $query->where(function ($q) {
-            $user_id = auth()->user()->id;
-            $q->where('contacts.created_by', $user_id)
-                ->orWhere('ucas.user_id', $user_id);
+            $user_uid = auth()->user()->id;
+            $q->where('contacts.created_by_uid', $user_uid)
+                ->orWhere('ucas.user_uid', $user_uid);
         });
 
         return $query;
@@ -119,14 +119,14 @@ class Contact extends Authenticatable
     /**
      * Return list of contact dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $exclude_default = false (boolean)
      * @param $prepend_none = true (boolean)
      * @return array users
      */
-    public static function contactDropdown($business_id, $exclude_default = false, $prepend_none = true, $append_id = true)
+    public static function contactDropdown($business_uid, $exclude_default = false, $prepend_none = true, $append_id = true)
     {
-        $query = Contact::where('business_id', $business_id)
+        $query = Contact::where('business_uid', $business_uid)
                     ->where('type', '!=', 'lead')
                     ->active();
 
@@ -149,9 +149,9 @@ class Contact extends Authenticatable
         if (auth()->check() && ! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
             $query->leftjoin('user_contact_access AS ucas', 'contacts.id', 'ucas.contact_id');
             $query->where(function ($q) {
-                $user_id = auth()->user()->id;
-                $q->where('contacts.created_by', $user_id)
-                    ->orWhere('ucas.user_id', $user_id);
+                $user_uid = auth()->user()->id;
+                $q->where('contacts.created_by_uid', $user_uid)
+                    ->orWhere('ucas.user_uid', $user_uid);
             });
         }
 
@@ -168,13 +168,13 @@ class Contact extends Authenticatable
     /**
      * Return list of suppliers dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @return array users
      */
-    public static function suppliersDropdown($business_id, $prepend_none = true, $append_id = true)
+    public static function suppliersDropdown($business_uid, $prepend_none = true, $append_id = true)
     {
-        $all_contacts = Contact::where('contacts.business_id', $business_id)
+        $all_contacts = Contact::where('contacts.business_uid', $business_uid)
                         ->whereIn('contacts.type', ['supplier', 'both'])
                         ->active();
 
@@ -207,13 +207,13 @@ class Contact extends Authenticatable
     /**
      * Return list of customers dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @return array users
      */
-    public static function customersDropdown($business_id, $prepend_none = true, $append_id = true)
+    public static function customersDropdown($business_uid, $prepend_none = true, $append_id = true)
     {
-        $all_contacts = Contact::where('contacts.business_id', $business_id)
+        $all_contacts = Contact::where('contacts.business_uid', $business_uid)
                         ->whereIn('contacts.type', ['customer', 'both'])
                         ->active();
 

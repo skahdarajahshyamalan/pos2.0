@@ -144,7 +144,7 @@
 	<!-- Call restaurant module if defined -->
     @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
     	<span id="restaurant_module_span" 
-    		data-transaction_id="{{$transaction->id}}">
+    		data-transaction_uid="{{$transaction->id}}">
       		<div class="col-md-3"></div>
     	</span>
     @endif

@@ -42,12 +42,12 @@ class DiscountController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $discounts = Discount::where('discounts.business_id', $business_id)
-                        ->leftjoin('brands as b', 'discounts.brand_id', '=', 'b.id')
-                        ->leftjoin('categories as c', 'discounts.category_id', '=', 'c.id')
-                        ->leftjoin('business_locations as l', 'discounts.location_id', '=', 'l.id')
+            $discounts = Discount::where('discounts.business_uid', $business_uid)
+                        ->leftjoin('brands as b', 'discounts.brand_uid', '=', 'b.id')
+                        ->leftjoin('categories as c', 'discounts.category_uid', '=', 'c.id')
+                        ->leftjoin('business_locations as l', 'discounts.location_uid', '=', 'l.id')
                         ->select(['discounts.id', 'discounts.name', 'starts_at', 'ends_at',
                             'priority', 'b.name as brand', 'c.name as category', 'l.name as location', 'discounts.is_active', 'discounts.discount_amount', 'discount_type', ])
                         ->with(['variations', 'variations.product', 'variations.product_variation']);
@@ -110,17 +110,17 @@ class DiscountController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $categories = Category::where('business_id', $business_id)
+        $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_id', 0)
                             ->pluck('name', 'id');
 
-        $brands = Brands::forDropdown($business_id);
+        $brands = Brands::forDropdown($business_uid);
 
-        $locations = BusinessLocation::forDropdown($business_id);
+        $locations = BusinessLocation::forDropdown($business_uid);
 
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
         return view('discount.create')
                 ->with(compact('categories', 'brands', 'locations', 'price_groups'));
@@ -139,17 +139,17 @@ class DiscountController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'brand_id', 'category_id',
-                'location_id', 'priority', 'discount_type', 'discount_amount', 'spg', ]);
+            $input = $request->only(['name', 'brand_uid', 'category_uid',
+                'location_uid', 'priority', 'discount_type', 'discount_amount', 'spg', ]);
 
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
 
             $variation_ids = $request->input('variation_ids');
 
             if (! empty($variation_ids)) {
-                unset($input['brand_id']);
-                unset($input['category_id']);
+                unset($input['brand_uid']);
+                unset($input['category_uid']);
             }
 
             $input['starts_at'] = $request->has('starts_at') ? $this->commonUtil->uf_date($request->input('starts_at'), true) : null;
@@ -193,22 +193,22 @@ class DiscountController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $discount = Discount::where('business_id', $business_id)
+            $discount = Discount::where('business_uid', $business_uid)
                             ->with(['variations', 'variations.product', 'variations.product_variation'])
                             ->find($id);
 
             $starts_at = $this->commonUtil->format_date($discount->starts_at->toDateTimeString(), true);
             $ends_at = $this->commonUtil->format_date($discount->ends_at->toDateTimeString(), true);
 
-            $categories = Category::where('business_id', $business_id)
+            $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_id', 0)
                             ->pluck('name', 'id');
 
-            $brands = Brands::forDropdown($business_id);
+            $brands = Brands::forDropdown($business_uid);
 
-            $locations = BusinessLocation::forDropdown($business_id);
+            $locations = BusinessLocation::forDropdown($business_uid);
 
             $variations = [];
 
@@ -216,7 +216,7 @@ class DiscountController extends Controller
                 $variations[$variation->id] = $variation->full_name;
             }
 
-            $price_groups = SellingPriceGroup::forDropdown($business_id);
+            $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
             return view('discount.edit')
                 ->with(compact('discount', 'starts_at', 'ends_at', 'brands', 'categories', 'locations', 'variations', 'price_groups'));
@@ -238,10 +238,10 @@ class DiscountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'brand_id', 'category_id',
-                    'location_id', 'priority', 'discount_type', 'discount_amount', 'spg', ]);
+                $input = $request->only(['name', 'brand_uid', 'category_uid',
+                    'location_uid', 'priority', 'discount_type', 'discount_amount', 'spg', ]);
 
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
                 $input['starts_at'] = $request->has('starts_at') ? $this->commonUtil->uf_date($request->input('starts_at'), true) : null;
                 $input['ends_at'] = $request->has('ends_at') ? $this->commonUtil->uf_date($request->input('ends_at'), true) : null;
@@ -254,11 +254,11 @@ class DiscountController extends Controller
                 $variation_ids = $request->input('variation_ids');
 
                 if (! empty($variation_ids)) {
-                    unset($input['brand_id']);
-                    unset($input['category_id']);
+                    unset($input['brand_uid']);
+                    unset($input['category_uid']);
                 }
 
-                $discount = Discount::where('business_id', $business_id)
+                $discount = Discount::where('business_uid', $business_uid)
                             ->find($id);
 
                 $discount->update($input);
@@ -294,9 +294,9 @@ class DiscountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $discount = Discount::where('business_id', $business_id)->findOrFail($id);
+                $discount = Discount::where('business_uid', $business_uid)->findOrFail($id);
                 $discount->delete();
 
                 $output = ['success' => true,
@@ -327,13 +327,13 @@ class DiscountController extends Controller
         }
         try {
             if (! empty($request->input('selected_discounts'))) {
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
                 $selected_discounts = explode(',', $request->input('selected_discounts'));
 
                 DB::beginTransaction();
 
-                Discount::where('business_id', $business_id)
+                Discount::where('business_uid', $business_uid)
                             ->whereIn('id', $selected_discounts)
                             ->update(['is_active' => 0]);
 
@@ -369,9 +369,9 @@ class DiscountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
                 Discount::where('id', $id)
-                    ->where('business_id', $business_id)
+                    ->where('business_uid', $business_uid)
                     ->update(['is_active' => 1]);
 
                 $output = ['success' => true,

@@ -35,14 +35,14 @@
 				</thead>
 				<tbody>
 					@if($action == 'edit')
-						<input type="hidden" name="combo_variation_id" value="{{$variation_id}}">
+						<input type="hidden" name="combo_variation_id" value="{{$variation_uid}}">
 
 						@foreach($combo_variations as $combo_variation)
                 			@include('product.partials.combo_product_entry_row', 
                ['variations' => [$combo_variation['variation']], 'product' => $combo_variation['variation']->product, 'quantity' => $combo_variation['quantity'],
                'sub_units' => $combo_variation['sub_units'],
                'multiplier' => $combo_variation['multiplier'],
-               'unit_id' => $combo_variation['unit_id'],
+               'unit_uid' => $combo_variation['unit_uid'],
                ]
                )
                 		@endforeach
@@ -104,7 +104,7 @@
 	            },
 	            select: function( event, ui ) {
 	                $(this).val(null);
-	                get_product_entry_row( ui.item.product_id, ui.item.variation_id);
+	                get_product_entry_row( ui.item.product_uid, ui.item.variation_uid);
 	            }
 	        })
 	        .autocomplete( "instance" )._renderItem = function( ul, item ) {
@@ -112,14 +112,14 @@
 	        };
 	    }
 
-	    function get_product_entry_row(product_id, variation_id) {
+	    function get_product_entry_row(product_uid, variation_uid) {
 
-	    	if (product_id) {
+	    	if (product_uid) {
 	    		$.ajax({
 	    			method : 'GET',
 	    			url: '/products/get-combo-product-entry-row',
 	    			dataType : "html",
-	    			data: { 'product_id' : product_id, 'variation_id' : variation_id},
+	    			data: { 'product_uid' : product_uid, 'variation_uid' : variation_uid},
 	    			success :function(result){
 	    				$(result).find('input.quantity').each(function(){
 	    					var row = $(this).closest('tr');

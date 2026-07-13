@@ -31,19 +31,19 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-search"></i>
                                     </span>
-                                    {!! Form::select('variation_id', [], null, ['class' => 'form-control', 'id' => 'variation_id', 'placeholder' => __('lang_v1.search_product_placeholder')]); !!}
+                                    {!! Form::select('variation_uid', [], null, ['class' => 'form-control', 'id' => 'variation_uid', 'placeholder' => __('lang_v1.search_product_placeholder')]); !!}
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <div class="form-group">
-                                {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                                {!! Form::label('location_uid', __('purchase.business_location').':') !!}
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-map-marker"></i>
                                     </span>
-                                    {!! Form::select('location_id', $business_locations, (!empty($location) ? $location->id: null), ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                                    {!! Form::select('location_uid', $business_locations, (!empty($location) ? $location->id: null), ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
                                 </div>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
                                         {{$row->stock}}
                                     </td>
                                     <td>
-                                        <a href="{{action([\App\Http\Controllers\ReportController::class, 'adjustProductStock'])}}?location_id={{$location->id}}&variation_id={{$row->variation_id}}&stock={{$row->total_stock_calculated}}" class="btn btn-primary">Fix</a>
+                                        <a href="{{action([\App\Http\Controllers\ReportController::class, 'adjustProductStock'])}}?location_uid={{$location->id}}&variation_uid={{$row->variation_uid}}&stock={{$row->total_stock_calculated}}" class="btn btn-primary">Fix</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -191,7 +191,7 @@
     <script type="text/javascript">
         $(document).ready( function () {
             //get customer
-            $('#variation_id').select2({
+            $('#variation_uid').select2({
                 ajax: {
                     url: '/purchases/get_products',
                     dataType: 'json',
@@ -205,7 +205,7 @@
                         var data_formated = [];
                         data.forEach(function (item) {
                             var temp = {
-                                'id': item.variation_id,
+                                'id': item.variation_uid,
                                 'text': item.text
                             }
                             data_formated.push(temp);

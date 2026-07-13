@@ -71,7 +71,7 @@
                         d.start_date = start;
                         d.end_date = end;
                     }
-                    d.location_id = $('#sell_list_filter_location_id').val();
+                    d.location_uid = $('#sell_list_filter_location_id').val();
                     d.customer_id = $('#sell_list_filter_customer_id').val();
                     d.payment_status = $('#sell_list_filter_payment_status').val();
                     d = __datatable_ajax_callback(d);
@@ -93,7 +93,7 @@
             }
         });
 
-        $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
+        $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by_uid, #sales_cmsn_agnt, #service_staffs',  function() {
             sale_report_table.ajax.reload();
         });
     });

@@ -105,7 +105,7 @@
                     var end = $('input#ssr_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
 
                     d.list_for = 'service_staff_report';
-                    d.location_id = $('select#ssr_location_id').val();
+                    d.location_uid = $('select#ssr_location_id').val();
                     d.start_date = start;
                     d.end_date = end;
                     d.res_waiter_id = $('select#service_staff_id').val();
@@ -149,7 +149,7 @@
                     var start = $('input#ssr_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
                     var end = $('input#ssr_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
 
-                    d.location_id = $('select#ssr_location_id').val();
+                    d.location_uid = $('select#ssr_location_id').val();
                     d.start_date = start;
                     d.end_date = end;
                     d.service_staff_id = $('select#service_staff_id').val();

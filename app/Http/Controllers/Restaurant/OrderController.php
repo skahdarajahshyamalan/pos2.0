@@ -42,26 +42,26 @@ class OrderController extends Controller
         // if (!auth()->user()->can('sell.view')) {
         //     abort(403, 'Unauthorized action.');
         // }
-        $business_id = request()->session()->get('user.business_id');
-        $user_id = request()->session()->get('user.id');
+        $business_uid = request()->session()->get('user.business_uid');
+        $user_uid = request()->session()->get('user.id');
 
         $is_service_staff = false;
         $orders = [];
         $service_staff = [];
         $line_orders = [];
-        if ($this->restUtil->is_service_staff($user_id)) {
+        if ($this->restUtil->is_service_staff($user_uid)) {
             $is_service_staff = true;
-            $orders = $this->restUtil->getAllOrders($business_id, ['waiter_id' => $user_id]);
+            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_id' => $user_uid]);
 
-            $line_orders = $this->restUtil->getLineOrders($business_id, ['waiter_id' => $user_id]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => $user_uid]);
         } elseif (! empty(request()->service_staff)) {
-            $orders = $this->restUtil->getAllOrders($business_id, ['waiter_id' => request()->service_staff]);
+            $orders = $this->restUtil->getAllOrders($business_uid, ['waiter_id' => request()->service_staff]);
 
-            $line_orders = $this->restUtil->getLineOrders($business_id, ['waiter_id' => request()->service_staff]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => request()->service_staff]);
         }
 
         if (! $is_service_staff) {
-            $service_staff = $this->restUtil->service_staff_dropdown($business_id);
+            $service_staff = $this->restUtil->service_staff_dropdown($business_uid);
         }
 
         return view('restaurant.orders.index', compact('orders', 'is_service_staff', 'service_staff', 'line_orders'));
@@ -78,15 +78,15 @@ class OrderController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
         try {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
 
-            $query = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_id')
-                        ->where('t.business_id', $business_id)
-                        ->where('transaction_id', $id);
+            $query = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
+                        ->where('t.business_uid', $business_uid)
+                        ->where('transaction_uid', $id);
 
-            if ($this->restUtil->is_service_staff($user_id)) {
-                $query->where('res_waiter_id', $user_id);
+            if ($this->restUtil->is_service_staff($user_uid)) {
+                $query->where('res_waiter_id', $user_uid);
             }
 
             $query->update(['res_line_order_status' => 'served']);
@@ -113,13 +113,13 @@ class OrderController extends Controller
     public function markLineOrderAsServed($id)
     {
         try {
-            $business_id = request()->session()->get('user.business_id');
-            $user_id = request()->session()->get('user.id');
+            $business_uid = request()->session()->get('user.business_uid');
+            $user_uid = request()->session()->get('user.id');
 
             $query = TransactionSellLine::where('id', $id);
 
-            if ($this->restUtil->is_service_staff($user_id)) {
-                $query->where('res_service_staff_id', $user_id);
+            if ($this->restUtil->is_service_staff($user_uid)) {
+                $query->where('res_service_staff_id', $user_uid);
             }
             $sell_line = $query->first();
 
@@ -148,14 +148,14 @@ class OrderController extends Controller
     public function printLineOrder(Request $request)
     {
         try {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
             $waiter_id = request()->session()->get('user.id');
             $line_id = $request->input('line_id');
             if (! empty($request->input('service_staff_id'))) {
                 $waiter_id = $request->input('service_staff_id');
             }
 
-            $line_orders = $this->restUtil->getLineOrders($business_id, ['waiter_id' => $waiter_id, 'line_id' => $line_id]);
+            $line_orders = $this->restUtil->getLineOrders($business_uid, ['waiter_id' => $waiter_id, 'line_id' => $line_id]);
             $order = $line_orders[0];
             $html_content = view('restaurant.partials.print_line_order', compact('order'))->render();
             $output = [

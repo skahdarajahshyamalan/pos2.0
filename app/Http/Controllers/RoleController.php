@@ -39,14 +39,14 @@ class RoleController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $roles = Role::where('business_id', $business_id)
-                        ->select(['name', 'id', 'is_default', 'business_id']);
+            $roles = Role::where('business_uid', $business_uid)
+                        ->select(['name', 'id', 'is_default', 'business_uid']);
 
             return DataTables::of($roles)
                 ->addColumn('action', function ($row) {
-                    if (! $row->is_default || $row->name == 'Cashier#'.$row->business_id) {
+                    if (! $row->is_default || $row->name == 'Cashier#'.$row->business_uid) {
                         $action = '';
                         if (auth()->user()->can('roles.update')) {
                             $action .= '<a href="'.action([\App\Http\Controllers\RoleController::class, 'edit'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> '.__('messages.edit').'</a>';
@@ -61,8 +61,8 @@ class RoleController extends Controller
                         return '';
                     }
                 })
-                ->editColumn('name', function ($row) use ($business_id) {
-                    $role_name = str_replace('#'.$business_id, '', $row->name);
+                ->editColumn('name', function ($row) use ($business_uid) {
+                    $role_name = str_replace('#'.$business_uid, '', $row->name);
                     if (in_array($role_name, ['Admin', 'Cashier'])) {
                         $role_name = __('lang_v1.'.$role_name);
                     }
@@ -71,7 +71,7 @@ class RoleController extends Controller
                 })
                 ->removeColumn('id')
                 ->removeColumn('is_default')
-                ->removeColumn('business_id')
+                ->removeColumn('business_uid')
                 ->rawColumns([1])
                 ->make(false);
         }
@@ -90,9 +90,9 @@ class RoleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $selling_price_groups = SellingPriceGroup::where('business_id', $business_id)
+        $selling_price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                     ->active()
                                     ->get();
 
@@ -120,10 +120,10 @@ class RoleController extends Controller
             DB::beginTransaction();
             $role_name = $request->input('name');
             $permissions = $request->input('permissions');
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $count = Role::where('name', $role_name.'#'.$business_id)
-                        ->where('business_id', $business_id)
+            $count = Role::where('name', $role_name.'#'.$business_uid)
+                        ->where('business_uid', $business_uid)
                         ->count();
             if ($count == 0) {
                 $is_service_staff = 0;
@@ -132,8 +132,8 @@ class RoleController extends Controller
                 }
 
                 $role = Role::create([
-                    'name' => $role_name.'#'.$business_id,
-                    'business_id' => $business_id,
+                    'name' => $role_name.'#'.$business_uid,
+                    'business_uid' => $business_uid,
                     'is_service_staff' => $is_service_staff,
                 ]);
 
@@ -202,8 +202,8 @@ class RoleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $role = Role::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $role = Role::where('business_uid', $business_uid)
                     ->with(['permissions'])
                     ->find($id);
         $role_permissions = [];
@@ -211,7 +211,7 @@ class RoleController extends Controller
             $role_permissions[] = $role_perm->name;
         }
 
-        $selling_price_groups = SellingPriceGroup::where('business_id', $business_id)
+        $selling_price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                     ->active()
                                     ->get();
 
@@ -239,17 +239,17 @@ class RoleController extends Controller
         try {
             $role_name = $request->input('name');
             $permissions = $request->input('permissions');
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $count = Role::where('name', $role_name.'#'.$business_id)
+            $count = Role::where('name', $role_name.'#'.$business_uid)
                         ->where('id', '!=', $id)
-                        ->where('business_id', $business_id)
+                        ->where('business_uid', $business_uid)
                         ->count();
             if ($count == 0) {
                 $role = Role::findOrFail($id);
 
-                if (! $role->is_default || $role->name == 'Cashier#'.$business_id) {
-                    if ($role->name == 'Cashier#'.$business_id) {
+                if (! $role->is_default || $role->name == 'Cashier#'.$business_uid) {
+                    if ($role->name == 'Cashier#'.$business_uid) {
                         $role->is_default = 0;
                     }
 
@@ -258,7 +258,7 @@ class RoleController extends Controller
                         $is_service_staff = 1;
                     }
                     $role->is_service_staff = $is_service_staff;
-                    $role->name = $role_name.'#'.$business_id;
+                    $role->name = $role_name.'#'.$business_uid;
                     $role->save();
 
                     //Include selling price group permissions
@@ -320,11 +320,11 @@ class RoleController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $role = Role::where('business_id', $business_id)->find($id);
+                $role = Role::where('business_uid', $business_uid)->find($id);
 
-                if (! $role->is_default || $role->name == 'Cashier#'.$business_id) {
+                if (! $role->is_default || $role->name == 'Cashier#'.$business_uid) {
                     $role->delete();
                     $output = ['success' => true,
                         'msg' => __('user.role_deleted'),

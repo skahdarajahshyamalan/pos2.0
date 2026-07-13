@@ -13,7 +13,7 @@
 			value="{{$quantity}}">
 		<input type="hidden" 
 			name="products[{{$index}}][modifier_set_id][]" 
-			value="{{$modifier->product_id}}">
+			value="{{$modifier->product_uid}}">
 		</div>
 	@endforeach
 </small>
@@ -22,7 +22,7 @@
 		<div class="product_modifier">
 		{{$modifier->variations->name ?? ''}}(<span class="modifier_price_text">{{@num_format($modifier->unit_price_inc_tax)}}</span> X <span class="modifier_qty_text">{{@num_format($modifier->quantity)}}</span>)
 		<input type="hidden" name="products[{{$index}}][modifier][]" 
-			value="{{$modifier->variation_id}}">
+			value="{{$modifier->variation_uid}}">
 		<input type="hidden" class="modifiers_price" 
 			name="products[{{$index}}][modifier_price][]" 
 			value="{{@num_format($modifier->unit_price_inc_tax)}}">
@@ -31,7 +31,7 @@
 			value="{{$modifier->quantity}}">
 		<input type="hidden" 
 			name="products[{{$index}}][modifier_set_id][]" 
-			value="{{$modifier->product_id}}">
+			value="{{$modifier->product_uid}}">
 		<input type="hidden" 
 			name="products[{{$index}}][modifier_sell_line_id][]" 
 			value="{{$modifier->id}}">

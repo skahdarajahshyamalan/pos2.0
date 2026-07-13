@@ -34,8 +34,8 @@
 
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('unit_id', __('product.unit') . ':*') !!}
-              {!! Form::select('unit_id', $units, null, ['class' => 'form-control select2', 'required']); !!}
+            {!! Form::label('unit_uid', __('product.unit') . ':*') !!}
+              {!! Form::select('unit_uid', $units, null, ['class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
 
@@ -49,16 +49,16 @@
 
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('brand_id', __('product.brand') . ':') !!}
-              {!! Form::select('brand_id', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::label('brand_uid', __('product.brand') . ':') !!}
+              {!! Form::select('brand_uid', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
         
         <div class="clearfix"></div>
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('category_id', __('product.category') . ':') !!}
-              {!! Form::select('category_id', $categories, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::label('category_uid', __('product.category') . ':') !!}
+              {!! Form::select('category_uid', $categories, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
 
@@ -250,9 +250,9 @@
                       sku: function() {
                           return $( "#sku" ).val();
                       },
-                      product_id: function() {
-                          if($('#product_id').length > 0 ){
-                              return $('#product_id').val();
+                      product_uid: function() {
+                          if($('#product_uid').length > 0 ){
+                              return $('#product_uid').val();
                           } else {
                               return '';
                           }
@@ -288,7 +288,7 @@
                 if( data.success){
                     toastr.success(data.msg);
                     if (typeof get_purchase_entry_row !== 'undefined') {
-                      var selected_location = $('#location_id').val();
+                      var selected_location = $('#location_uid').val();
                       var location_check = true;
                       if (data.locations && selected_location && data.locations.indexOf(selected_location) == -1) {
                         location_check = false;

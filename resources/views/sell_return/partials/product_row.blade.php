@@ -8,10 +8,10 @@
 		<i class="fa fa-commenting cursor-pointer text-primary add-pos-row-description" title="@lang('lang_v1.add_description')" data-toggle="modal" data-target="#row_description_modal_{{$row_count}}"></i>
 	</td>
 	<td>
-		<input type="hidden" name="products[{{$row_count}}][product_id]" class="form-control product_id" value="{{$product->product_id}}">
+		<input type="hidden" name="products[{{$row_count}}][product_uid]" class="form-control product_uid" value="{{$product->product_uid}}">
 
-		<input type="hidden" value="{{$product->variation_id}}" 
-			name="products[{{$row_count}}][variation_id]" class="row_variation_id">
+		<input type="hidden" value="{{$product->variation_uid}}" 
+			name="products[{{$row_count}}][variation_uid]" class="row_variation_id">
 
 		<input type="hidden" value="{{$product->enable_stock}}" 
 			name="products[{{$row_count}}][enable_stock]">

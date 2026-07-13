@@ -32,7 +32,7 @@ class InstallUtil extends Util
 
             foreach ($businesses as $business) {
                 $stock_adjustments = DB::table('stock_adjustments')
-                                        ->where('business_id', $business->id)
+                                        ->where('business_uid', $business->id)
                                         ->get();
 
                 if (! empty($stock_adjustments)) {
@@ -43,15 +43,15 @@ class InstallUtil extends Util
 
                         if (! empty($sa_lines) && is_array($sa_lines)) {
                             foreach ($sa_lines as $line) {
-                                $variation = Variation::where('id', $line->variation_id)
-                                                ->where('product_id', $line->product_id)
+                                $variation = Variation::where('id', $line->variation_uid)
+                                                ->where('product_uid', $line->product_uid)
                                                 ->first();
 
                                 if (! empty($variation)) {
-                                    $variation_location_d = VariationLocationDetails::where('variation_id', $variation->id)
-                                        ->where('product_id', $line->product_id)
+                                    $variation_location_d = VariationLocationDetails::where('variation_uid', $variation->id)
+                                        ->where('product_uid', $line->product_uid)
                                         ->where('product_variation_id', $variation->product_variation_id)
-                                        ->where('location_id', $sa->location_id)
+                                        ->where('location_uid', $sa->location_uid)
                                         ->increment('qty_available', $line->quantity);
                                 }
                             }
@@ -134,14 +134,14 @@ class InstallUtil extends Util
             foreach ($variable_products as $product) {
                 foreach ($product->product_variations as $product_variation) {
                     //Update Product variations
-                    $variation_template = VariationTemplate::where('business_id', $product->business_id)
+                    $variation_template = VariationTemplate::where('business_uid', $product->business_uid)
                                     ->whereRaw('LOWER(name) = "'.strtolower($product_variation->name).'"')
                                     ->with(['values'])
                                     ->first();
 
                     if (empty($variation_template)) {
                         $variation_template = VariationTemplate::create([
-                            'business_id' => $product->business_id,
+                            'business_uid' => $product->business_uid,
                             'name' => $product_variation->name,
                         ]);
                     }

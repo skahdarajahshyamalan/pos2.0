@@ -42,9 +42,9 @@ class KitchenController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         
-        $orders = $this->restUtil->getAllOrders($business_id, ['line_order_status' => 'received', 'is_kitchen_order' => 1]);
+        $orders = $this->restUtil->getAllOrders($business_uid, ['line_order_status' => 'received', 'is_kitchen_order' => 1]);
 
         return view('restaurant.kitchen.index', compact('orders'));
     }
@@ -60,10 +60,10 @@ class KitchenController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
         try {
-            $business_id = request()->session()->get('user.business_id');
-            $sl = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_id')
-                        ->where('t.business_id', $business_id)
-                        ->where('transaction_id', $id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $sl = TransactionSellLine::leftJoin('transactions as t', 't.id', '=', 'transaction_sell_lines.transaction_uid')
+                        ->where('t.business_uid', $business_uid)
+                        ->where('transaction_uid', $id)
                         ->where(function ($q) {
                             $q->whereNull('res_line_order_status')
                                 ->orWhere('res_line_order_status', 'received');
@@ -95,7 +95,7 @@ class KitchenController extends Controller
         // if (!auth()->user()->can('sell.view')) {
         //     abort(403, 'Unauthorized action.');
         // }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         $orders_for = $request->orders_for;
         $filter = [];
         $service_staff_id = request()->session()->get('user.id');
@@ -111,7 +111,7 @@ class KitchenController extends Controller
             $filter['waiter_id'] = $service_staff_id;
         }
 
-        $orders = $this->restUtil->getAllOrders($business_id, $filter);
+        $orders = $this->restUtil->getAllOrders($business_uid, $filter);
 
         return view('restaurant.partials.show_orders', compact('orders', 'orders_for'));
     }
@@ -127,7 +127,7 @@ class KitchenController extends Controller
         // if (!auth()->user()->can('sell.view')) {
         //     abort(403, 'Unauthorized action.');
         // }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         $orders_for = $request->orders_for;
         $filter = [];
         $service_staff_id = request()->session()->get('user.id');
@@ -142,7 +142,7 @@ class KitchenController extends Controller
             $filter['waiter_id'] = $service_staff_id;
         }
 
-        $line_orders = $this->restUtil->getLineOrders($business_id, $filter);
+        $line_orders = $this->restUtil->getLineOrders($business_uid, $filter);
 
         return view('restaurant.partials.line_orders', compact('line_orders', 'orders_for'));
     }

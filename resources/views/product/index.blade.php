@@ -37,8 +37,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            {!! Form::label('category_id', __('product.category') . ':') !!}
-                            {!! Form::select('category_id', $categories, null, [
+                            {!! Form::label('category_uid', __('product.category') . ':') !!}
+                            {!! Form::select('category_uid', $categories, null, [
                                 'class' => 'form-control select2',
                                 'style' => 'width:100%',
                                 'id' => 'product_list_filter_category_id',
@@ -49,8 +49,8 @@
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            {!! Form::label('unit_id', __('product.unit') . ':') !!}
-                            {!! Form::select('unit_id', $units, null, [
+                            {!! Form::label('unit_uid', __('product.unit') . ':') !!}
+                            {!! Form::select('unit_uid', $units, null, [
                                 'class' => 'form-control select2',
                                 'style' => 'width:100%',
                                 'id' => 'product_list_filter_unit_id',
@@ -71,8 +71,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            {!! Form::label('brand_id', __('product.brand') . ':') !!}
-                            {!! Form::select('brand_id', $brands, null, [
+                            {!! Form::label('brand_uid', __('product.brand') . ':') !!}
+                            {!! Form::select('brand_uid', $brands, null, [
                                 'class' => 'form-control select2',
                                 'style' => 'width:100%',
                                 'id' => 'product_list_filter_brand_id',
@@ -82,8 +82,8 @@
                     </div>
                     <div class="col-md-3" id="location_filter">
                         <div class="form-group">
-                            {!! Form::label('location_id', __('purchase.business_location') . ':') !!}
-                            {!! Form::select('location_id', $business_locations, null, [
+                            {!! Form::label('location_uid', __('purchase.business_location') . ':') !!}
+                            {!! Form::select('location_uid', $business_locations, null, [
                                 'class' => 'form-control select2',
                                 'style' => 'width:100%',
                                 'placeholder' => __('lang_v1.all'),
@@ -241,13 +241,13 @@
                     "url": "/products",
                     "data": function(d) {
                         d.type = $('#product_list_filter_type').val();
-                        d.category_id = $('#product_list_filter_category_id').val();
-                        d.brand_id = $('#product_list_filter_brand_id').val();
-                        d.unit_id = $('#product_list_filter_unit_id').val();
+                        d.category_uid = $('#product_list_filter_category_id').val();
+                        d.brand_uid = $('#product_list_filter_brand_id').val();
+                        d.unit_uid = $('#product_list_filter_unit_id').val();
                         d.tax_id = $('#product_list_filter_tax_id').val();
                         d.active_state = $('#active_state').val();
                         d.not_for_selling = $('#not_for_selling').is(':checked');
-                        d.location_id = $('#location_id').val();
+                        d.location_uid = $('#location_uid').val();
                         if ($('#repair_model_id').length == 1) {
                             d.repair_model_id = $('#repair_model_id').val();
                         }
@@ -546,7 +546,7 @@
             });
 
             $(document).on('change',
-                '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id, #active_state, #repair_model_id',
+                '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_uid, #active_state, #repair_model_id',
                 function() {
                     if ($("#product_list_tab").hasClass('active')) {
                         product_table.ajax.reload();
@@ -618,7 +618,7 @@
                 if (div.length) {
                     $.ajax({
                         url: "{{ action([\App\Http\Controllers\ReportController::class, 'getStockReport']) }}" +
-                            '?for=view_product&product_id=' + div.data('product_id'),
+                            '?for=view_product&product_uid=' + div.data('product_uid'),
                         dataType: 'html',
                         success: function(result) {
                             div.html(result);
@@ -741,10 +741,10 @@
                         ajax: {
                             url: '/reports/stock-report',
                             data: function(d) {
-                                d.location_id = $('#location_id').val();
-                                d.category_id = $('#product_list_filter_category_id').val();
-                                d.brand_id = $('#product_list_filter_brand_id').val();
-                                d.unit_id = $('#product_list_filter_unit_id').val();
+                                d.location_uid = $('#location_uid').val();
+                                d.category_uid = $('#product_list_filter_category_id').val();
+                                d.brand_uid = $('#product_list_filter_brand_id').val();
+                                d.unit_uid = $('#product_list_filter_unit_id').val();
                                 d.type = $('#product_list_filter_type').val();
                                 d.active_state = $('#active_state').val();
                                 d.not_for_selling = $('#not_for_selling').is(':checked');

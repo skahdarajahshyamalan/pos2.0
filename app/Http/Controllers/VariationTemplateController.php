@@ -20,9 +20,9 @@ class VariationTemplateController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $variations = VariationTemplate::where('business_id', $business_id)
+            $variations = VariationTemplate::where('business_uid', $business_uid)
                         ->with(['values'])
                         ->select('id', 'name', DB::raw('(SELECT COUNT(id) FROM product_variations WHERE product_variations.variation_template_id=variation_templates.id) as total_pv'));
 
@@ -72,7 +72,7 @@ class VariationTemplateController extends Controller
     {
         try {
             $input = $request->only(['name']);
-            $input['business_id'] = $request->session()->get('user.business_id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
             $variation = VariationTemplate::create($input);
 
             //craete variation values
@@ -122,8 +122,8 @@ class VariationTemplateController extends Controller
     public function edit($id)
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $variation = VariationTemplate::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $variation = VariationTemplate::where('business_uid', $business_uid)
                             ->with(['values'])->find($id);
 
             return view('variation.edit')
@@ -143,9 +143,9 @@ class VariationTemplateController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
-                $variation = VariationTemplate::where('business_id', $business_id)->findOrFail($id);
+                $variation = VariationTemplate::where('business_uid', $business_uid)->findOrFail($id);
 
                 if ($variation->name != $input['name']) {
                     $variation->name = $input['name'];
@@ -208,9 +208,9 @@ class VariationTemplateController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $variation = VariationTemplate::where('business_id', $business_id)->findOrFail($id);
+                $variation = VariationTemplate::where('business_uid', $business_uid)->findOrFail($id);
                 $variation->delete();
 
                 $output = ['success' => true,

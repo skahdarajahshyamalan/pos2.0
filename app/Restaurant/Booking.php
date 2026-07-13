@@ -37,12 +37,12 @@ class Booking extends Model
 
     public function location()
     {
-        return $this->belongsTo(\App\BusinessLocation::class, 'location_id');
+        return $this->belongsTo(\App\BusinessLocation::class, 'location_uid');
     }
 
     public function business()
     {
-        return $this->belongsTo(\App\Business::class, 'business_id');
+        return $this->belongsTo(\App\Business::class, 'business_uid');
     }
 
     public static function createBooking($input)
@@ -51,12 +51,12 @@ class Booking extends Model
             'contact_id' => $input['contact_id'],
             'waiter_id' => isset($input['res_waiter_id']) ? $input['res_waiter_id'] : null,
             'table_id' => isset($input['res_table_id']) ? $input['res_table_id'] : null,
-            'business_id' => $input['business_id'],
-            'location_id' => $input['location_id'],
+            'business_uid' => $input['business_uid'],
+            'location_uid' => $input['location_uid'],
             'correspondent_id' => isset($input['correspondent']) ? $input['correspondent'] : null,
             'booking_start' => $input['booking_start'],
             'booking_end' => $input['booking_end'],
-            'created_by' => $input['created_by'],
+            'created_by_uid' => $input['created_by_uid'],
             'booking_status' => isset($input['booking_status']) ? $input['booking_status'] : 'booked',
             'booking_note' => $input['booking_note'],
         ];

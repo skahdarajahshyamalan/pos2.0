@@ -11,10 +11,10 @@
 <!-- Main content -->
 <section class="content no-print">
 
-	{!! Form::hidden('location_id', $sell->location->id, ['id' => 'location_id', 'data-receipt_printer_type' => $sell->location->receipt_printer_type ]); !!}
+	{!! Form::hidden('location_uid', $sell->location->id, ['id' => 'location_uid', 'data-receipt_printer_type' => $sell->location->receipt_printer_type ]); !!}
 
 	{!! Form::open(['url' => action([\App\Http\Controllers\SellReturnController::class, 'store']), 'method' => 'post', 'id' => 'sell_return_form' ]) !!}
-	{!! Form::hidden('transaction_id', $sell->id); !!}
+	{!! Form::hidden('transaction_uid', $sell->id); !!}
 	<div class="box box-solid">
 		<div class="box-header">
 			<h3 class="box-title">@lang('lang_v1.parent_sale')</h3>

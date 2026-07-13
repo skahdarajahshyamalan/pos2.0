@@ -60,20 +60,20 @@ class ImportSalesController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $imported_sales = Transaction::where('business_id', $business_id)
+        $imported_sales = Transaction::where('business_uid', $business_uid)
                             ->where('type', 'sell')
                             ->whereNotNull('import_batch')
                             ->with(['sales_person'])
-                            ->select('id', 'import_batch', 'import_time', 'invoice_no', 'created_by')
+                            ->select('id', 'import_batch', 'import_time', 'invoice_no', 'created_by_uid')
                             ->orderBy('import_batch', 'desc')
                             ->get();
 
         $imported_sales_array = [];
         foreach ($imported_sales as $sale) {
             $imported_sales_array[$sale->import_batch]['import_time'] = $sale->import_time;
-            $imported_sales_array[$sale->import_batch]['created_by'] = $sale->sales_person->user_full_name;
+            $imported_sales_array[$sale->import_batch]['created_by_uid'] = $sale->sales_person->user_full_name;
             $imported_sales_array[$sale->import_batch]['invoices'][] = $sale->invoice_no;
         }
 
@@ -98,7 +98,7 @@ class ImportSalesController extends Controller
             return $notAllowed;
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if ($request->hasFile('sales')) {
             $file_name = time().'_'.$request->sales->getClientOriginalName();
@@ -126,7 +126,7 @@ class ImportSalesController extends Controller
                 $match_array[$key] = $match_percentage[$max_key] >= 50 ? $max_key : null;
             }
 
-            $business_locations = BusinessLocation::forDropdown($business_id);
+            $business_locations = BusinessLocation::forDropdown($business_uid);
 
             return view('import_sales.preview')->with(compact('parsed_array', 'import_fields', 'file_name', 'business_locations', 'match_array'));
         }
@@ -172,8 +172,8 @@ class ImportSalesController extends Controller
             $file_name = $request->input('file_name');
             $import_fields = $request->input('import_fields');
             $group_by = $request->input('group_by');
-            $location_id = $request->input('location_id');
-            $business_id = $request->session()->get('user.business_id');
+            $location_uid = $request->input('location_uid');
+            $business_uid = $request->session()->get('user.business_uid');
 
             $file_path = public_path('uploads/temp/'.$file_name);
             $parsed_array = $this->__parseData($file_name);
@@ -184,7 +184,7 @@ class ImportSalesController extends Controller
             ini_set('max_execution_time', 0);
             ini_set('memory_limit', -1);
 
-            $this->__importSales($formatted_sales_data, $business_id, $location_id);
+            $this->__importSales($formatted_sales_data, $business_uid, $location_uid);
 
             DB::commit();
 
@@ -209,9 +209,9 @@ class ImportSalesController extends Controller
         return redirect('import-sales')->with('status', $output);
     }
 
-    private function __importSales($formated_data, $business_id, $location_id)
+    private function __importSales($formated_data, $business_uid, $location_uid)
     {
-        $import_batch = Transaction::where('business_id', $business_id)->max('import_batch');
+        $import_batch = Transaction::where('business_uid', $business_uid)->max('import_batch');
 
         if (empty($import_batch)) {
             $import_batch = 1;
@@ -228,15 +228,15 @@ class ImportSalesController extends Controller
                 if (! empty($line_data['sku'])) {
                     
                     $variation = Variation::where('sub_sku', $line_data['sku'])
-                    ->whereHas('product', function ($query) use ($business_id) {
-                        $query->where('business_id', $business_id);
+                    ->whereHas('product', function ($query) use ($business_uid) {
+                        $query->where('business_uid', $business_uid);
                     })
                     ->with(['product'])
                     ->first();
 
                     $product = ! empty($variation) ? $variation->product : null;
                 } else {
-                    $product = Product::where('business_id', $business_id)
+                    $product = Product::where('business_uid', $business_uid)
                                     ->where('name', $line_data['product'])
                                     ->with(['variations'])
                                     ->first();
@@ -256,7 +256,7 @@ class ImportSalesController extends Controller
                 $price_before_tax = $line_data['unit_price'] - $line_discount;
                 $price_inc_tax = $price_before_tax;
                 if (! empty($line_data['item_tax'])) {
-                    $tax = TaxRate::where('business_id', $business_id)
+                    $tax = TaxRate::where('business_uid', $business_uid)
                                 ->where('name', $line_data['item_tax'])
                                 ->first();
 
@@ -278,8 +278,8 @@ class ImportSalesController extends Controller
                 }
 
                 $temp = [
-                    'product_id' => $variation->product_id,
-                    'variation_id' => $variation->id,
+                    'product_uid' => $variation->product_uid,
+                    'variation_uid' => $variation->id,
                     'quantity' => $line_data['quantity'],
                     'unit_price' => $unit_price,
                     'unit_price_inc_tax' => $price_inc_tax,
@@ -288,7 +288,7 @@ class ImportSalesController extends Controller
                     'item_tax' => $item_tax,
                     'tax_id' => $tax_id,
                     'sell_line_note' => $line_data['item_description'],
-                    'product_unit_id' => $product->unit_id,
+                    'product_unit_id' => $product->unit_uid,
                     'enable_stock' => $product->enable_stock,
                     'type' => $product->type,
                     'combo_variations' => $product->type == 'combo' ? $variation->combo_variations : [],
@@ -306,7 +306,7 @@ class ImportSalesController extends Controller
                     }
 
                     //Check if sub unit
-                    if ($unit->id != $product->unit_id) {
+                    if ($unit->id != $product->unit_uid) {
                         $temp['sub_unit_id'] = $unit->id;
                         $temp['base_unit_multiplier'] = $unit->base_unit_multiplier;
                         $line_quantity = ($line_quantity * $unit->base_unit_multiplier);
@@ -322,29 +322,29 @@ class ImportSalesController extends Controller
             $first_sell_line = $data[0];
             //get contact
             if (! empty($first_sell_line['customer_phone_number'])) {
-                $contact = Contact::where('business_id', $business_id)
+                $contact = Contact::where('business_uid', $business_uid)
                                 ->where('mobile', $first_sell_line['customer_phone_number'])
                                 ->first();
             } elseif (! empty($first_sell_line['customer_email'])) {
-                $contact = Contact::where('business_id', $business_id)
+                $contact = Contact::where('business_uid', $business_uid)
                                 ->where('email', $first_sell_line['customer_email'])
                                 ->first();
             }
             if (empty($contact)) {
                 $customer_name = ! empty($first_sell_line['customer_name']) ? $first_sell_line['customer_name'] : $first_sell_line['customer_phone_number'];
                 $contact = Contact::create([
-                    'business_id' => $business_id,
+                    'business_uid' => $business_uid,
                     'type' => 'customer',
                     'name' => $customer_name,
                     'email' => $first_sell_line['customer_email'],
                     'mobile' => $first_sell_line['customer_phone_number'],
-                    'created_by' => auth()->user()->id,
+                    'created_by_uid' => auth()->user()->id,
                 ]);
             }
 
             $sale_data = [
                 'invoice_no' => $first_sell_line['invoice_no'],
-                'location_id' => $location_id,
+                'location_uid' => $location_uid,
                 'status' => 'final',
                 'contact_id' => $contact->id,
                 'final_total' => ! empty($first_sell_line['order_total']) ? $first_sell_line['order_total'] : $order_total,
@@ -357,7 +357,7 @@ class ImportSalesController extends Controller
 
             $is_types_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
             if ($is_types_service_enabled && ! empty($first_sell_line['types_of_service'])) {
-                $types_of_service = TypesOfService::where('business_id', $business_id)
+                $types_of_service = TypesOfService::where('business_uid', $business_uid)
                                                 ->where('name', $first_sell_line['types_of_service'])
                                                 ->first();
 
@@ -377,16 +377,16 @@ class ImportSalesController extends Controller
                 'tax' => 0,
             ];
 
-            $transaction = $this->transactionUtil->createSellTransaction($business_id, $sale_data, $invoice_total, auth()->user()->id, false);
+            $transaction = $this->transactionUtil->createSellTransaction($business_uid, $sale_data, $invoice_total, auth()->user()->id, false);
 
-            $this->transactionUtil->createOrUpdateSellLines($transaction, $sell_lines, $location_id, false, null, [], false);
+            $this->transactionUtil->createOrUpdateSellLines($transaction, $sell_lines, $location_uid, false, null, [], false);
 
             foreach ($sell_lines as $line) {
                 if ($line['enable_stock']) {
                     $this->productUtil->decreaseProductQuantity(
-                        $line['product_id'],
-                        $line['variation_id'],
-                        $location_id,
+                        $line['product_uid'],
+                        $line['variation_uid'],
+                        $location_uid,
                         $line['quantity']
                     );
                 }
@@ -400,20 +400,20 @@ class ImportSalesController extends Controller
                     //Decrease quantity of combo as well.
                     $combo_details = [];
                     foreach ($line['combo_variations'] as $combo_variation) {
-                        $combo_variation_obj = Variation::find($combo_variation['variation_id']);
+                        $combo_variation_obj = Variation::find($combo_variation['variation_uid']);
 
                         //Multiply both subunit multiplier of child product and parent product to the quantity
                         $combo_variation_quantity = $combo_variation['quantity'];
-                        if (! empty($combo_variation['unit_id'])) {
-                            $combo_variation_unit = Unit::find($combo_variation['unit_id']);
+                        if (! empty($combo_variation['unit_uid'])) {
+                            $combo_variation_unit = Unit::find($combo_variation['unit_uid']);
                             if (! empty($combo_variation_unit->base_unit_multiplier)) {
                                 $combo_variation_quantity = $combo_variation_quantity * $combo_variation_unit->base_unit_multiplier;
                             }
                         }
 
                         $combo_details[] = [
-                            'product_id' => $combo_variation_obj->product_id,
-                            'variation_id' => $combo_variation['variation_id'],
+                            'product_uid' => $combo_variation_obj->product_uid,
+                            'variation_uid' => $combo_variation['variation_uid'],
                             'quantity' => $combo_variation_quantity * $line_total_quantity,
                         ];
                     }
@@ -421,7 +421,7 @@ class ImportSalesController extends Controller
                     $this->productUtil
                         ->decreaseProductQuantityCombo(
                             $combo_details,
-                            $location_id
+                            $location_uid
                         );
                 }
             }
@@ -429,12 +429,12 @@ class ImportSalesController extends Controller
             //Update payment status
             $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
-            $business_details = $this->businessUtil->getDetails($business_id);
+            $business_details = $this->businessUtil->getDetails($business_uid);
             $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-            $business = ['id' => $business_id,
+            $business = ['id' => $business_uid,
                 'accounting_method' => request()->session()->get('business.accounting_method'),
-                'location_id' => $location_id,
+                'location_uid' => $location_uid,
                 'pos_settings' => $pos_settings,
             ];
             $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
@@ -556,16 +556,16 @@ class ImportSalesController extends Controller
         }
 
         try {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $sales = Transaction::where('business_id', $business_id)
+            $sales = Transaction::where('business_uid', $business_uid)
                                 ->where('type', 'sell')
                                 ->where('import_batch', $batch)
                                 ->get();
             //Begin transaction
             DB::beginTransaction();
             foreach ($sales as $sale) {
-                $this->transactionUtil->deleteSale($business_id, $sale->id);
+                $this->transactionUtil->deleteSale($business_uid, $sale->id);
             }
 
             DB::commit();

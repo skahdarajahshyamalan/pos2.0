@@ -109,7 +109,7 @@
                     url: '{{ action([\App\Http\Controllers\PurchaseRequisitionController::class, 'index']) }}',
                     data: function(d) {
                         if ($('#pr_list_filter_location_id').length) {
-                            d.location_id = $('#pr_list_filter_location_id').val();
+                            d.location_uid = $('#pr_list_filter_location_id').val();
                         }
                         d.status = $('#pr_list_filter_status').val();
 

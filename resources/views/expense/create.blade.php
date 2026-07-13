@@ -24,15 +24,15 @@
 				@endif
 				<div class="col-sm-4">
 					<div class="form-group">
-						{!! Form::label('location_id', __('purchase.business_location').':*') !!}
-						{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
+						{!! Form::label('location_uid', __('purchase.business_location').':*') !!}
+						{!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
 					</div>
 				</div>
 
 				<div class="col-sm-4">
 					<div class="form-group">
-						{!! Form::label('expense_category_id', __('expense.expense_category').':') !!}
-						{!! Form::select('expense_category_id', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+						{!! Form::label('expense_category_uid', __('expense.expense_category').':') !!}
+						{!! Form::select('expense_category_uid', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
 					</div>
 				</div>
 				<div class="col-md-4">
@@ -176,9 +176,9 @@
 		$('#recur_expense_div').removeClass('hide');
 	});
 
-	$(document).on('change', '.payment_types_dropdown, #location_id', function(e) {
-	    var default_accounts = $('select#location_id').length ? 
-	                $('select#location_id')
+	$(document).on('change', '.payment_types_dropdown, #location_uid', function(e) {
+	    var default_accounts = $('select#location_uid').length ? 
+	                $('select#location_uid')
 	                .find(':selected')
 	                .data('default_payment_accounts') : [];
 	    var payment_types_dropdown = $('.payment_types_dropdown');

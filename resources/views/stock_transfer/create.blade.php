@@ -49,12 +49,12 @@
                 <div class="clearfix"></div>
                 <div class="col-sm-6">
                     <div class="form-group">
-                        {!! Form::label('location_id', __('lang_v1.location_from') . ':*') !!}
-                        {!! Form::select('location_id', $business_locations, null, [
+                        {!! Form::label('location_uid', __('lang_v1.location_from') . ':*') !!}
+                        {!! Form::select('location_uid', $business_locations, null, [
                             'class' => 'form-control select2',
                             'placeholder' => __('messages.please_select'),
                             'required',
-                            'id' => 'location_id',
+                            'id' => 'location_uid',
                         ]) !!}
                     </div>
                 </div>

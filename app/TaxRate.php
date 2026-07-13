@@ -29,18 +29,18 @@ class TaxRate extends Model
     /**
      * Return list of tax rate dropdown for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @param $include_attributes = false (boolean)
      * @return array['tax_rates', 'attributes']
      */
     public static function forBusinessDropdown(
-        $business_id,
+        $business_uid,
         $prepend_none = true,
         $include_attributes = false,
         $exclude_for_tax_group = true
     ) {
-        $all_taxes = TaxRate::where('business_id', $business_id);
+        $all_taxes = TaxRate::where('business_uid', $business_uid);
 
         if ($exclude_for_tax_group) {
             $all_taxes->ExcludeForTaxGroup();
@@ -71,9 +71,9 @@ class TaxRate extends Model
      *
      * @return array
      */
-    public static function forBusiness($business_id)
+    public static function forBusiness($business_uid)
     {
-        $tax_rates = TaxRate::where('business_id', $business_id)
+        $tax_rates = TaxRate::where('business_uid', $business_uid)
                         ->select(['id', 'name', 'amount'])
                         ->get()
                         ->toArray();
@@ -96,9 +96,9 @@ class TaxRate extends Model
      *
      * @return array
      */
-    public static function groupTaxes($business_id)
+    public static function groupTaxes($business_uid)
     {
-        $tax_rates = TaxRate::where('business_id', $business_id)
+        $tax_rates = TaxRate::where('business_uid', $business_uid)
                         ->where('is_tax_group', 1)
                         ->with(['sub_taxes'])
                         ->get();

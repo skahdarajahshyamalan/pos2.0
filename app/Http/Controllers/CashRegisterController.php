@@ -53,8 +53,8 @@ class CashRegisterController extends Controller
         if ($this->cashRegisterUtil->countOpenedRegister() != 0) {
             return redirect()->action([\App\Http\Controllers\SellPosController::class, 'create'], ['sub_type' => $sub_type]);
         }
-        $business_id = request()->session()->get('user.business_id');
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
         return view('cash_register.create')->with(compact('business_locations', 'sub_type'));
     }
@@ -75,14 +75,14 @@ class CashRegisterController extends Controller
             if (! empty($request->input('amount'))) {
                 $initial_amount = $this->cashRegisterUtil->num_uf($request->input('amount'));
             }
-            $user_id = $request->session()->get('user.id');
-            $business_id = $request->session()->get('user.business_id');
+            $user_uid = $request->session()->get('user.id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             $register = CashRegister::create([
-                'business_id' => $business_id,
-                'user_id' => $user_id,
+                'business_uid' => $business_uid,
+                'user_uid' => $user_uid,
                 'status' => 'open',
-                'location_id' => $request->input('location_id'),
+                'location_uid' => $request->input('location_uid'),
                 'created_at' => \Carbon::now()->format('Y-m-d H:i:00'),
             ]);
             if (! empty($initial_amount)) {
@@ -112,15 +112,15 @@ class CashRegisterController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
-        $user_id = $register_details->user_id;
+        $user_uid = $register_details->user_uid;
         $open_time = $register_details['open_time'];
         $close_time = ! empty($register_details['closed_at']) ? $register_details['closed_at'] : \Carbon::now()->toDateTimeString();
-        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
+        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_uid, $open_time, $close_time);
 
-        $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_uid);
 
         $due_applied_to_register = $this->cashRegisterUtil->getDuePaymentsForCurrentRegisterSales($id);
 
@@ -140,19 +140,19 @@ class CashRegisterController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails();
 
-        $user_id = auth()->user()->id;
+        $user_uid = auth()->user()->id;
         $open_time = $register_details['open_time'];
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
 
-        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled);
+        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_uid, $open_time, $close_time, $is_types_of_service_enabled);
 
-        $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
+        $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_uid, true, $business_uid);
 
         $due_applied_to_register = $this->cashRegisterUtil->getDuePaymentsForCurrentRegisterSales();
 
@@ -172,18 +172,18 @@ class CashRegisterController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
 
-        $user_id = $register_details->user_id;
+        $user_uid = $register_details->user_uid;
         $open_time = $register_details['open_time'];
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
 
-        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled);
+        $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_uid, $open_time, $close_time, $is_types_of_service_enabled);
 
-        $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
+        $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_uid, true, $business_uid);
 
         $pos_settings = ! empty(request()->session()->get('business.pos_settings')) ? json_decode(request()->session()->get('business.pos_settings'), true) : [];
 
@@ -217,12 +217,12 @@ class CashRegisterController extends Controller
 
             $input = $request->only(['closing_amount', 'total_card_slips', 'total_cheques', 'closing_note']);
             $input['closing_amount'] = $this->cashRegisterUtil->num_uf($input['closing_amount']);
-            $user_id = $request->input('user_id');
+            $user_uid = $request->input('user_uid');
             $input['closed_at'] = \Carbon::now()->format('Y-m-d H:i:s');
             $input['status'] = 'close';
             $input['denominations'] = ! empty(request()->input('denominations')) ? json_encode(request()->input('denominations')) : null;
 
-            CashRegister::where('user_id', $user_id)
+            CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->update($input);
             $output = ['success' => 1,

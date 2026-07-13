@@ -28,9 +28,9 @@ class AccountTypeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = session()->get('user.business_id');
+        $business_uid = session()->get('user.business_uid');
 
-        $account_types = AccountType::where('business_id', $business_id)
+        $account_types = AccountType::where('business_uid', $business_uid)
                                      ->whereNull('parent_account_type_id')
                                      ->get();
 
@@ -52,7 +52,7 @@ class AccountTypeController extends Controller
 
         try {
             $input = $request->only(['name', 'parent_account_type_id']);
-            $input['business_id'] = $request->session()->get('user.business_id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
 
             AccountType::create($input);
             $output = ['success' => true,
@@ -92,12 +92,12 @@ class AccountTypeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = session()->get('user.business_id');
+        $business_uid = session()->get('user.business_uid');
 
-        $account_type = AccountType::where('business_id', $business_id)
+        $account_type = AccountType::where('business_uid', $business_uid)
                                      ->findOrFail($id);
 
-        $account_types = AccountType::where('business_id', $business_id)
+        $account_types = AccountType::where('business_uid', $business_uid)
                                      ->whereNull('parent_account_type_id')
                                      ->get();
 
@@ -120,14 +120,14 @@ class AccountTypeController extends Controller
 
         try {
             $input = $request->only(['name', 'parent_account_type_id']);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $account_type = AccountType::where('business_id', $business_id)
+            $account_type = AccountType::where('business_uid', $business_uid)
                                      ->findOrFail($id);
 
             //Account type is changed to subtype update all its sub type's parent type
             if (empty($account_type->parent_account_type_id) && ! empty($input['parent_account_type_id'])) {
-                AccountType::where('business_id', $business_id)
+                AccountType::where('business_uid', $business_uid)
                         ->where('parent_account_type_id', $account_type->id)
                         ->update(['parent_account_type_id' => $input['parent_account_type_id']]);
             }
@@ -160,14 +160,14 @@ class AccountTypeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = session()->get('user.business_id');
+        $business_uid = session()->get('user.business_uid');
 
-        AccountType::where('business_id', $business_id)
+        AccountType::where('business_uid', $business_uid)
                                      ->where('id', $id)
                                      ->delete();
 
         //Upadete parent account if set
-        AccountType::where('business_id', $business_id)
+        AccountType::where('business_uid', $business_uid)
                  ->where('parent_account_type_id', $id)
                  ->update(['parent_account_type_id' => null]);
 

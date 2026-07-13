@@ -165,7 +165,7 @@
                         d.end_date = $('#profit_loss_date_filter')
                             .data('daterangepicker')
                             .endDate.format('YYYY-MM-DD');
-                        d.location_id = $('#profit_loss_location_filter').val();
+                        d.location_uid = $('#profit_loss_location_filter').val();
                     }
                 },
                 columns: [{
@@ -206,7 +206,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -248,7 +248,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -290,7 +290,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -332,7 +332,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -374,7 +374,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -416,7 +416,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -459,7 +459,7 @@
                                     d.end_date = $('#profit_loss_date_filter')
                                         .data('daterangepicker')
                                         .endDate.format('YYYY-MM-DD');
-                                    d.location_id = $('#profit_loss_location_filter').val();
+                                    d.location_uid = $('#profit_loss_location_filter').val();
                                 }
                             },
                             columns: [{
@@ -494,10 +494,10 @@
                     var end_date = $('#profit_loss_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
-                    var location_id = $('#profit_loss_location_filter').val();
+                    var location_uid = $('#profit_loss_location_filter').val();
 
                     var url = '/reports/get-profit/day?start_date=' + start_date + '&end_date=' + end_date +
-                        '&location_id=' + location_id;
+                        '&location_uid=' + location_uid;
                     $.ajax({
                         url: url,
                         dataType: 'html',

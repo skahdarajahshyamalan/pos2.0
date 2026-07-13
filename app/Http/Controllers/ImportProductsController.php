@@ -99,8 +99,8 @@ class ImportProductsController extends Controller
                 //Remove header row
                 $imported_data = array_splice($parsed_array[0], 1);
 
-                $business_id = $request->session()->get('user.business_id');
-                $user_id = $request->session()->get('user.id');
+                $business_uid = $request->session()->get('user.business_uid');
+                $user_uid = $request->session()->get('user.id');
                 $default_profit_percent = $request->session()->get('business.default_profit_percent');
 
                 $formated_data = [];
@@ -111,13 +111,13 @@ class ImportProductsController extends Controller
                 $total_rows = count($imported_data);
 
                 //Check if subscribed or not, then check for products quota
-                if (! $this->moduleUtil->isSubscribed($business_id)) {
+                if (! $this->moduleUtil->isSubscribed($business_uid)) {
                     return $this->moduleUtil->expiredResponse();
-                } elseif (! $this->moduleUtil->isQuotaAvailable('products', $business_id, $total_rows)) {
-                    return $this->moduleUtil->quotaExpiredResponse('products', $business_id, action([\App\Http\Controllers\ImportProductsController::class, 'index']));
+                } elseif (! $this->moduleUtil->isQuotaAvailable('products', $business_uid, $total_rows)) {
+                    return $this->moduleUtil->quotaExpiredResponse('products', $business_uid, action([\App\Http\Controllers\ImportProductsController::class, 'index']));
                 }
 
-                $business_locations = BusinessLocation::where('business_id', $business_id)->get();
+                $business_locations = BusinessLocation::where('business_uid', $business_uid)->get();
                 DB::beginTransaction();
                 foreach ($imported_data as $key => $value) {
 
@@ -130,8 +130,8 @@ class ImportProductsController extends Controller
 
                     $row_no = $key + 1;
                     $product_array = [];
-                    $product_array['business_id'] = $business_id;
-                    $product_array['created_by'] = $user_id;
+                    $product_array['business_uid'] = $business_uid;
+                    $product_array['created_by_uid'] = $user_uid;
 
                     //Add name
                     $product_name = trim($value[0]);
@@ -213,13 +213,13 @@ class ImportProductsController extends Controller
                     //Add unit
                     $unit_name = trim($value[2]);
                     if (! empty($unit_name)) {
-                        $unit = Unit::where('business_id', $business_id)
+                        $unit = Unit::where('business_uid', $business_uid)
                                     ->where(function ($query) use ($unit_name) {
                                         $query->where('short_name', $unit_name)
                                               ->orWhere('actual_name', $unit_name);
                                     })->first();
                         if (! empty($unit)) {
-                            $product_array['unit_id'] = $unit->id;
+                            $product_array['unit_uid'] = $unit->id;
                         } else {
                             $is_valid = false;
                             $error_msg = "Unit with name $unit_name not found in row no. $row_no. You can add unit from Products > Units";
@@ -247,7 +247,7 @@ class ImportProductsController extends Controller
                     $tax_name = trim($value[11]);
                     $tax_amount = 0;
                     if (! empty($tax_name)) {
-                        $tax = TaxRate::where('business_id', $business_id)
+                        $tax = TaxRate::where('business_uid', $business_uid)
                                         ->where('name', $tax_name)
                                         ->first();
                         if (! empty($tax)) {
@@ -280,10 +280,10 @@ class ImportProductsController extends Controller
                     $brand_name = trim($value[1]);
                     if (! empty($brand_name)) {
                         $brand = Brands::firstOrCreate(
-                            ['business_id' => $business_id, 'name' => $brand_name],
-                            ['created_by' => $user_id]
+                            ['business_uid' => $business_uid, 'name' => $brand_name],
+                            ['created_by_uid' => $user_uid]
                         );
-                        $product_array['brand_id'] = $brand->id;
+                        $product_array['brand_uid'] = $brand->id;
                     }
 
                     //Add Category
@@ -291,18 +291,18 @@ class ImportProductsController extends Controller
                     $category_name = trim($value[3]);
                     if (! empty($category_name)) {
                         $category = Category::firstOrCreate(
-                            ['business_id' => $business_id, 'name' => $category_name, 'category_type' => 'product'],
-                            ['created_by' => $user_id, 'parent_id' => 0]
+                            ['business_uid' => $business_uid, 'name' => $category_name, 'category_type' => 'product'],
+                            ['created_by_uid' => $user_uid, 'parent_id' => 0]
                         );
-                        $product_array['category_id'] = $category->id;
+                        $product_array['category_uid'] = $category->id;
                     }
 
                     //Add Sub-Category
                     $sub_category_name = trim($value[4]);
                     if (! empty($sub_category_name)) {
                         $sub_category = Category::firstOrCreate(
-                            ['business_id' => $business_id, 'name' => $sub_category_name, 'category_type' => 'product'],
-                            ['created_by' => $user_id, 'parent_id' => $category->id]
+                            ['business_uid' => $business_uid, 'name' => $sub_category_name, 'category_type' => 'product'],
+                            ['created_by_uid' => $user_uid, 'parent_id' => $category->id]
                         );
                         $product_array['sub_category_id'] = $sub_category->id;
                     }
@@ -313,7 +313,7 @@ class ImportProductsController extends Controller
                         $product_array['sku'] = $sku;
                         //Check if product with same SKU already exist
                         $is_exist = Product::where('sku', $product_array['sku'])
-                                        ->where('business_id', $business_id)
+                                        ->where('business_uid', $business_uid)
                                         ->exists();
                         if ($is_exist) {
                             $is_valid = false;
@@ -398,18 +398,18 @@ class ImportProductsController extends Controller
                             if (! empty(trim($value[22]))) {
                                 $location_name = trim($value[22]);
                                 $location = BusinessLocation::where('name', $location_name)
-                                                            ->where('business_id', $business_id)
+                                                            ->where('business_uid', $business_uid)
                                                             ->first();
                                 if (! empty($location)) {
-                                    $product_array['opening_stock_details']['location_id'] = $location->id;
+                                    $product_array['opening_stock_details']['location_uid'] = $location->id;
                                 } else {
                                     $is_valid = false;
                                     $error_msg = "No location with name '$location_name' found in row no. $row_no";
                                     break;
                                 }
                             } else {
-                                $location = BusinessLocation::where('business_id', $business_id)->first();
-                                $product_array['opening_stock_details']['location_id'] = $location->id;
+                                $location = BusinessLocation::where('business_uid', $business_uid)->first();
+                                $product_array['opening_stock_details']['location_uid'] = $location->id;
                             }
 
                             $product_array['opening_stock_details']['expiry_date'] = null;
@@ -529,7 +529,7 @@ class ImportProductsController extends Controller
                         $product_array['variation']['name'] = $variation_name;
 
                         //Check if variation exists or create new
-                        $variation = $this->productUtil->createOrNewVariation($business_id, $variation_name);
+                        $variation = $this->productUtil->createOrNewVariation($business_uid, $variation_name);
                         $product_array['variation']['variation_template_id'] = $variation->id;
 
                         foreach ($variation_values as $k => $v) {
@@ -576,7 +576,7 @@ class ImportProductsController extends Controller
                             if (! empty(trim($value[22]))) {
                                 $location_name = trim($value[22]);
                                 $location = BusinessLocation::where('name', $location_name)
-                                                            ->where('business_id', $business_id)
+                                                            ->where('business_uid', $business_uid)
                                                             ->first();
                                 if (empty($location)) {
                                     $is_valid = false;
@@ -584,7 +584,7 @@ class ImportProductsController extends Controller
                                     break;
                                 }
                             } else {
-                                $location = BusinessLocation::where('business_id', $business_id)->first();
+                                $location = BusinessLocation::where('business_uid', $business_uid)->first();
                             }
                             $product_array['variation']['opening_stock_location'] = $location->id;
 
@@ -635,7 +635,7 @@ class ImportProductsController extends Controller
                             $imported_data[$index][26],
                             $imported_data[$index][27],
                             $imported_data[$index][28],
-                            $business_id,
+                            $business_uid,
                             $product->id,
                             $index + 1
                         );
@@ -668,7 +668,7 @@ class ImportProductsController extends Controller
                                 $variation_data['dsp_inc_tax']
                             );
                             if (! empty($opening_stock)) {
-                                $this->addOpeningStock($opening_stock, $product, $business_id);
+                                $this->addOpeningStock($opening_stock, $product, $business_uid);
                             }
                         } elseif ($product->type == 'variable') {
                             //Create variable product variations and with_out_variation is sku type of variation
@@ -677,11 +677,11 @@ class ImportProductsController extends Controller
                                 $product,
                                 [$variation_data],
                                 "with_out_variation",
-                                $business_id
+                                $business_uid
                             );
 
                             if (! empty($variation_data['opening_stock_location']) && $enable_stock == 1) {
-                                $this->addOpeningStockForVariable($variation_data, $product, $business_id);
+                                $this->addOpeningStockForVariable($variation_data, $product, $business_uid);
                             }
                         }
                     }
@@ -764,14 +764,14 @@ class ImportProductsController extends Controller
      *
      * @param  array  $opening_stock
      * @param  obj  $product
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return void
      */
-    private function addOpeningStock($opening_stock, $product, $business_id)
+    private function addOpeningStock($opening_stock, $product, $business_uid)
     {
-        $user_id = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.id');
 
-        $variation = Variation::where('product_id', $product->id)
+        $variation = Variation::where('product_uid', $product->id)
             ->first();
 
         $total_before_tax = $opening_stock['quantity'] * $variation->dpp_inc_tax;
@@ -784,13 +784,13 @@ class ImportProductsController extends Controller
                 'type' => 'opening_stock',
                 'opening_stock_product_id' => $product->id,
                 'status' => 'received',
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'transaction_date' => $transaction_date,
                 'total_before_tax' => $total_before_tax,
-                'location_id' => $opening_stock['location_id'],
+                'location_uid' => $opening_stock['location_uid'],
                 'final_total' => $total_before_tax,
                 'payment_status' => 'paid',
-                'created_by' => $user_id,
+                'created_by_uid' => $user_uid,
             ]
         );
         //Get product tax
@@ -801,8 +801,8 @@ class ImportProductsController extends Controller
 
         //Create purchase line
         $transaction->purchase_lines()->create([
-            'product_id' => $product->id,
-            'variation_id' => $variation->id,
+            'product_uid' => $product->id,
+            'variation_uid' => $variation->id,
             'quantity' => $opening_stock['quantity'],
             'item_tax' => $item_tax,
             'tax_id' => $tax_id,
@@ -812,32 +812,32 @@ class ImportProductsController extends Controller
             'exp_date' => ! empty($opening_stock['exp_date']) ? $opening_stock['exp_date'] : null,
         ]);
         //Update variation location details
-        $this->productUtil->updateProductQuantity($opening_stock['location_id'], $product->id, $variation->id, $opening_stock['quantity']);
+        $this->productUtil->updateProductQuantity($opening_stock['location_uid'], $product->id, $variation->id, $opening_stock['quantity']);
 
         //Add product location
-        $this->__addProductLocation($product, $opening_stock['location_id']);
+        $this->__addProductLocation($product, $opening_stock['location_uid']);
     }
 
-    private function __addProductLocation($product, $location_id)
+    private function __addProductLocation($product, $location_uid)
     {
-        $count = DB::table('product_locations')->where('product_id', $product->id)
-                                            ->where('location_id', $location_id)
+        $count = DB::table('product_locations')->where('product_uid', $product->id)
+                                            ->where('location_uid', $location_uid)
                                             ->count();
         if ($count == 0) {
-            DB::table('product_locations')->insert(['product_id' => $product->id,
-                'location_id' => $location_id, ]);
+            DB::table('product_locations')->insert(['product_uid' => $product->id,
+                'location_uid' => $location_uid, ]);
         }
     }
 
-    private function addOpeningStockForVariable($variations, $product, $business_id)
+    private function addOpeningStockForVariable($variations, $product, $business_uid)
     {
-        $user_id = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.id');
 
         $transaction_date = request()->session()->get('financial_year.start');
         $transaction_date = \Carbon::createFromFormat('Y-m-d', $transaction_date)->toDateTimeString();
 
         $total_before_tax = 0;
-        $location_id = $variations['opening_stock_location'];
+        $location_uid = $variations['opening_stock_location'];
         if (isset($variations['variations'][0]['opening_stock'])) {
             //Add opening stock transaction
             $transaction = Transaction::create(
@@ -845,22 +845,22 @@ class ImportProductsController extends Controller
                     'type' => 'opening_stock',
                     'opening_stock_product_id' => $product->id,
                     'status' => 'received',
-                    'business_id' => $business_id,
+                    'business_uid' => $business_uid,
                     'transaction_date' => $transaction_date,
                     'total_before_tax' => $total_before_tax,
-                    'location_id' => $location_id,
+                    'location_uid' => $location_uid,
                     'final_total' => $total_before_tax,
                     'payment_status' => 'paid',
-                    'created_by' => $user_id,
+                    'created_by_uid' => $user_uid,
                 ]
             );
 
             //Add product location
-            $this->__addProductLocation($product, $location_id);
+            $this->__addProductLocation($product, $location_uid);
 
             foreach ($variations['variations'] as $variation_os) {
                 if (! empty($variation_os['opening_stock'])) {
-                    $variation = Variation::where('product_id', $product->id)
+                    $variation = Variation::where('product_uid', $product->id)
                                     ->where('name', $variation_os['value'])
                                     ->first();
                     if (! empty($variation)) {
@@ -880,8 +880,8 @@ class ImportProductsController extends Controller
 
                     //Create purchase line
                     $transaction->purchase_lines()->create([
-                        'product_id' => $product->id,
-                        'variation_id' => $variation->id,
+                        'product_uid' => $product->id,
+                        'variation_uid' => $variation->id,
                         'quantity' => $opening_stock['quantity'],
                         'item_tax' => $item_tax,
                         'tax_id' => $tax_id,
@@ -890,7 +890,7 @@ class ImportProductsController extends Controller
                         'exp_date' => ! empty($opening_stock['exp_date']) ? $opening_stock['exp_date'] : null,
                     ]);
                     //Update variation location details
-                    $this->productUtil->updateProductQuantity($location_id, $product->id, $variation->id, $opening_stock['quantity']);
+                    $this->productUtil->updateProductQuantity($location_uid, $product->id, $variation->id, $opening_stock['quantity']);
                 }
             }
 
@@ -900,10 +900,10 @@ class ImportProductsController extends Controller
         }
     }
 
-    private function rackDetails($rack_value, $row_value, $position_value, $business_id, $product_id, $row_no)
+    private function rackDetails($rack_value, $row_value, $position_value, $business_uid, $product_uid, $row_no)
     {
         if (! empty($rack_value) || ! empty($row_value) || ! empty($position_value)) {
-            $locations = BusinessLocation::forDropdown($business_id);
+            $locations = BusinessLocation::forDropdown($business_uid);
             $loc_count = count($locations);
 
             $racks = explode('|', $rack_value);
@@ -935,7 +935,7 @@ class ImportProductsController extends Controller
             }
 
             if (! empty($rack_details)) {
-                $this->productUtil->addRackDetails($business_id, $product_id, $rack_details);
+                $this->productUtil->addRackDetails($business_uid, $product_uid, $rack_details);
             }
         }
     }

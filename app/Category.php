@@ -30,12 +30,12 @@ class Category extends Model
     /**
      * Combines Category and sub-category
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return array
      */
-    public static function catAndSubCategories($business_id)
+    public static function catAndSubCategories($business_uid)
     {
-        $all_categories = Category::where('business_id', $business_id)
+        $all_categories = Category::where('business_uid', $business_uid)
                                 ->where('category_type', 'product')
                                 ->orderBy('name', 'asc')
                                 ->get()
@@ -78,13 +78,13 @@ class Category extends Model
     /**
      * Category Dropdown
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  string  $type category type
      * @return array
      */
-    public static function forDropdown($business_id, $type)
+    public static function forDropdown($business_uid, $type)
     {
-        $categories = Category::where('business_id', $business_id)
+        $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_id', 0)
                             ->where('category_type', $type)
                             ->select(DB::raw('IF(short_code IS NOT NULL, CONCAT(name, "-", short_code), name) as name'), 'id')

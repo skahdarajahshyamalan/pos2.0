@@ -15,15 +15,15 @@
 		<div class="row">
 			<div class="col-sm-4">
           		<div class="form-group">
-            		{!! Form::label('brand_id', __('product.brand') . ':') !!}
-              		{!! Form::select('brand_id[]', $brands, null, ['class' => 'form-control select2', 'multiple', 'id' => 'brand_id']); !!}
+            		{!! Form::label('brand_uid', __('product.brand') . ':') !!}
+              		{!! Form::select('brand_uid[]', $brands, null, ['class' => 'form-control select2', 'multiple', 'id' => 'brand_uid']); !!}
            
           		</div>
         	</div>
         	<div class="col-sm-4 @if(!session('business.enable_category')) hide @endif">
           		<div class="form-group">
-            		{!! Form::label('category_id', __('product.category') . ':') !!}
-              		{!! Form::select('category_id[]', $categories, null, ['class' => 'form-control select2', 'multiple', 'id' => 'category_id']); !!}
+            		{!! Form::label('category_uid', __('product.category') . ':') !!}
+              		{!! Form::select('category_uid[]', $categories, null, ['class' => 'form-control select2', 'multiple', 'id' => 'category_uid']); !!}
           		</div>
         	</div>
 			@if(count($business_locations) == 1)
@@ -38,8 +38,8 @@
 			@endif
 			<div class="col-sm-4">
 				<div class="form-group">
-					{!! Form::label('location_id', __('purchase.business_location').':') !!}
-					{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+					{!! Form::label('location_uid', __('purchase.business_location').':') !!}
+					{!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
 				</div>
 			</div>
 		</div>
@@ -113,20 +113,20 @@
             });
 
             var data = {
-            	location_id: $('#location_id').val(),
-            	brand_id: $('#brand_id').val(),
-            	category_id: $('#category_id').val()
+            	location_uid: $('#location_uid').val(),
+            	brand_uid: $('#brand_uid').val(),
+            	category_uid: $('#category_uid').val()
             }
 
             $('#show_pr_products').click( function(){
-            	if ($('#location_id').val() == '') {
+            	if ($('#location_uid').val() == '') {
             		alert('{{__("lang_v1.select_location")}}');
             		return false;
             	}
             	var data = {
-	            	location_id: $('#location_id').val(),
-	            	brand_id: $('#brand_id').val(),
-	            	category_id: $('#category_id').val()
+	            	location_uid: $('#location_uid').val(),
+	            	brand_uid: $('#brand_uid').val(),
+	            	category_uid: $('#category_uid').val()
 	            }
 
             	$.ajax({
@@ -137,8 +137,8 @@
                     success: function(result) {
                     	var rows = $(result);
                     	rows.find('tr').each(function(){
-                    		var row_variation_id = $(this).attr('data-variation_id');
-                    		if ($('tr[data-variation_id="' + row_variation_id + '"]').length == 0) {
+                    		var row_variation_id = $(this).attr('data-variation_uid');
+                    		if ($('tr[data-variation_uid="' + row_variation_id + '"]').length == 0) {
                     			$('#products_list tbody').append($(this));
                     		}
                     	})
@@ -150,11 +150,11 @@
 
 		var prev_location;
 
-		$('#location_id').on('select2:selecting', function(){
+		$('#location_uid').on('select2:selecting', function(){
 		    prev_location = $(this).val();
 		})
 
-		$('#location_id').on('select2:select', function(){
+		$('#location_uid').on('select2:select', function(){
 			if ($('#products_list tbody').find('tr').length > 0){
         		swal({
 		            title: LANG.sure,
@@ -166,8 +166,8 @@
 		            if (willDelete) {
 		                $('#products_list tbody').html('');
 		            } else {
-		        		$('#location_id').val(prev_location);
-		        		$('#location_id').change();
+		        		$('#location_uid').val(prev_location);
+		        		$('#location_uid').change();
 		        		return false;
 		        	}
 		        });

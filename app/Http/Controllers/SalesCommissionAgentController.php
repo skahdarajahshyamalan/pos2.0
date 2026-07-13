@@ -33,9 +33,9 @@ class SalesCommissionAgentController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $users = User::where('business_id', $business_id)
+            $users = User::where('business_uid', $business_uid)
                         ->where('is_cmmsn_agnt', 1)
                         ->select(['id',
                             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"),
@@ -92,8 +92,8 @@ class SalesCommissionAgentController extends Controller
         try {
             $input = $request->only(['surname', 'first_name', 'last_name', 'email', 'address', 'contact_no', 'cmmsn_percent']);
             $input['cmmsn_percent'] = $this->commonUtil->num_uf($input['cmmsn_percent']);
-            $business_id = $request->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $business_uid = $request->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
             $input['allow_login'] = 0;
             $input['is_cmmsn_agnt'] = 1;
 
@@ -148,10 +148,10 @@ class SalesCommissionAgentController extends Controller
             try {
                 $input = $request->only(['surname', 'first_name', 'last_name', 'email', 'address', 'contact_no', 'cmmsn_percent']);
                 $input['cmmsn_percent'] = $this->commonUtil->num_uf($input['cmmsn_percent']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
                 $user = User::where('id', $id)
-                            ->where('business_id', $business_id)
+                            ->where('business_uid', $business_uid)
                             ->where('is_cmmsn_agnt', 1)
                             ->first();
                 $user->update($input);
@@ -185,10 +185,10 @@ class SalesCommissionAgentController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
                 User::where('id', $id)
-                    ->where('business_id', $business_id)
+                    ->where('business_uid', $business_uid)
                     ->where('is_cmmsn_agnt', 1)
                     ->delete();
 

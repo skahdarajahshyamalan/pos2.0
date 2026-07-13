@@ -48,9 +48,9 @@ class TaxonomyController extends Controller
                 $can_delete = false;
             }
 
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $all_categories = Category::where('business_id', $business_id)
+            $all_categories = Category::where('business_uid', $business_uid)
                 ->where('category_type', $category_type)
                 ->get()
                 ->keyBy('id');
@@ -117,11 +117,11 @@ class TaxonomyController extends Controller
         if ($category_type == 'product' && ! auth()->user()->can('category.create')) {
             abort(403, 'Unauthorized action.');
         }
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 
-        $categories = Category::where('business_id', $business_id)
+        $categories = Category::where('business_uid', $business_uid)
                         ->where('parent_id', 0)
                         ->where('category_type', $category_type)
                         ->select(['name', 'short_code', 'id'])
@@ -158,8 +158,8 @@ class TaxonomyController extends Controller
             } else {
                 $input['parent_id'] = 0;
             }
-            $input['business_id'] = $request->session()->get('user.business_id');
-            $input['created_by'] = $request->session()->get('user.id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
+            $input['created_by_uid'] = $request->session()->get('user.id');
 
             $category = Category::create($input);
             $output = ['success' => true,
@@ -202,12 +202,12 @@ class TaxonomyController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $category = Category::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $category = Category::where('business_uid', $business_uid)->find($id);
 
             $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 
-            $parent_categories = Category::where('business_id', $business_id)
+            $parent_categories = Category::where('business_uid', $business_uid)
                                         ->where('parent_id', 0)
                                         ->where('category_type', $category_type)
                                         ->where('id', '!=', $id)
@@ -238,9 +238,9 @@ class TaxonomyController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'description']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
-                $category = Category::where('business_id', $business_id)->findOrFail($id);
+                $category = Category::where('business_uid', $business_uid)->findOrFail($id);
 
                 if ($category->category_type == 'product' && ! auth()->user()->can('category.update')) {
                     abort(403, 'Unauthorized action.');
@@ -282,9 +282,9 @@ class TaxonomyController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $category = Category::where('business_id', $business_id)->findOrFail($id);
+                $category = Category::where('business_uid', $business_uid)->findOrFail($id);
 
                 if ($category->category_type == 'product' && ! auth()->user()->can('category.delete')) {
                     abort(403, 'Unauthorized action.');
@@ -314,7 +314,7 @@ class TaxonomyController extends Controller
 
             $api_settings = $this->moduleUtil->getApiSettings($api_token);
 
-            $categories = Category::catAndSubCategories($api_settings->business_id);
+            $categories = Category::catAndSubCategories($api_settings->business_uid);
         } catch (\Exception $e) {
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 

@@ -12,18 +12,18 @@
                         $default_location = current(array_keys($business_locations->toArray())) 
                     @endphp
                 @else
-                    @php $default_location = request()->input('location_id'); @endphp
+                    @php $default_location = request()->input('location_uid'); @endphp
                 @endif
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('expense_location_id', __('purchase.business_location').':*') !!}
-                        {!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'expense_location_id'], $bl_attributes); !!}
+                        {!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'expense_location_id'], $bl_attributes); !!}
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
-                        {!! Form::label('expense_category_id', __('expense.expense_category').':') !!}
-                        {!! Form::select('expense_category_id', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+                        {!! Form::label('expense_category_uid', __('expense.expense_category').':') !!}
+                        {!! Form::select('expense_category_uid', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
                     </div>
                 </div>
                 <div class="col-md-6">

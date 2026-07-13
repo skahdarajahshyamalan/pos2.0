@@ -59,17 +59,17 @@ class PurchaseRequisitionController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         if (request()->ajax()) {
             $purchase_requisitions = Transaction::join(
                         'business_locations AS BS',
-                        'transactions.location_id',
+                        'transactions.location_uid',
                         '=',
                         'BS.id'
                     )
-                    ->join('users as u', 'transactions.created_by', '=', 'u.id')
-                    ->where('transactions.business_id', $business_id)
+                    ->join('users as u', 'transactions.created_by_uid', '=', 'u.id')
+                    ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_requisition')
                     ->select(
                         'transactions.id',
@@ -84,11 +84,11 @@ class PurchaseRequisitionController extends Controller
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $purchase_requisitions->whereIn('transactions.location_id', $permitted_locations);
+                $purchase_requisitions->whereIn('transactions.location_uid', $permitted_locations);
             }
 
-            if (! empty(request()->location_id)) {
-                $purchase_requisitions->where('transactions.location_id', request()->location_id);
+            if (! empty(request()->location_uid)) {
+                $purchase_requisitions->where('transactions.location_uid', request()->location_uid);
             }
 
             if (! empty(request()->status)) {
@@ -110,7 +110,7 @@ class PurchaseRequisitionController extends Controller
             }
 
             if (! auth()->user()->can('purchase_requisition.view_all') && auth()->user()->can('purchase_requisition.view_own')) {
-                $purchase_requisitions->where('transactions.created_by', request()->session()->get('user.id'));
+                $purchase_requisitions->where('transactions.created_by_uid', request()->session()->get('user.id'));
             }
 
             if (! empty(request()->from_dashboard)) {
@@ -158,7 +158,7 @@ class PurchaseRequisitionController extends Controller
                 ->make(true);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
         $purchaseRequisitionStatuses = [];
         foreach ($this->purchaseRequisitionStatuses as $key => $value) {
@@ -179,13 +179,13 @@ class PurchaseRequisitionController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
-        $categories = Category::forDropdown($business_id, 'product');
+        $categories = Category::forDropdown($business_uid, 'product');
 
-        $brands = Brands::forDropdown($business_id);
+        $brands = Brands::forDropdown($business_uid);
 
         return view('purchase_requisition.create')->with(compact('business_locations', 'categories', 'brands'));
     }
@@ -203,14 +203,14 @@ class PurchaseRequisitionController extends Controller
         }
 
         try {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
             $transaction_data = [
-                'business_id' => $business_id,
-                'location_id' => $request->input('location_id'),
+                'business_uid' => $business_uid,
+                'location_uid' => $request->input('location_uid'),
                 'type' => 'purchase_requisition',
                 'status' => 'ordered',
-                'created_by' => auth()->user()->id,
+                'created_by_uid' => auth()->user()->id,
                 'transaction_date' => \Carbon::now()->toDateTimeString(),
             ];
 
@@ -223,8 +223,8 @@ class PurchaseRequisitionController extends Controller
 
                 if (! empty($quantity) || ! empty($secondary_unit_quantity)) {
                     $purchase_lines[] = [
-                        'variation_id' => $purchase_line['variation_id'],
-                        'product_id' => $purchase_line['product_id'],
+                        'variation_uid' => $purchase_line['variation_uid'],
+                        'product_uid' => $purchase_line['product_uid'],
                         'quantity' => $quantity,
                         'purchase_price_inc_tax' => 0,
                         'item_tax' => 0,
@@ -275,9 +275,9 @@ class PurchaseRequisitionController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_requisition')
                         ->where('id', $id)
                             ->with(
@@ -334,9 +334,9 @@ class PurchaseRequisitionController extends Controller
 
         try {
             if (request()->ajax()) {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $transaction = Transaction::where('business_id', $business_id)
+                $transaction = Transaction::where('business_uid', $business_uid)
                                 ->where('type', 'purchase_requisition')
                                 ->with(['purchase_lines'])
                                 ->find($id);
@@ -366,7 +366,7 @@ class PurchaseRequisitionController extends Controller
     public function getRequisitionProducts()
     {
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
             $query = VariationLocationDetails::join(
                 'product_variations as pv',
@@ -376,25 +376,25 @@ class PurchaseRequisitionController extends Controller
             )
                     ->join(
                         'variations as v',
-                        'variation_location_details.variation_id',
+                        'variation_location_details.variation_uid',
                         '=',
                         'v.id'
                     )
                     ->join(
                         'products as p',
-                        'variation_location_details.product_id',
+                        'variation_location_details.product_uid',
                         '=',
                         'p.id'
                     )
                     ->leftjoin(
                         'business_locations as l',
-                        'variation_location_details.location_id',
+                        'variation_location_details.location_uid',
                         '=',
                         'l.id'
                     )
-                    ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                    ->leftjoin('units as u', 'p.unit_uid', '=', 'u.id')
                     ->leftjoin('units as su', 'p.secondary_unit_id', '=', 'su.id')
-                    ->where('p.business_id', $business_id)
+                    ->where('p.business_uid', $business_uid)
                     ->where('p.enable_stock', 1)
                     ->where('p.is_inactive', 0)
                     ->whereNull('v.deleted_at')
@@ -404,18 +404,18 @@ class PurchaseRequisitionController extends Controller
             //Check for permitted locations of a user
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $query->whereIn('variation_location_details.location_id', $permitted_locations);
+                $query->whereIn('variation_location_details.location_uid', $permitted_locations);
             }
 
-            if (! empty(request()->input('location_id'))) {
-                $query->where('variation_location_details.location_id', request()->input('location_id'));
+            if (! empty(request()->input('location_uid'))) {
+                $query->where('variation_location_details.location_uid', request()->input('location_uid'));
             }
-            if (! empty(request()->input('brand_id'))) {
-                $query->whereIn('p.brand_id', request()->input('brand_id'));
+            if (! empty(request()->input('brand_uid'))) {
+                $query->whereIn('p.brand_uid', request()->input('brand_uid'));
             }
 
-            if (! empty(request()->input('category_id'))) {
-                $query->whereIn('p.category_id', request()->input('category_id'));
+            if (! empty(request()->input('category_uid'))) {
+                $query->whereIn('p.category_uid', request()->input('category_uid'));
             }
 
             $products = $query->select(
@@ -429,8 +429,8 @@ class PurchaseRequisitionController extends Controller
                 'l.name as location',
                 'variation_location_details.qty_available as stock',
                 'u.short_name as unit',
-                'v.id as variation_id',
-                'p.id as product_id',
+                'v.id as variation_uid',
+                'p.id as product_uid',
                 'u.allow_decimal',
                 'su.short_name as second_unit',
                 'su.allow_decimal as su_allow_decimal'
@@ -443,14 +443,14 @@ class PurchaseRequisitionController extends Controller
         }
     }
 
-    public function getPurchaseRequisitions($location_id)
+    public function getPurchaseRequisitions($location_uid)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase_requisitions = Transaction::where('business_id', $business_id)
+        $purchase_requisitions = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_requisition')
                         ->whereIn('status', ['partial', 'ordered'])
-                        ->where('location_id', $location_id)
+                        ->where('location_uid', $location_uid)
                         ->select('ref_no as text', 'id')
                         ->get();
 
@@ -459,24 +459,24 @@ class PurchaseRequisitionController extends Controller
 
     public function getPurchaseRequisitionLines($purchase_requisition_id)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase_requisition = Transaction::where('business_id', $business_id)
+        $purchase_requisition = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_requisition')
                         ->with(['purchase_lines', 'purchase_lines.variations',
                             'purchase_lines.product', 'purchase_lines.product.unit', 'purchase_lines.variations.product_variation', ])
                         ->findOrFail($purchase_requisition_id);
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                             ->ExcludeForTaxGroup()
                             ->get();
 
         $sub_units_array = [];
         foreach ($purchase_requisition->purchase_lines as $pl) {
-            $sub_units_array[$pl->id] = $this->transactionUtil->getSubUnits($business_id, $pl->product->unit->id, false, $pl->product_id);
+            $sub_units_array[$pl->id] = $this->transactionUtil->getSubUnits($business_uid, $pl->product->unit->id, false, $pl->product_uid);
         }
         $hide_tax = request()->session()->get('business.enable_inline_tax') == 1 ? '' : 'hide';
-        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
         $row_count = request()->input('row_count');
         $is_purchase_order = true;
         $html = view('purchase_requisition.partials.purchase_requisition_lines')

@@ -50,10 +50,10 @@
             <input type="hidden" name="products[{{$row_index}}][transaction_sell_lines_id]" class="form-control" value="{{$product->transaction_sell_lines_id}}">
         @endif
 
-        <input type="hidden" name="products[{{$row_index}}][product_id]" class="form-control product_id" value="{{$product->product_id}}">
+        <input type="hidden" name="products[{{$row_index}}][product_uid]" class="form-control product_uid" value="{{$product->product_uid}}">
 
-        <input type="hidden" value="{{$product->variation_id}}" 
-            name="products[{{$row_index}}][variation_id]">
+        <input type="hidden" value="{{$product->variation_uid}}" 
+            name="products[{{$row_index}}][variation_uid]">
 
         <input type="hidden" value="{{$product->enable_stock}}" 
             name="products[{{$row_index}}][enable_stock]">

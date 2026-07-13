@@ -37,7 +37,7 @@ class Variation extends Model
 
     public function product()
     {
-        return $this->belongsTo(\App\Product::class, 'product_id');
+        return $this->belongsTo(\App\Product::class, 'product_uid');
     }
 
     /**
@@ -61,7 +61,7 @@ class Variation extends Model
      */
     public function group_prices()
     {
-        return $this->hasMany(\App\VariationGroupPrice::class, 'variation_id');
+        return $this->hasMany(\App\VariationGroupPrice::class, 'variation_uid');
     }
 
     public function media()

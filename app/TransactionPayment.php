@@ -33,7 +33,7 @@ class TransactionPayment extends Model
      */
     public function transaction()
     {
-        return $this->belongsTo(\App\Transaction::class, 'transaction_id');
+        return $this->belongsTo(\App\Transaction::class, 'transaction_uid');
     }
 
     /**
@@ -41,7 +41,7 @@ class TransactionPayment extends Model
      */
     public function created_user()
     {
-        return $this->belongsTo(\App\User::class, 'created_by');
+        return $this->belongsTo(\App\User::class, 'created_by_uid');
     }
 
     /**
@@ -93,12 +93,12 @@ class TransactionPayment extends Model
 
         $transactionUtil = new \App\Utils\TransactionUtil();
 
-        if (! empty($payment->transaction_id)) {
+        if (! empty($payment->transaction_uid)) {
             //update payment status
             $transaction = $payment->load('transaction')->transaction;
             $transaction_before = $transaction->replicate();
 
-            $payment_status = $transactionUtil->updatePaymentStatus($payment->transaction_id);
+            $payment_status = $transactionUtil->updatePaymentStatus($payment->transaction_uid);
 
             $transaction->payment_status = $payment_status;
 

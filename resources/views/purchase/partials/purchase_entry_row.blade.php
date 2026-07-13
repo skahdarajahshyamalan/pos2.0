@@ -1,5 +1,5 @@
 @foreach( $variations as $variation)
-    <tr @if(!empty($purchase_order_line)) data-purchase_order_id="{{$purchase_order_line->transaction_id}}" @endif @if(!empty($purchase_requisition_line)) data-purchase_requisition_id="{{$purchase_requisition_line->transaction_id}}" @endif>
+    <tr @if(!empty($purchase_order_line)) data-purchase_order_id="{{$purchase_order_line->transaction_uid}}" @endif @if(!empty($purchase_requisition_line)) data-purchase_requisition_id="{{$purchase_requisition_line->transaction_uid}}" @endif>
         <td><span class="sr_number"></span></td>
         <td>
             {{ $product->name }} ({{$variation->sub_sku}})
@@ -22,8 +22,8 @@
                 {!! Form::hidden('purchases[' . $row_count . '][purchase_requisition_line_id]', $purchase_requisition_line->id ); !!}
             @endif
 
-            {!! Form::hidden('purchases[' . $row_count . '][product_id]', $product->id ); !!}
-            {!! Form::hidden('purchases[' . $row_count . '][variation_id]', $variation->id , ['class' => 'hidden_variation_id']); !!}
+            {!! Form::hidden('purchases[' . $row_count . '][product_uid]', $product->id ); !!}
+            {!! Form::hidden('purchases[' . $row_count . '][variation_uid]', $variation->id , ['class' => 'hidden_variation_id']); !!}
 
             @php
                 $check_decimal = 'false';

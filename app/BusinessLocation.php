@@ -31,14 +31,14 @@ class BusinessLocation extends Model
     /**
      * Return list of locations for a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  bool  $show_all = false
      * @param  array  $receipt_printer_type_attribute =
      * @return array
      */
-    public static function forDropdown($business_id, $show_all = false, $receipt_printer_type_attribute = false, $append_id = true, $check_permission = true)
+    public static function forDropdown($business_uid, $show_all = false, $receipt_printer_type_attribute = false, $append_id = true, $check_permission = true)
     {
-        $query = BusinessLocation::where('business_id', $business_id)->Active();
+        $query = BusinessLocation::where('business_uid', $business_uid)->Active();
 
         if ($check_permission) {
             $permitted_locations = auth()->user()->permitted_locations();
@@ -49,7 +49,7 @@ class BusinessLocation extends Model
 
         if ($append_id) {
             $query->select(
-                DB::raw("IF(location_id IS NULL OR location_id='', name, CONCAT(name, ' (', location_id, ')')) AS name"),
+                DB::raw("IF(location_uid IS NULL OR location_uid='', name, CONCAT(name, ' (', location_uid, ')')) AS name"),
                 'id',
                 'receipt_printer_type',
                 'selling_price_group_id',
@@ -64,7 +64,7 @@ class BusinessLocation extends Model
 
         $locations = $result->pluck('name', 'id');
 
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
         if ($show_all) {
             $locations->prepend(__('report.all_locations'), '');
@@ -122,14 +122,14 @@ class BusinessLocation extends Model
             return [];
         }
         $query = Variation::whereIn('variations.id', $this->featured_products)
-                                    ->join('product_locations as pl', 'pl.product_id', '=', 'variations.product_id')
-                                    ->join('products as p', 'p.id', '=', 'variations.product_id')
+                                    ->join('product_locations as pl', 'pl.product_uid', '=', 'variations.product_uid')
+                                    ->join('products as p', 'p.id', '=', 'variations.product_uid')
                                     ->where('p.not_for_selling', 0)
                                     ->with(['product_variation', 'product', 'media'])
                                     ->select('variations.*');
 
         if ($check_location) {
-            $query->where('pl.location_id', $this->id);
+            $query->where('pl.location_uid', $this->id);
         }
         $featured_products = $query->get();
         if ($is_array) {

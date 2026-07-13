@@ -49,27 +49,27 @@ class ExpenseController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_id', '=', 'ec.id')
+            $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_uid', '=', 'ec.id')
                         ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.id')
                         ->join(
                             'business_locations AS bl',
-                            'transactions.location_id',
+                            'transactions.location_uid',
                             '=',
                             'bl.id'
                         )
                         ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.id')
                         ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.id')
-                        ->leftJoin('users AS usr', 'transactions.created_by', '=', 'usr.id')
+                        ->leftJoin('users AS usr', 'transactions.created_by_uid', '=', 'usr.id')
                         ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.id')
                         ->leftJoin(
                             'transaction_payments AS TP',
                             'transactions.id',
                             '=',
-                            'TP.transaction_id'
+                            'TP.transaction_uid'
                         )
-                        ->where('transactions.business_id', $business_id)
+                        ->where('transactions.business_uid', $business_uid)
                         ->whereIn('transactions.type', ['expense', 'expense_refund'])
                         ->select(
                             'transactions.id',
@@ -109,10 +109,10 @@ class ExpenseController extends Controller
                 }
             }
 
-            if (request()->has('created_by')) {
-                $created_by = request()->get('created_by');
-                if (! empty($created_by)) {
-                    $expenses->where('transactions.created_by', $created_by);
+            if (request()->has('created_by_uid')) {
+                $created_by_uid = request()->get('created_by_uid');
+                if (! empty($created_by_uid)) {
+                    $expenses->where('transactions.created_by_uid', $created_by_uid);
                 }
             }
 
@@ -124,18 +124,18 @@ class ExpenseController extends Controller
             }
 
             //Add condition for location,used in sales representative expense report & list of expense
-            if (request()->has('location_id')) {
-                $location_id = request()->get('location_id');
-                if (! empty($location_id)) {
-                    $expenses->where('transactions.location_id', $location_id);
+            if (request()->has('location_uid')) {
+                $location_uid = request()->get('location_uid');
+                if (! empty($location_uid)) {
+                    $expenses->where('transactions.location_uid', $location_uid);
                 }
             }
 
             //Add condition for expense category, used in list of expense,
-            if (request()->has('expense_category_id')) {
-                $expense_category_id = request()->get('expense_category_id');
-                if (! empty($expense_category_id)) {
-                    $expenses->where('transactions.expense_category_id', $expense_category_id);
+            if (request()->has('expense_category_uid')) {
+                $expense_category_uid = request()->get('expense_category_uid');
+                if (! empty($expense_category_uid)) {
+                    $expenses->where('transactions.expense_category_uid', $expense_category_uid);
                 }
             }
 
@@ -157,7 +157,7 @@ class ExpenseController extends Controller
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $expenses->whereIn('transactions.location_id', $permitted_locations);
+                $expenses->whereIn('transactions.location_uid', $permitted_locations);
             }
 
             //Add condition for payment status for the list of expense
@@ -168,12 +168,12 @@ class ExpenseController extends Controller
                 }
             }
 
-            $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_id);
+            $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_uid);
             if (! $is_admin && ! auth()->user()->can('all_expense.access')) {
-                $user_id = auth()->user()->id;
-                $expenses->where(function ($query) use ($user_id) {
-                    $query->where('transactions.created_by', $user_id)
-                        ->orWhere('transactions.expense_for', $user_id);
+                $user_uid = auth()->user()->id;
+                $expenses->where(function ($query) use ($user_uid) {
+                    $query->where('transactions.created_by_uid', $user_uid)
+                        ->orWhere('transactions.expense_for', $user_uid);
                 });
             }
 
@@ -279,19 +279,19 @@ class ExpenseController extends Controller
                 ->make(true);
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $categories = ExpenseCategory::where('business_id', $business_id)
+        $categories = ExpenseCategory::where('business_uid', $business_uid)
                             ->whereNull('parent_id')
                             ->pluck('name', 'id');
 
-        $users = User::forDropdown($business_id, false, true, true);
+        $users = User::forDropdown($business_uid, false, true, true);
 
-        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        $business_locations = BusinessLocation::forDropdown($business_uid, true);
 
-        $contacts = Contact::contactDropdown($business_id, false, false);
+        $contacts = Contact::contactDropdown($business_uid, false, false);
 
-        $sub_categories = ExpenseCategory::where('business_id', $business_id)
+        $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNotNull('parent_id')
                         ->pluck('name', 'id')
                         ->toArray();
@@ -311,36 +311,36 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false, true);
 
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
 
-        $expense_categories = ExpenseCategory::where('business_id', $business_id)
+        $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
                                 ->whereNull('parent_id')
                                 ->pluck('name', 'id');
 
-        $users = User::forDropdown($business_id, true, true);
+        $users = User::forDropdown($business_uid, true, true);
 
-        $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
+        $taxes = TaxRate::forBusinessDropdown($business_uid, true, true);
 
         $payment_line = $this->dummyPaymentLine;
 
-        $payment_types = $this->transactionUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, false, $business_uid);
 
-        $contacts = Contact::contactDropdown($business_id, false, false);
+        $contacts = Contact::contactDropdown($business_uid, false, false);
 
         //Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {
-            $accounts = Account::forDropdown($business_id, true, false, true);
+            $accounts = Account::forDropdown($business_uid, true, false, true);
         }
 
         if (request()->ajax()) {
@@ -365,10 +365,10 @@ class ExpenseController extends Controller
         }
 
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not
-            if (! $this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
             }
 
@@ -377,11 +377,11 @@ class ExpenseController extends Controller
                 'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
-            $user_id = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.id');
 
             DB::beginTransaction();
 
-            $expense = $this->transactionUtil->createExpense($request, $business_id, $user_id);
+            $expense = $this->transactionUtil->createExpense($request, $business_uid, $user_uid);
 
             if (request()->ajax()) {
                 $payments = ! empty($request->input('payment')) ? $request->input('payment') : [];
@@ -437,34 +437,34 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
         //Check if subscribed or not
-        if (! $this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_uid)) {
             return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
-        $expense_categories = ExpenseCategory::where('business_id', $business_id)
+        $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
                                 ->whereNull('parent_id')
                                 ->pluck('name', 'id');
-        $expense = Transaction::where('business_id', $business_id)
+        $expense = Transaction::where('business_uid', $business_uid)
                                 ->where('id', $id)
                                 ->first();
 
-        $users = User::forDropdown($business_id, true, true);
+        $users = User::forDropdown($business_uid, true, true);
 
-        $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
+        $taxes = TaxRate::forBusinessDropdown($business_uid, true, true);
 
-        $contacts = Contact::contactDropdown($business_id, false, false);
+        $contacts = Contact::contactDropdown($business_uid, false, false);
 
         //Sub-category
         $sub_categories = [];
 
-        if (!empty($expense->expense_category_id)) {
-            $sub_categories = ExpenseCategory::where('business_id', $business_id)
-                ->where('parent_id', $expense->expense_category_id)
+        if (!empty($expense->expense_category_uid)) {
+            $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
+                ->where('parent_id', $expense->expense_category_uid)
                 ->pluck('name', 'id')
                 ->toArray();
         }
@@ -492,14 +492,14 @@ class ExpenseController extends Controller
                 'document' => 'file|max:' . (config('constants.document_size_limit') / 1000),
             ]);
 
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
+            if (!$this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
             }
 
-            $expense = $this->transactionUtil->updateExpense($request, $id, $business_id);
+            $expense = $this->transactionUtil->updateExpense($request, $id, $business_uid);
 
             $this->transactionUtil->activityLog($expense, 'edited');
 
@@ -533,9 +533,9 @@ class ExpenseController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $expense = Transaction::where('business_id', $business_id)
+                $expense = Transaction::where('business_uid', $business_uid)
                     ->where(function ($q) {
                         $q->where('type', 'expense')
                             ->orWhere('type', 'expense_refund');
@@ -549,7 +549,7 @@ class ExpenseController extends Controller
                 $expense->delete();
 
                 //Delete account transactions
-                AccountTransaction::where('transaction_id', $expense->id)->delete();
+                AccountTransaction::where('transaction_uid', $expense->id)->delete();
 
                 event(new ExpenseCreatedOrModified($expense, true));
 
@@ -575,9 +575,9 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized action.');
         }
         
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $payment_types = $this->transactionUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, false, $business_uid);
         $zip_loaded = extension_loaded('zip') ? true : false;
 
         //Check if zip extension it loaded or not.
@@ -600,8 +600,8 @@ class ExpenseController extends Controller
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', -1);
 
-        $business_id = $request->session()->get('user.business_id');
-        $user_id = $request->session()->get('user.id');
+        $business_uid = $request->session()->get('user.business_uid');
+        $user_uid = $request->session()->get('user.id');
 
         if ($request->hasFile('expense_csv')) {
             $file = $request->file('expense_csv');
@@ -620,52 +620,52 @@ class ExpenseController extends Controller
             foreach ($imported_data as $key => $value) {
 
                 $row_no = $key + 1;
-                $expense_array['business_id'] = $business_id;
-                $expense_array['created_by'] = $user_id;
+                $expense_array['business_uid'] = $business_uid;
+                $expense_array['created_by_uid'] = $user_uid;
 
                 if (!empty(trim($value[0]))) {
                     $location_name = trim($value[0]);
                     $location = BusinessLocation::where('name', $location_name)
-                        ->where('business_id', $business_id)
+                        ->where('business_uid', $business_uid)
                         ->first();
                     if (!empty($location)) {
-                        $expense_array['location_id'] = $location->id;
+                        $expense_array['location_uid'] = $location->id;
                     } else {
                         $is_valid = false;
                         $error_msg = "No location with name '$location_name' found in row no. $row_no";
                         break;
                     }
                 } else {
-                    $location = BusinessLocation::where('business_id', $business_id)->first();
-                    $expense_array['location_id'] = $location->id;
+                    $location = BusinessLocation::where('business_uid', $business_uid)->first();
+                    $expense_array['location_uid'] = $location->id;
                 }
 
                 //Check if category exists else create new
                 $category_name = trim($value[1]);
                 if (!empty($category_name)) {
-                    $category = ExpenseCategory::where('business_id', $business_id)
+                    $category = ExpenseCategory::where('business_uid', $business_uid)
                         ->where('name', $category_name)
                         ->first();
                     if (empty($category)) {
                         $category = new ExpenseCategory;
-                        $category->business_id = $business_id;
+                        $category->business_uid = $business_uid;
                         $category->name = $category_name;
                         $category->save();
                     }
-                    $expense_array['expense_category_id'] = $category->id;
+                    $expense_array['expense_category_uid'] = $category->id;
                 }
 
                 //  Add Sub-Category
                 $sub_category_name = trim($value[2]);
 
                 if (!empty($sub_category_name)) {
-                    $sub_category = ExpenseCategory::where('business_id', $business_id)
+                    $sub_category = ExpenseCategory::where('business_uid', $business_uid)
                         ->where('name', $sub_category_name)
                         ->where('parent_id', $category->id)
                         ->first();
                     if (empty($sub_category)) {
                         $sub_category = new ExpenseCategory;
-                        $sub_category->business_id = $business_id;
+                        $sub_category->business_uid = $business_uid;
                         $sub_category->name = $sub_category_name;
                         $sub_category->parent_id = $category->id;
                         $sub_category->save();
@@ -674,11 +674,11 @@ class ExpenseController extends Controller
                 }
 
                 //Update reference count
-                $ref_count = $this->transactionUtil->setAndGetReferenceCount('expense', $business_id);
+                $ref_count = $this->transactionUtil->setAndGetReferenceCount('expense', $business_uid);
                 //Generate reference number
                 $ref_no = trim($value[3]);
                 if (empty($ref_no)) {
-                    $expense_array['ref_no'] = $this->transactionUtil->generateReferenceNumber('expense', $ref_count, $business_id);
+                    $expense_array['ref_no'] = $this->transactionUtil->generateReferenceNumber('expense', $ref_count, $business_uid);
                 } else {
                     $expense_array['ref_no'] = $ref_no;
                 }
@@ -717,7 +717,7 @@ class ExpenseController extends Controller
 
                 if (!empty($contact_id)) {
 
-                    $contact = Contact::where('contact_id', $contact_id)->where('business_id', $business_id)->first();
+                    $contact = Contact::where('contact_id', $contact_id)->where('business_uid', $business_uid)->first();
                     if (!empty($contact)) {
                         $expense_array['contact_id'] = $contact->id;
                     } else {
@@ -748,7 +748,7 @@ class ExpenseController extends Controller
                 $tax_name = trim($value[8]);
                 $tax_amount = 0;
                 if (!empty($tax_name)) {
-                    $tax = TaxRate::where('business_id', $business_id)
+                    $tax = TaxRate::where('business_uid', $business_uid)
                         ->where('name', $tax_name)
                         ->first();
                     if (!empty($tax)) {
@@ -815,7 +815,7 @@ class ExpenseController extends Controller
                 $payment_method = trim($value[13]);
                 if (!empty($payment_method)) {
 
-                    $payment_types = $this->transactionUtil->payment_types(null, false, $business_id);
+                    $payment_types = $this->transactionUtil->payment_types(null, false, $business_uid);
                     if (!in_array($payment_method, $payment_types)) {
                         $is_valid = false;
                         $error_msg = "This Payment Method not exit in row no. $row_no";
@@ -832,7 +832,7 @@ class ExpenseController extends Controller
                 $account_id = null;
                 if (!empty($account_number)) {
 
-                    $account = Account::where('account_number', $account_number)->where('business_id', $business_id)->first();
+                    $account = Account::where('account_number', $account_number)->where('business_uid', $business_uid)->first();
                     if (!empty($account)) {
                         $account_id = $account->id;
                     } else {

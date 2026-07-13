@@ -90,8 +90,8 @@ class ImportOpeningStockController extends Controller
                 //Remove header row
                 $imported_data = array_splice($parsed_array[0], 1);
 
-                $business_id = $request->session()->get('user.business_id');
-                $user_id = $request->session()->get('user.id');
+                $business_uid = $request->session()->get('user.business_uid');
+                $user_uid = $request->session()->get('user.id');
 
                 $formated_data = [];
 
@@ -106,10 +106,10 @@ class ImportOpeningStockController extends Controller
                     if (! empty($value[0])) {
                         $sku = $value[0];
                         $product_info = Variation::where('sub_sku', $sku)
-                                ->join('products AS P', 'variations.product_id', '=', 'P.id')
+                                ->join('products AS P', 'variations.product_uid', '=', 'P.id')
                                 ->leftjoin('tax_rates AS TR', 'P.tax', 'TR.id')
-                                ->where('P.business_id', $business_id)
-                                ->select(['P.id', 'variations.id as variation_id',
+                                ->where('P.business_uid', $business_uid)
+                                ->select(['P.id', 'variations.id as variation_uid',
                                     'P.enable_stock', 'TR.amount as tax_percent',
                                     'TR.id as tax_id', ])
                                 ->first();
@@ -132,7 +132,7 @@ class ImportOpeningStockController extends Controller
                     if (! empty(trim($value[1]))) {
                         $location_name = trim($value[1]);
                         $location = BusinessLocation::where('name', $location_name)
-                                            ->where('business_id', $business_id)
+                                            ->where('business_uid', $business_uid)
                                             ->first();
                         if (empty($location)) {
                             $is_valid = false;
@@ -140,11 +140,11 @@ class ImportOpeningStockController extends Controller
                             break;
                         }
                     } else {
-                        $location = BusinessLocation::where('business_id', $business_id)->first();
+                        $location = BusinessLocation::where('business_uid', $business_uid)->first();
                     }
 
                     $opening_stock = ['quantity' => trim($value[2]),
-                        'location_id' => $location->id,
+                        'location_uid' => $location->id,
                         'lot_number' => trim($value[4]),
                     ];
                     if (! empty(trim($value[5]))) {
@@ -165,14 +165,14 @@ class ImportOpeningStockController extends Controller
                         break;
                     }
 
-                    //Check for tra, location_id, opening_stock_product_id, type=opening stock.
-                    $os_transaction = Transaction::where('business_id', $business_id)
-                            ->where('location_id', $location->id)
+                    //Check for tra, location_uid, opening_stock_product_id, type=opening stock.
+                    $os_transaction = Transaction::where('business_uid', $business_uid)
+                            ->where('location_uid', $location->id)
                             ->where('type', 'opening_stock')
                             ->where('opening_stock_product_id', $product_info->id)
                             ->first();
 
-                    $this->addOpeningStock($opening_stock, $product_info, $business_id, $unit_cost_before_tax, $os_transaction);
+                    $this->addOpeningStock($opening_stock, $product_info, $business_uid, $unit_cost_before_tax, $os_transaction);
 
                     // //If exist add to it.
                     // if(!empty($os_transaction)){
@@ -180,7 +180,7 @@ class ImportOpeningStockController extends Controller
 
                     // } else {
                     //  //If not create new
-                    //  $this->addOpeningStock($opening_stock, $product_info, $business_id, $unit_cost_before_tax);
+                    //  $this->addOpeningStock($opening_stock, $product_info, $business_uid, $unit_cost_before_tax);
                     // }
                 }
             }
@@ -213,12 +213,12 @@ class ImportOpeningStockController extends Controller
      *
      * @param  array  $opening_stock
      * @param  obj  $product
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return void
      */
-    private function addOpeningStock($opening_stock, $product, $business_id, $unit_cost_before_tax, $transaction = null)
+    private function addOpeningStock($opening_stock, $product, $business_uid, $unit_cost_before_tax, $transaction = null)
     {
-        $user_id = request()->session()->get('user.id');
+        $user_uid = request()->session()->get('user.id');
 
         $transaction_date = request()->session()->get('financial_year.start');
         $transaction_date = \Carbon::createFromFormat('Y-m-d', $transaction_date)->toDateTimeString();
@@ -238,11 +238,11 @@ class ImportOpeningStockController extends Controller
             $transaction->type = 'opening_stock';
             $transaction->status = 'received';
             $transaction->opening_stock_product_id = $product->id;
-            $transaction->business_id = $business_id;
+            $transaction->business_uid = $business_uid;
             $transaction->transaction_date = $transaction_date;
-            $transaction->location_id = $opening_stock['location_id'];
+            $transaction->location_uid = $opening_stock['location_uid'];
             $transaction->payment_status = 'paid';
-            $transaction->created_by = $user_id;
+            $transaction->created_by_uid = $user_uid;
             $transaction->total_before_tax = 0;
             $transaction->final_total = 0;
         }
@@ -252,8 +252,8 @@ class ImportOpeningStockController extends Controller
 
         //Create purchase line
         $transaction->purchase_lines()->create([
-            'product_id' => $product->id,
-            'variation_id' => $product->variation_id,
+            'product_uid' => $product->id,
+            'variation_uid' => $product->variation_uid,
             'quantity' => $opening_stock['quantity'],
             'pp_without_discount' => $unit_cost_before_tax,
             'item_tax' => $item_tax,
@@ -265,6 +265,6 @@ class ImportOpeningStockController extends Controller
             'lot_number' => ! empty($opening_stock['lot_number']) ? $opening_stock['lot_number'] : null,
         ]);
         //Update variation location details
-        $this->productUtil->updateProductQuantity($opening_stock['location_id'], $product->id, $product->variation_id, $opening_stock['quantity']);
+        $this->productUtil->updateProductQuantity($opening_stock['location_uid'], $product->id, $product->variation_uid, $opening_stock['quantity']);
     }
 }

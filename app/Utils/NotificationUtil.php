@@ -20,19 +20,19 @@ class NotificationUtil extends Util
     /**
      * Automatically send notification to customer/supplier if enabled in the template setting
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  string  $notification_type
      * @param  obj  $transaction
      * @param  obj  $contact
      * @return void
      */
-    public function autoSendNotification($business_id, $notification_type, $transaction, $contact)
+    public function autoSendNotification($business_uid, $notification_type, $transaction, $contact)
     {
-        $notification_template = NotificationTemplate::where('business_id', $business_id)
+        $notification_template = NotificationTemplate::where('business_uid', $business_uid)
                 ->where('template_for', $notification_type)
                 ->first();
 
-        $business = Business::findOrFail($business_id);
+        $business = Business::findOrFail($business_uid);
         $data['email_settings'] = $business->email_settings;
         $data['sms_settings'] = $business->sms_settings;
         $whatsapp_link = '';
@@ -44,7 +44,7 @@ class NotificationUtil extends Util
                     'subject' => $notification_template->subject,
                     'whatsapp_text' => $notification_template->whatsapp_text,
                 ];
-                $tag_replaced_data = $this->replaceTags($business_id, $orig_data, $transaction);
+                $tag_replaced_data = $this->replaceTags($business_uid, $orig_data, $transaction);
 
                 $data['email_body'] = $tag_replaced_data['email_body'];
                 $data['sms_body'] = $tag_replaced_data['sms_body'];
@@ -66,7 +66,7 @@ class NotificationUtil extends Util
                             Notification::route('mail', $data['to_email'])
                                             ->notify(new SupplierNotification($data));
                         }
-                        $this->activityLog($transaction, 'email_notification_sent', null, [], false, $business_id);
+                        $this->activityLog($transaction, 'email_notification_sent', null, [], false, $business_uid);
                     } catch (\Exception $e) {
                         \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
                     }
@@ -79,7 +79,7 @@ class NotificationUtil extends Util
                         try {
                             $this->sendSms($data);
 
-                            $this->activityLog($transaction, 'sms_notification_sent', null, [], false, $business_id);
+                            $this->activityLog($transaction, 'sms_notification_sent', null, [], false, $business_uid);
                         } catch (\Exception $e) {
                             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
                         }
@@ -105,10 +105,10 @@ class NotificationUtil extends Util
      * @param  int  $booking_id
      * @return array
      */
-    public function replaceBookingTags($business_id, $data, $booking_id)
+    public function replaceBookingTags($business_uid, $data, $booking_id)
     {
-        $business = Business::findOrFail($business_id);
-        $booking = Booking::where('business_id', $business_id)
+        $business = Business::findOrFail($business_uid);
+        $booking = Booking::where('business_uid', $business_uid)
                     ->with(['customer', 'table', 'correspondent', 'waiter', 'location', 'business'])
                     ->findOrFail($booking_id);
         foreach ($data as $key => $value) {
@@ -318,7 +318,7 @@ class NotificationUtil extends Util
 
     public function replaceHmsBookingTags($data, $transaction, $adults, $childrens, $customer){
         
-        $business = Business::findOrFail($transaction->business_id);
+        $business = Business::findOrFail($transaction->business_uid);
 
         foreach ($data as $key => $value) {
             //Replace contact name

@@ -20,9 +20,9 @@ class PrinterController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $printer = Printer::where('business_id', $business_id)
+            $printer = Printer::where('business_uid', $business_uid)
                         ->select(['name', 'connection_type',
                             'capability_profile', 'char_per_line', 'ip_address', 'port', 'path', 'id', ]);
 
@@ -82,11 +82,11 @@ class PrinterController extends Controller
         }
 
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
             $input = $request->only(['name', 'connection_type', 'capability_profile', 'ip_address', 'port', 'path', 'char_per_line']);
 
-            $input['business_id'] = $business_id;
-            $input['created_by'] = $request->session()->get('user.id');
+            $input['business_uid'] = $business_uid;
+            $input['created_by_uid'] = $request->session()->get('user.id');
 
             if ($input['connection_type'] == 'network') {
                 $input['path'] = '';
@@ -135,8 +135,8 @@ class PrinterController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $printer = Printer::where('business_id', $business_id)->find($id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $printer = Printer::where('business_uid', $business_uid)->find($id);
 
         $capability_profiles = Printer::capability_profiles();
         $connection_types = Printer::connection_types();
@@ -160,9 +160,9 @@ class PrinterController extends Controller
 
         try {
             $input = $request->only(['name', 'connection_type', 'capability_profile', 'ip_address', 'port', 'path', 'char_per_line']);
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
-            $printer = Printer::where('business_id', $business_id)->findOrFail($id);
+            $printer = Printer::where('business_uid', $business_uid)->findOrFail($id);
 
             if ($input['connection_type'] == 'network') {
                 $input['path'] = '';
@@ -201,9 +201,9 @@ class PrinterController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $printer = Printer::where('business_id', $business_id)->findOrFail($id);
+                $printer = Printer::where('business_uid', $business_uid)->findOrFail($id);
                 $printer->delete();
 
                 $output = ['success' => true,

@@ -39,9 +39,9 @@ class TypesOfServiceController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $tax_rates = TypesOfService::where('business_id', $business_id)
+            $tax_rates = TypesOfService::where('business_uid', $business_uid)
                         ->select('*');
 
             return Datatables::of($tax_rates)
@@ -79,9 +79,9 @@ class TypesOfServiceController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $locations = BusinessLocation::forDropdown($business_id);
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $locations = BusinessLocation::forDropdown($business_uid);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
         return view('types_of_service.create')
                 ->with(compact('locations', 'price_groups'));
@@ -104,7 +104,7 @@ class TypesOfServiceController extends Controller
                 'location_price_group', 'packing_charge_type',
                 'packing_charge', ]);
 
-            $input['business_id'] = $request->session()->get('user.business_id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
             $input['packing_charge'] = ! empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
             $input['enable_custom_fields'] = ! empty($request->input('enable_custom_fields')) ? 1 : 0;
 
@@ -147,11 +147,11 @@ class TypesOfServiceController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $locations = BusinessLocation::forDropdown($business_id);
-        $price_groups = SellingPriceGroup::forDropdown($business_id);
+        $business_uid = request()->session()->get('user.business_uid');
+        $locations = BusinessLocation::forDropdown($business_uid);
+        $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
-        $type_of_service = TypesOfService::where('business_id', $business_id)
+        $type_of_service = TypesOfService::where('business_uid', $business_uid)
                                         ->findOrFail($id);
 
         return view('types_of_service.edit')
@@ -176,12 +176,12 @@ class TypesOfServiceController extends Controller
                 'location_price_group', 'packing_charge_type',
                 'packing_charge', ]);
 
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
             $input['packing_charge'] = ! empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
             $input['enable_custom_fields'] = ! empty($request->input('enable_custom_fields')) ? 1 : 0;
             $input['location_price_group'] = ! empty($input['location_price_group']) ? json_encode($input['location_price_group']) : null;
 
-            TypesOfService::where('business_id', $business_id)
+            TypesOfService::where('business_uid', $business_uid)
                         ->where('id', $id)
                         ->update($input);
 
@@ -213,8 +213,8 @@ class TypesOfServiceController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
-                TypesOfService::where('business_id', $business_id)
+                $business_uid = request()->session()->get('user.business_uid');
+                TypesOfService::where('business_uid', $business_uid)
                         ->where('id', $id)
                         ->delete();
 

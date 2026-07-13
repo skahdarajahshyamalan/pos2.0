@@ -81,18 +81,18 @@ class PurchaseOrderController extends Controller
 
         $is_admin = $this->businessUtil->is_admin(auth()->user());
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
         if (request()->ajax()) {
             $purchase_orders = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                     ->join(
                         'business_locations AS BS',
-                        'transactions.location_id',
+                        'transactions.location_uid',
                         '=',
                         'BS.id'
                     )
-                    ->leftJoin('purchase_lines as pl', 'transactions.id', '=', 'pl.transaction_id')
-                    ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
-                    ->where('transactions.business_id', $business_id)
+                    ->leftJoin('purchase_lines as pl', 'transactions.id', '=', 'pl.transaction_uid')
+                    ->leftJoin('users as u', 'transactions.created_by_uid', '=', 'u.id')
+                    ->where('transactions.business_uid', $business_uid)
                     ->where('transactions.type', 'purchase_order')
                     ->select(
                         'transactions.id',
@@ -114,14 +114,14 @@ class PurchaseOrderController extends Controller
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $purchase_orders->whereIn('transactions.location_id', $permitted_locations);
+                $purchase_orders->whereIn('transactions.location_uid', $permitted_locations);
             }
 
             if (! empty(request()->supplier_id)) {
                 $purchase_orders->where('contacts.id', request()->supplier_id);
             }
-            if (! empty(request()->location_id)) {
-                $purchase_orders->where('transactions.location_id', request()->location_id);
+            if (! empty(request()->location_uid)) {
+                $purchase_orders->where('transactions.location_uid', request()->location_uid);
             }
 
             if (! empty(request()->status)) {
@@ -141,7 +141,7 @@ class PurchaseOrderController extends Controller
             }
 
             if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-                $purchase_orders->where('transactions.created_by', request()->session()->get('user.id'));
+                $purchase_orders->where('transactions.created_by_uid', request()->session()->get('user.id'));
             }
 
             if (! empty(request()->input('shipping_status'))) {
@@ -185,7 +185,7 @@ class PurchaseOrderController extends Controller
                         }
                     }
 
-                    $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'purchase_order']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> '.__('lang_v1.send_notification').'</a></li>';
+                    $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_uid' => $row->id, 'template_for' => 'purchase_order']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> '.__('lang_v1.send_notification').'</a></li>';
 
                     $html .= '</ul></div>';
 
@@ -228,8 +228,8 @@ class PurchaseOrderController extends Controller
                 ->make(true);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
-        $suppliers = Contact::suppliersDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
+        $suppliers = Contact::suppliersDropdown($business_uid, false);
         $purchaseOrderStatuses = [];
         foreach ($this->purchaseOrderStatuses as $key => $value) {
             $purchaseOrderStatuses[$key] = $value['label'];
@@ -249,17 +249,17 @@ class PurchaseOrderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                         ->ExcludeForTaxGroup()
                         ->get();
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_uid, false, true);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
 
-        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
         $types = [];
         if (auth()->user()->can('supplier.create')) {
@@ -271,15 +271,15 @@ class PurchaseOrderController extends Controller
         if (auth()->user()->can('supplier.create') && auth()->user()->can('customer.create')) {
             $types['both'] = __('lang_v1.both_supplier_customer');
         }
-        $customer_groups = CustomerGroup::forDropdown($business_id);
+        $customer_groups = CustomerGroup::forDropdown($business_uid);
 
-        $business_details = $this->businessUtil->getDetails($business_id);
+        $business_details = $this->businessUtil->getDetails($business_uid);
         $shortcuts = json_decode($business_details->keyboard_shortcuts, true);
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
         //Added check because $users is of no use if enable_contact_assign if false
-        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
+        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_uid, false, false, false, true) : [];
 
         $common_settings = ! empty(session('business.common_settings')) ? session('business.common_settings') : [];
 
@@ -300,14 +300,14 @@ class PurchaseOrderController extends Controller
         }
 
         try {
-            $business_id = $request->session()->get('user.business_id');
+            $business_uid = $request->session()->get('user.business_uid');
 
             //Check if subscribed or not
-            if (! $this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_uid)) {
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\PurchaseController::class, 'index']));
             }
 
-            $transaction_data = $request->only(['ref_no', 'contact_id', 'transaction_date', 'total_before_tax', 'location_id', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'shipping_address', 'shipping_status', 'delivered_to', 'delivery_date', 'purchase_requisition_ids']);
+            $transaction_data = $request->only(['ref_no', 'contact_id', 'transaction_date', 'total_before_tax', 'location_uid', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'shipping_address', 'shipping_status', 'delivered_to', 'delivery_date', 'purchase_requisition_ids']);
 
             $exchange_rate = $transaction_data['exchange_rate'];
 
@@ -336,15 +336,15 @@ class PurchaseOrderController extends Controller
                 'contact_id' => 'required',
                 'transaction_date' => 'required',
                 'total_before_tax' => 'required',
-                'location_id' => 'required',
+                'location_uid' => 'required',
                 'final_total' => 'required',
                 'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
-            $user_id = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.id');
             $enable_product_editing = $request->session()->get('business.enable_editing_product_from_purchase');
 
-            $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+            $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
             //unformat input values
             $transaction_data['total_before_tax'] = $this->productUtil->num_uf($transaction_data['total_before_tax'], $currency_details) * $exchange_rate;
@@ -362,8 +362,8 @@ class PurchaseOrderController extends Controller
             $transaction_data['shipping_charges'] = $this->productUtil->num_uf($transaction_data['shipping_charges'], $currency_details) * $exchange_rate;
             $transaction_data['final_total'] = $this->productUtil->num_uf($transaction_data['final_total'], $currency_details) * $exchange_rate;
 
-            $transaction_data['business_id'] = $business_id;
-            $transaction_data['created_by'] = $user_id;
+            $transaction_data['business_uid'] = $business_uid;
+            $transaction_data['created_by_uid'] = $user_uid;
             $transaction_data['type'] = 'purchase_order';
             $transaction_data['status'] = 'ordered';
             $transaction_data['transaction_date'] = $this->productUtil->uf_date($transaction_data['transaction_date'], true);
@@ -404,7 +404,7 @@ class PurchaseOrderController extends Controller
             $transaction = Transaction::create($transaction_data);
 
             //Upload Shipping documents
-            Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
+            Media::uploadMedia($business_uid, $transaction, $request, 'shipping_documents', false, 'shipping_document');
 
             $purchase_lines = [];
             $purchases = $request->input('purchases');
@@ -446,10 +446,10 @@ class PurchaseOrderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $taxes = TaxRate::where('business_id', $business_id)
+        $business_uid = request()->session()->get('user.business_uid');
+        $taxes = TaxRate::where('business_uid', $business_uid)
                             ->pluck('name', 'id');
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                                 ->where('id', $id)
                                 ->with(
                                     'contact',
@@ -463,14 +463,14 @@ class PurchaseOrderController extends Controller
                                     'tax'
                                 );
         if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-            $query->where('transactions.created_by', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
         }
 
         $purchase = $query->firstOrFail();
 
         foreach ($purchase->purchase_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
@@ -509,16 +509,16 @@ class PurchaseOrderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $business = Business::find($business_id);
+        $business = Business::find($business_uid);
 
-        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                             ->ExcludeForTaxGroup()
                             ->get();
-        $query = Transaction::where('business_id', $business_id)
+        $query = Transaction::where('business_uid', $business_uid)
                     ->where('id', $id)
                     ->with(
                         'contact',
@@ -534,19 +534,19 @@ class PurchaseOrderController extends Controller
                     );
 
         if (! auth()->user()->can('purchase_order.view_all') && auth()->user()->can('purchase_order.view_own')) {
-            $query->where('transactions.created_by', request()->session()->get('user.id'));
+            $query->where('transactions.created_by_uid', request()->session()->get('user.id'));
         }
 
         $purchase = $query->first();
 
         foreach ($purchase->purchase_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_uid);
 
         $types = [];
         if (auth()->user()->can('supplier.create')) {
@@ -558,15 +558,15 @@ class PurchaseOrderController extends Controller
         if (auth()->user()->can('supplier.create') && auth()->user()->can('customer.create')) {
             $types['both'] = __('lang_v1.both_supplier_customer');
         }
-        $customer_groups = CustomerGroup::forDropdown($business_id);
+        $customer_groups = CustomerGroup::forDropdown($business_uid);
 
-        $business_details = $this->businessUtil->getDetails($business_id);
+        $business_details = $this->businessUtil->getDetails($business_uid);
         $shortcuts = json_decode($business_details->keyboard_shortcuts, true);
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
         //Added check because $users is of no use if enable_contact_assign if false
-        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
+        $users = config('constants.enable_contact_assign') ? User::forDropdown($business_uid, false, false, false, true) : [];
 
         $delivery_date = ! empty($purchase->delivery_date) ? $this->productUtil->format_date($purchase->delivery_date, true) : null;
 
@@ -574,9 +574,9 @@ class PurchaseOrderController extends Controller
 
         $purchase_requisitions = null;
         if (! empty($common_settings['enable_purchase_requisition'])) {
-            $purchase_requisitions = Transaction::where('business_id', $business_id)
+            $purchase_requisitions = Transaction::where('business_uid', $business_uid)
                                         ->where('type', 'purchase_requisition')
-                                        ->where('location_id', $purchase->location_id)
+                                        ->where('location_uid', $purchase->location_uid)
                                         ->where(function ($q) use ($purchase) {
                                             $q->where('status', '!=', 'completed');
 
@@ -626,9 +626,9 @@ class PurchaseOrderController extends Controller
             ]);
 
             $transaction = Transaction::findOrFail($id);
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+            $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_uid);
 
             $update_data = $request->only(['ref_no', 'contact_id',
                 'transaction_date', 'total_before_tax',
@@ -693,7 +693,7 @@ class PurchaseOrderController extends Controller
             //update transaction
             $transaction->update($update_data);
 
-            Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
+            Media::uploadMedia($business_uid, $transaction, $request, 'shipping_documents', false, 'shipping_document');
 
             $purchases = $request->input('purchases');
 
@@ -742,9 +742,9 @@ class PurchaseOrderController extends Controller
 
         try {
             if (request()->ajax()) {
-                $business_id = request()->session()->get('user.business_id');
+                $business_uid = request()->session()->get('user.business_uid');
 
-                $transaction = Transaction::where('business_id', $business_id)
+                $transaction = Transaction::where('business_uid', $business_uid)
                                 ->where('type', 'purchase_order')
                                 ->with('purchase_lines')
                                 ->findOrFail($id);
@@ -779,9 +779,9 @@ class PurchaseOrderController extends Controller
 
     public function getPurchaseOrders($contact_id)
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $purchase_orders = Transaction::where('business_id', $business_id)
+        $purchase_orders = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_order')
                         ->whereIn('status', ['partial', 'ordered'])
                         ->where('contact_id', $contact_id)
@@ -800,12 +800,12 @@ class PurchaseOrderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
+        $business_uid = request()->session()->get('user.business_uid');
 
-        $taxes = TaxRate::where('business_id', $business_id)
+        $taxes = TaxRate::where('business_uid', $business_uid)
                                 ->get();
 
-        $purchase = Transaction::where('business_id', $business_id)
+        $purchase = Transaction::where('business_uid', $business_uid)
                     ->where('id', $id)
                     ->with(
                         'contact',
@@ -824,13 +824,13 @@ class PurchaseOrderController extends Controller
         
         foreach ($purchase->purchase_lines as $key => $value) {
             if (! empty($value->sub_unit_id)) {
-                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_uid);
                 $purchase->purchase_lines[$key] = $formated_purchase_line;
             }
         }
 
-        $location_details = BusinessLocation::find($purchase->location_id);
-        $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_details->invoice_layout_id);
+        $location_details = BusinessLocation::find($purchase->location_uid);
+        $invoice_layout = $this->businessUtil->invoiceLayout($business_uid, $location_details->invoice_layout_id);
 
         //Logo
         $logo = $invoice_layout->show_logo != 0 && ! empty($invoice_layout->logo) && file_exists(public_path('uploads/invoice_logos/'.$invoice_layout->logo)) ? asset('uploads/invoice_logos/'.$invoice_layout->logo) : false;
@@ -880,8 +880,8 @@ class PurchaseOrderController extends Controller
         }
 
         if ($request->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $transaction = Transaction::where('business_id', $business_id)
+            $business_uid = request()->session()->get('user.business_uid');
+            $transaction = Transaction::where('business_uid', $business_uid)
                                 ->findOrFail($id);
 
             $status = $transaction->status;
@@ -906,8 +906,8 @@ class PurchaseOrderController extends Controller
 
         if ($request->ajax()) {
             try {
-                $business_id = request()->session()->get('user.business_id');
-                $transaction = Transaction::where('business_id', $business_id)
+                $business_uid = request()->session()->get('user.business_uid');
+                $transaction = Transaction::where('business_uid', $business_uid)
                                 ->findOrFail($id);
 
                 $transaction_before = $transaction->replicate();

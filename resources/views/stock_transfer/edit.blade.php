@@ -40,14 +40,14 @@
 				<div class="clearfix"></div>
 				<div class="col-sm-6">
 					<div class="form-group">
-						{!! Form::label('location_id', __('lang_v1.location_from').':*') !!}
-						{!! Form::select('location_id', $business_locations, $sell_transfer->location_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'id' => 'location_id', 'disabled']); !!}
+						{!! Form::label('location_uid', __('lang_v1.location_from').':*') !!}
+						{!! Form::select('location_uid', $business_locations, $sell_transfer->location_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'id' => 'location_uid', 'disabled']); !!}
 					</div>
 				</div>
 				<div class="col-sm-6">
 					<div class="form-group">
 						{!! Form::label('transfer_location_id', __('lang_v1.location_to').':*') !!}
-						{!! Form::select('transfer_location_id', $business_locations, $purchase_transfer->location_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'id' => 'transfer_location_id', 'disabled']); !!}
+						{!! Form::select('transfer_location_id', $business_locations, $purchase_transfer->location_uid, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'id' => 'transfer_location_id', 'disabled']); !!}
 					</div>
 				</div>
 				

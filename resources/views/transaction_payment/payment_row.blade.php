@@ -2,7 +2,7 @@
   <div class="modal-content">
 
     {!! Form::open(['url' => action([\App\Http\Controllers\TransactionPaymentController::class, 'store']), 'method' => 'post', 'id' => 'transaction_payment_add_form', 'files' => true ]) !!}
-    {!! Form::hidden('transaction_id', $transaction->id); !!}
+    {!! Form::hidden('transaction_uid', $transaction->id); !!}
     @if(!empty($transaction->location))
       {!! Form::hidden('default_payment_accounts', $transaction->location->default_payment_accounts, ['id' => 'default_payment_accounts']); !!}
     @endif

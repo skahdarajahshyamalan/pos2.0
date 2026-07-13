@@ -9,8 +9,8 @@
             @if($product->variation_name != "DUMMY")
                 <b>{{$product->variation_name}}</b>
             @endif
-            <input type="hidden" name="products[{{$loop->index + $index}}][product_id]" value="{{$product->product_id}}">
-            <input type="hidden" name="products[{{$loop->index + $index}}][variation_id]" value="{{$product->variation_id}}">
+            <input type="hidden" name="products[{{$loop->index + $index}}][product_uid]" value="{{$product->product_uid}}">
+            <input type="hidden" name="products[{{$loop->index + $index}}][variation_uid]" value="{{$product->variation_uid}}">
         </td>
         <td>
             <input type="number" class="form-control" min=1

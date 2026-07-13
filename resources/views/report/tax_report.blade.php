@@ -271,7 +271,7 @@
                 url: '/reports/tax-details',
                 data: function(d) {
                     d.type = 'purchase';
-                    d.location_id = $('#tax_report_location_id').val();
+                    d.location_uid = $('#tax_report_location_id').val();
                     d.contact_id = $('#tax_report_contact_id').val();
                     var start = $('input#tax_report_date_range')
                         .data('daterangepicker')
@@ -323,7 +323,7 @@
                             url: '/reports/tax-details',
                             data: function(d) {
                                 d.type = 'sell';
-                                d.location_id = $('#tax_report_location_id').val();
+                                d.location_uid = $('#tax_report_location_id').val();
                                 d.contact_id = $('#tax_report_contact_id').val();
                                 var start = $('input#tax_report_date_range')
                                     .data('daterangepicker')
@@ -373,7 +373,7 @@
                             url: '/reports/tax-details',
                             data: function(d) {
                                 d.type = 'expense';
-                                d.location_id = $('#tax_report_location_id').val();
+                                d.location_uid = $('#tax_report_location_id').val();
                                 d.contact_id = $('#tax_report_contact_id').val();
                                 var start = $('input#tax_report_date_range')
                                     .data('daterangepicker')

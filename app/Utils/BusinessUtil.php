@@ -23,40 +23,40 @@ class BusinessUtil extends Util
     /**
      * Adds a default settings/resources for a new business
      *
-     * @param  int  $business_id
-     * @param  int  $user_id
+     * @param  int  $business_uid
+     * @param  int  $user_uid
      * @return bool
      */
-    public function newBusinessDefaultResources($business_id, $user_id)
+    public function newBusinessDefaultResources($business_uid, $user_uid)
     {
-        $user = User::find($user_id);
+        $user = User::find($user_uid);
 
         //create Admin role and assign to user
-        $role = Role::create(['name' => 'Admin#'.$business_id,
-            'business_id' => $business_id,
+        $role = Role::create(['name' => 'Admin#'.$business_uid,
+            'business_uid' => $business_uid,
             'guard_name' => 'web', 'is_default' => 1,
         ]);
         $user->assignRole($role->name);
 
         //Create Cashier role for a new business
-        $cashier_role = Role::create(['name' => 'Cashier#'.$business_id,
-            'business_id' => $business_id,
+        $cashier_role = Role::create(['name' => 'Cashier#'.$business_uid,
+            'business_uid' => $business_uid,
             'guard_name' => 'web',
         ]);
         $cashier_role->syncPermissions(['sell.view', 'sell.create', 'sell.update', 'sell.delete', 'access_all_locations', 'view_cash_register', 'close_cash_register']);
 
-        $business = Business::findOrFail($business_id);
+        $business = Business::findOrFail($business_uid);
 
         //Update reference count
-        $ref_count = $this->setAndGetReferenceCount('contacts', $business_id);
-        $contact_id = $this->generateReferenceNumber('contacts', $ref_count, $business_id);
+        $ref_count = $this->setAndGetReferenceCount('contacts', $business_uid);
+        $contact_id = $this->generateReferenceNumber('contacts', $ref_count, $business_uid);
 
         //Add Default/Walk-In Customer for new business
         $customer = [
-            'business_id' => $business_id,
+            'business_uid' => $business_uid,
             'type' => 'customer',
             'name' => 'Walk-In Customer',
-            'created_by' => $user_id,
+            'created_by_uid' => $user_uid,
             'is_default' => 1,
             'contact_id' => $contact_id,
             'credit_limit' => 0,
@@ -70,7 +70,7 @@ class BusinessUtil extends Util
             'start_number' => 1,
             'total_digits' => 4,
             'is_default' => 1,
-            'business_id' => $business_id,
+            'business_uid' => $business_uid,
         ]);
         //create default invoice layour for new business
         InvoiceLayout::create(['name' => 'Default',
@@ -89,7 +89,7 @@ class BusinessUtil extends Util
             'highlight_color' => '#000000',
             'footer_text' => '',
             'is_default' => 1,
-            'business_id' => $business_id,
+            'business_uid' => $business_uid,
             'invoice_heading_not_paid' => '',
             'invoice_heading_paid' => '',
             'total_due_label' => 'Total Due',
@@ -115,21 +115,21 @@ class BusinessUtil extends Util
         //                 'col_distance' => 1,
         //                 'stickers_in_one_row' => 4,
         //                 'is_default' => 1,
-        //                 'business_id' => $business_id
+        //                 'business_uid' => $business_uid
         //             ]);
 
         //Add Default Unit for new business
         $unit = [
-            'business_id' => $business_id,
+            'business_uid' => $business_uid,
             'actual_name' => 'Pieces',
             'short_name' => 'Pc(s)',
             'allow_decimal' => 0,
-            'created_by' => $user_id,
+            'created_by_uid' => $user_uid,
         ];
         Unit::create($unit);
 
         //Create default notification templates
-        $notification_templates = NotificationTemplate::defaultNotificationTemplates($business_id);
+        $notification_templates = NotificationTemplate::defaultNotificationTemplates($business_uid);
         foreach ($notification_templates as $notification_template) {
             NotificationTemplate::create($notification_template);
         }
@@ -222,7 +222,7 @@ class BusinessUtil extends Util
      *
      * @return object
      */
-    public function getDetails($business_id)
+    public function getDetails($business_uid)
     {
         $details = Business::leftjoin('tax_rates AS TR', 'business.default_sales_tax', 'TR.id')
                         ->leftjoin('currencies AS cur', 'business.currency_id', 'cur.id')
@@ -235,7 +235,7 @@ class BusinessUtil extends Util
                             'TR.amount AS tax_calculation_amount',
                             'business.default_sales_discount'
                         )
-                        ->where('business.id', $business_id)
+                        ->where('business.id', $business_uid)
                         ->first();
 
         return $details;
@@ -246,9 +246,9 @@ class BusinessUtil extends Util
      *
      * @return array
      */
-    public function getCurrentFinancialYear($business_id)
+    public function getCurrentFinancialYear($business_uid)
     {
-        $business = Business::where('id', $business_id)->first();
+        $business = Business::where('id', $business_uid)->first();
         $start_month = $business->fy_start_month;
         $end_month = $start_month - 1;
         if ($start_month == 1) {
@@ -281,30 +281,30 @@ class BusinessUtil extends Util
     /**
      * Adds a new location to a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  array  $location_details
      * @param  int  $invoice_layout_id default null
      * @return location object
      */
-    public function addLocation($business_id, $location_details, $invoice_scheme_id = null, $invoice_layout_id = null)
+    public function addLocation($business_uid, $location_details, $invoice_scheme_id = null, $invoice_layout_id = null)
     {
         if (empty($invoice_scheme_id)) {
             $layout = InvoiceLayout::where('is_default', 1)
-                                    ->where('business_id', $business_id)
+                                    ->where('business_uid', $business_uid)
                                     ->first();
             $invoice_layout_id = $layout->id;
         }
 
         if (empty($invoice_scheme_id)) {
             $scheme = InvoiceScheme::where('is_default', 1)
-                                    ->where('business_id', $business_id)
+                                    ->where('business_uid', $business_uid)
                                     ->first();
             $invoice_scheme_id = $scheme->id;
         }
 
         //Update reference count
-        $ref_count = $this->setAndGetReferenceCount('business_location', $business_id);
-        $location_id = $this->generateReferenceNumber('business_location', $ref_count, $business_id);
+        $ref_count = $this->setAndGetReferenceCount('business_location', $business_uid);
+        $location_uid = $this->generateReferenceNumber('business_location', $ref_count, $business_uid);
 
         //Enable all payment methods by default
         $payment_types = $this->payment_types();
@@ -315,7 +315,7 @@ class BusinessUtil extends Util
                 'account' => null,
             ];
         }
-        $location = BusinessLocation::create(['business_id' => $business_id,
+        $location = BusinessLocation::create(['business_uid' => $business_uid,
             'name' => $location_details['name'],
             'landmark' => $location_details['landmark'],
             'city' => $location_details['city'],
@@ -329,7 +329,7 @@ class BusinessUtil extends Util
             'alternate_number' => ! empty($location_details['alternate_number']) ? $location_details['alternate_number'] : '',
             'website' => ! empty($location_details['website']) ? $location_details['website'] : '',
             'email' => '',
-            'location_id' => $location_id,
+            'location_uid' => $location_uid,
             'default_payment_accounts' => json_encode($location_payment_types),
         ]);
 
@@ -339,11 +339,11 @@ class BusinessUtil extends Util
     /**
      * Return the invoice layout details
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  array  $layout_id = null
      * @return location object
      */
-    public function invoiceLayout($business_id, $layout_id = null)
+    public function invoiceLayout($business_uid, $layout_id = null)
     {
         $layout = null;
         if (! empty($layout_id)) {
@@ -352,7 +352,7 @@ class BusinessUtil extends Util
 
         //If layout is not found (deleted) then get the default layout for the business
         if (empty($layout)) {
-            $layout = InvoiceLayout::where('business_id', $business_id)
+            $layout = InvoiceLayout::where('business_uid', $business_uid)
                         ->where('is_default', 1)
                         ->first();
         }
@@ -363,13 +363,13 @@ class BusinessUtil extends Util
     /**
      * Return the printer configuration
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  int  $printer_id
      * @return array
      */
-    public function printerConfig($business_id, $printer_id)
+    public function printerConfig($business_uid, $printer_id)
     {
-        $printer = Printer::where('business_id', $business_id)
+        $printer = Printer::where('business_uid', $business_uid)
                     ->find($printer_id);
 
         $output = [];
@@ -390,11 +390,11 @@ class BusinessUtil extends Util
     /**
      * Return the date range for which editing of transaction for a business is allowed.
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  char  $edit_transaction_period
      * @return array
      */
-    public function editTransactionDateRange($business_id, $edit_transaction_period)
+    public function editTransactionDateRange($business_uid, $edit_transaction_period)
     {
         if (is_numeric($edit_transaction_period)) {
             return ['start' => \Carbon::today()
@@ -403,7 +403,7 @@ class BusinessUtil extends Util
             ];
         } elseif ($edit_transaction_period == 'fy') {
             //Editing allowed for current financial year
-            return $this->getCurrentFinancialYear($business_id);
+            return $this->getCurrentFinancialYear($business_uid);
         }
 
         return false;

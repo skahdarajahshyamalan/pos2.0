@@ -138,17 +138,17 @@ class Util
      *
      * @return array
      */
-    public function payment_types($location = null, $show_advance = false, $business_id = null)
+    public function payment_types($location = null, $show_advance = false, $business_uid = null)
     {
         if (! empty($location)) {
             $location = is_object($location) ? $location : BusinessLocation::find($location);
 
             //Get custom label from business settings
-            $custom_labels = Business::find($location->business_id)->custom_labels;
+            $custom_labels = Business::find($location->business_uid)->custom_labels;
             $custom_labels = json_decode($custom_labels, true);
         } else {
-            if (! empty($business_id)) {
-                $custom_labels = Business::find($business_id)->custom_labels;
+            if (! empty($business_uid)) {
+                $custom_labels = Business::find($business_uid)->custom_labels;
                 $custom_labels = json_decode($custom_labels, true);
             } else {
                 $custom_labels = [];
@@ -193,12 +193,12 @@ class Util
      *
      * @return array
      */
-    public function allModulesEnabled($business_id = null)
+    public function allModulesEnabled($business_uid = null)
     {
         $enabled_modules = session()->has('business') ? session('business')['enabled_modules'] : null;
 
-        if (! session()->has('business') && ! empty($business_id)) {
-            $enabled_modules = Business::find($business_id)->enabled_modules;
+        if (! session()->has('business') && ! empty($business_uid)) {
+            $enabled_modules = Business::find($business_uid)->enabled_modules;
         }
         $enabled_modules = (! empty($enabled_modules) && $enabled_modules != 'null') ? $enabled_modules : [];
 
@@ -211,9 +211,9 @@ class Util
      *
      * @return array
      */
-    public function isModuleEnabled($module, $business_id = null)
+    public function isModuleEnabled($module, $business_uid = null)
     {
-        $enabled_modules = $this->allModulesEnabled($business_id);
+        $enabled_modules = $this->allModulesEnabled($business_uid);
         if (in_array($module, $enabled_modules)) {
             return true;
         } else {
@@ -303,17 +303,17 @@ class Util
      * and gives the updated reference count
      *
      * @param  string  $type
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return int
      */
-    public function setAndGetReferenceCount($type, $business_id = null)
+    public function setAndGetReferenceCount($type, $business_uid = null)
     {
-        if (empty($business_id)) {
-            $business_id = request()->session()->get('user.business_id');
+        if (empty($business_uid)) {
+            $business_uid = request()->session()->get('user.business_uid');
         }
 
         $ref = ReferenceCount::where('ref_type', $type)
-            ->where('business_id', $business_id)
+            ->where('business_uid', $business_uid)
             ->first();
         if (! empty($ref)) {
             $ref->ref_count += 1;
@@ -323,7 +323,7 @@ class Util
         } else {
             $new_ref = ReferenceCount::create([
                 'ref_type' => $type,
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'ref_count' => 1,
             ]);
 
@@ -335,18 +335,18 @@ class Util
      * Generates reference number
      *
      * @param  string  $type
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return int
      */
-    public function generateReferenceNumber($type, $ref_count, $business_id = null, $default_prefix = null)
+    public function generateReferenceNumber($type, $ref_count, $business_uid = null, $default_prefix = null)
     {
         $prefix = '';
 
         if (session()->has('business') && ! empty(request()->session()->get('business.ref_no_prefixes')[$type])) {
             $prefix = request()->session()->get('business.ref_no_prefixes')[$type];
         }
-        if (! empty($business_id)) {
-            $business = Business::find($business_id);
+        if (! empty($business_uid)) {
+            $business = Business::find($business_uid);
             $prefixes = $business->ref_no_prefixes;
             $prefix = ! empty($prefixes[$type]) ? $prefixes[$type] : '';
         }
@@ -371,14 +371,14 @@ class Util
      * Checks if the given user is admin
      *
      * @param  obj  $user
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return bool
      */
-    public function is_admin($user, $business_id = null)
+    public function is_admin($user, $business_uid = null)
     {
-        $business_id = empty($business_id) ? $user->business_id : $business_id;
+        $business_uid = empty($business_uid) ? $user->business_uid : $business_uid;
 
-        return $user->hasRole('Admin#'.$business_id) ? true : false;
+        return $user->hasRole('Admin#'.$business_uid) ? true : false;
     }
 
     /**
@@ -576,22 +576,22 @@ class Util
     /**
      * Retrieves sub units of a base unit
      *
-     * @param  int  $business_id
-     * @param  int  $unit_id
+     * @param  int  $business_uid
+     * @param  int  $unit_uid
      * @param  bool  $return_main_unit_if_empty = false
-     * @param  int  $product_id = null
+     * @param  int  $product_uid = null
      * @return array
      */
-    public function getSubUnits($business_id, $unit_id, $return_main_unit_if_empty = false, $product_id = null)
+    public function getSubUnits($business_uid, $unit_uid, $return_main_unit_if_empty = false, $product_uid = null)
     {
-        $unit = Unit::where('business_id', $business_id)
+        $unit = Unit::where('business_uid', $business_uid)
             ->with(['sub_units'])
-            ->findOrFail($unit_id);
+            ->findOrFail($unit_uid);
 
         //Find related subunits for the product.
         $related_sub_units = [];
-        if (! empty($product_id)) {
-            $product = Product::where('business_id', $business_id)->findOrFail($product_id);
+        if (! empty($product_uid)) {
+            $product = Product::where('business_uid', $business_uid)->findOrFail($product_uid);
             $related_sub_units = $product->sub_unit_ids;
         }
 
@@ -628,14 +628,14 @@ class Util
         return $sub_units;
     }
 
-    public function getMultiplierOf2Units($base_unit_id, $unit_id)
+    public function getMultiplierOf2Units($base_unit_id, $unit_uid)
     {
-        if ($base_unit_id == $unit_id || is_null($base_unit_id) || is_null($unit_id)) {
+        if ($base_unit_id == $unit_uid || is_null($base_unit_id) || is_null($unit_uid)) {
             return 1;
         }
 
         $unit = Unit::where('base_unit_id', $base_unit_id)
-            ->where('id', $unit_id)
+            ->where('id', $unit_uid)
             ->first();
         if (empty($unit)) {
             return 1;
@@ -658,13 +658,13 @@ class Util
     /**
      * Generates invoice url for the transaction
      *
-     * @param  int  $transaction_id, int $business_id
+     * @param  int  $transaction_uid, int $business_uid
      * @return string
      */
-    public function getInvoiceUrl($transaction_id, $business_id)
+    public function getInvoiceUrl($transaction_uid, $business_uid)
     {
-        $transaction = Transaction::where('business_id', $business_id)
-            ->findOrFail($transaction_id);
+        $transaction = Transaction::where('business_uid', $business_uid)
+            ->findOrFail($transaction_uid);
 
         if (empty($transaction->invoice_token)) {
             $transaction->invoice_token = $this->generateToken();
@@ -681,13 +681,13 @@ class Util
     /**
      * Generates payment link for the transaction
      *
-     * @param  int  $transaction_id, int $business_id
+     * @param  int  $transaction_uid, int $business_uid
      * @return string
      */
-    public function getInvoicePaymentLink($transaction_id, $business_id)
+    public function getInvoicePaymentLink($transaction_uid, $business_uid)
     {
-        $transaction = Transaction::where('business_id', $business_id)
-            ->findOrFail($transaction_id);
+        $transaction = Transaction::where('business_uid', $business_uid)
+            ->findOrFail($transaction_uid);
 
         if (empty($transaction->invoice_token)) {
             $transaction->invoice_token = $this->generateToken();
@@ -749,27 +749,27 @@ class Util
         return $uploaded_file_name;
     }
 
-    public function serviceStaffDropdown($business_id, $location_id = null)
+    public function serviceStaffDropdown($business_uid, $location_uid = null)
     {
-        return $this->getServiceStaff($business_id, $location_id, true);
+        return $this->getServiceStaff($business_uid, $location_uid, true);
     }
 
-    public function getServiceStaff($business_id, $location_id = null, $for_dropdown = false)
+    public function getServiceStaff($business_uid, $location_uid = null, $for_dropdown = false)
     {
         $waiters = [];
         //Get all service staff roles
-        $service_staff_roles = Role::where('business_id', $business_id)
+        $service_staff_roles = Role::where('business_uid', $business_uid)
             ->where('is_service_staff', 1)
             ->pluck('name')
             ->toArray();
 
         //Get all users of service staff roles
         if (! empty($service_staff_roles)) {
-            $waiters = User::where('business_id', $business_id)
+            $waiters = User::where('business_uid', $business_uid)
                 ->role($service_staff_roles);
 
-            if (! empty($location_id)) {
-                $waiters->permission(['location.'.$location_id, 'access_all_locations']);
+            if (! empty($location_uid)) {
+                $waiters->permission(['location.'.$location_uid, 'access_all_locations']);
             }
 
             if ($for_dropdown) {
@@ -786,18 +786,18 @@ class Util
      * Replaces tags from notification body with original value
      *
      * @param  text  $body
-     * @param  int  $transaction_id
+     * @param  int  $transaction_uid
      * @return array
      */
-    public function replaceTags($business_id, $data, $transaction, $contact = null)
+    public function replaceTags($business_uid, $data, $transaction, $contact = null)
     {
         if (! empty($transaction) && ! is_object($transaction)) {
-            $transaction = Transaction::where('business_id', $business_id)
+            $transaction = Transaction::where('business_uid', $business_uid)
                 ->with(['contact', 'payment_lines'])
                 ->findOrFail($transaction);
         }
 
-        $business = ! is_object($business_id) ? Business::with(['currency'])->findOrFail($business_id) : $business_id;
+        $business = ! is_object($business_uid) ? Business::with(['currency'])->findOrFail($business_uid) : $business_uid;
 
         $contact = empty($transaction->contact) ? $contact : $transaction->contact;
 
@@ -881,12 +881,12 @@ class Util
 
             //Replace invoice_url
             if (! empty($transaction) && strpos($value, '{invoice_url}') !== false && $transaction->type == 'sell') {
-                $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_id);
+                $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_uid);
                 $data[$key] = str_replace('{invoice_url}', $invoice_url, $data[$key]);
             }
 
             if (! empty($transaction) && strpos($value, '{quote_url}') !== false && $transaction->type == 'sell') {
-                $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_id);
+                $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_uid);
                 $data[$key] = str_replace('{quote_url}', $invoice_url, $data[$key]);
             }
 
@@ -1139,9 +1139,9 @@ class Util
      *
      * @return string
      */
-    public function getUserRoleName($user_id)
+    public function getUserRoleName($user_uid)
     {
-        $user = User::findOrFail($user_id);
+        $user = User::findOrFail($user_uid);
 
         $roles = $user->getRoleNames();
 
@@ -1158,12 +1158,12 @@ class Util
     /**
      * Retrieves all admins of a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @return obj
      */
-    public function get_admins($business_id)
+    public function get_admins($business_uid)
     {
-        $admins = User::role('Admin#'.$business_id)->get();
+        $admins = User::role('Admin#'.$business_uid)->get();
 
         return $admins;
     }
@@ -1192,11 +1192,11 @@ class Util
      * This function updates the stock of products present in combo product and also updates transaction sell line.
      *
      * @param  array  $lines
-     * @param  int  $location_id
+     * @param  int  $location_uid
      * @param  bool  $adjust_stock = true
      * @return void
      */
-    public function updateEditedSellLineCombo($lines, $location_id, $adjust_stock = true)
+    public function updateEditedSellLineCombo($lines, $location_uid, $adjust_stock = true)
     {
         if (empty($lines)) {
             return true;
@@ -1212,9 +1212,9 @@ class Util
                 //Update stock in variation location details table.
                 //Adjust Quantity in variations location table
                 if ($adjust_stock) {
-                    VariationLocationDetails::where('variation_id', $line['variation_id'])
-                        ->where('product_id', $line['product_id'])
-                        ->where('location_id', $location_id)
+                    VariationLocationDetails::where('variation_uid', $line['variation_uid'])
+                        ->where('product_uid', $line['product_uid'])
+                        ->where('location_uid', $location_uid)
                         ->increment('qty_available', $difference);
                 }
 
@@ -1273,7 +1273,7 @@ class Util
      * @param  int  $contact_id
      * @return mixed
      */
-    public function getContactDue($contact_id, $business_id = null)
+    public function getContactDue($contact_id, $business_uid = null)
     {
         // aad type sell_return for to calculate total_sell_return 
         $query = Contact::where('contacts.id', $contact_id)
@@ -1282,15 +1282,15 @@ class Util
             ->select(
                 DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', final_total, 0)) as total_invoice"),
                 DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
-                DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as total_paid"),
-                DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as purchase_paid"),
-                DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
+                DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as total_paid"),
+                DB::raw("SUM(IF(t.type = 'purchase', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as purchase_paid"),
+                DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as sell_return_paid"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                 DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
-                DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
+                DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_uid=t.id), 0)) as opening_balance_paid")
             );
-        if (! empty($business_id)) {
-            $query->where('contacts.business_id', $business_id);
+        if (! empty($business_uid)) {
+            $query->where('contacts.business_uid', $business_uid);
         }
 
         $contact_payments = $query->first();
@@ -1468,7 +1468,7 @@ class Util
      * @param $log_changes boolean whether to log changes to modal properties
      * @return string
      */
-    public function activityLog($on, $action = null, $before = null, $properties = [], $log_changes = true, $business_id = null)
+    public function activityLog($on, $action = null, $before = null, $properties = [], $log_changes = true, $business_uid = null)
     {
         if ($log_changes) {
             $log_properties = $on->log_properties ?? [];
@@ -1484,14 +1484,14 @@ class Util
         }
 
         //Check if session has business id
-        $business_id = session()->has('business') ? session('business.id') : $business_id;
+        $business_uid = session()->has('business') ? session('business.id') : $business_uid;
 
         //Check if subject has business id
-        if (empty($business_id) && ! empty($on->business_id)) {
-            $business_id = $on->business_id;
+        if (empty($business_uid) && ! empty($on->business_uid)) {
+            $business_uid = $on->business_uid;
         }
 
-        $business = session()->has('business') ? session('business') : Business::find($business_id);
+        $business = session()->has('business') ? session('business') : Business::find($business_uid);
 
         date_default_timezone_set($business->time_zone);
 
@@ -1500,7 +1500,7 @@ class Util
             ->withProperties($properties)
             ->log($action);
 
-        $activity->business_id = $business_id;
+        $activity->business_uid = $business_uid;
         $activity->save();
     }
 
@@ -1590,14 +1590,14 @@ class Util
         return round($quantity, $quantity_precision);
     }
 
-    public function getDropdownForRoles($business_id)
+    public function getDropdownForRoles($business_uid)
     {
-        $app_roles = Role::where('business_id', $business_id)
+        $app_roles = Role::where('business_uid', $business_uid)
             ->pluck('name', 'id');
 
         $roles = [];
         foreach ($app_roles as $key => $value) {
-            $roles[$key] = str_replace('#'.$business_id, '', $value);
+            $roles[$key] = str_replace('#'.$business_uid, '', $value);
         }
 
         return $roles;
@@ -1610,7 +1610,7 @@ class Util
     {
         $user_details = $request->only([
             'surname', 'first_name', 'last_name', 'email',
-            'user_type', 'crm_contact_id', 'allow_login', 'username', 'password',
+            'user_type', 'crm_contact_uid', 'allow_login', 'username', 'password',
             'cmmsn_percent', 'max_sales_discount_percent', 'dob', 'gender', 'marital_status', 'blood_group', 'contact_number', 'alt_number', 'family_number', 'fb_link',
             'twitter_link', 'social_media_1', 'social_media_2', 'custom_field_1',
             'custom_field_2', 'custom_field_3', 'custom_field_4', 'guardian_name', 'id_proof_name', 'id_proof_number', 'permanent_address', 'current_address', 'bank_details', 'selected_contacts', 'is_enable_service_staff_pin', 'service_staff_pin',
@@ -1621,16 +1621,16 @@ class Util
 
         $user_details['is_enable_service_staff_pin'] = ! empty($request->input('is_enable_service_staff_pin')) ? true : false;
 
-        $business_id = Auth::user()->business_id;
-        $user_details['business_id'] = $business_id;
+        $business_uid = Auth::user()->business_uid;
+        $user_details['business_uid'] = $business_uid;
 
         //Check if subscribed or not, then check for users quota
         if ($user_details['user_type'] == 'user') {
             $moduleUtil = new \App\Utils\ModuleUtil;
-            if (! $moduleUtil->isSubscribed($business_id)) {
+            if (! $moduleUtil->isSubscribed($business_uid)) {
                 return $moduleUtil->expiredResponse();
-            } elseif (! $moduleUtil->isQuotaAvailable('users', $business_id)) {
-                return $moduleUtil->quotaExpiredResponse('users', $business_id, action([\App\Http\Controllers\ManageUserController::class, 'index']));
+            } elseif (! $moduleUtil->isQuotaAvailable('users', $business_uid)) {
+                return $moduleUtil->quotaExpiredResponse('users', $business_uid, action([\App\Http\Controllers\ManageUserController::class, 'index']));
             }
         }
 
@@ -1650,8 +1650,8 @@ class Util
 
         if ($user_details['allow_login']) {
             if (empty($user_details['username'])) {
-                $ref_count = $this->setAndGetReferenceCount('username', $business_id);
-                $user_details['username'] = $this->generateReferenceNumber('username', $ref_count, $business_id);
+                $ref_count = $this->setAndGetReferenceCount('username', $business_uid);
+                $user_details['username'] = $this->generateReferenceNumber('username', $ref_count, $business_uid);
             }
 
             if ($user_details['user_type'] == 'user') {
@@ -1685,7 +1685,7 @@ class Util
             //Save module fields for user
             $moduleUtil = new \App\Utils\ModuleUtil;
             $moduleUtil->getModuleData('afterModelSaved', ['event' => 'user_saved', 'model_instance' => $user]);
-            $this->activityLog($user, 'added', null, ['name' => $user->user_full_name], true, $business_id);
+            $this->activityLog($user, 'added', null, ['name' => $user->user_full_name], true, $business_uid);
         }
 
         return $user;
@@ -1696,9 +1696,9 @@ class Util
      */
     public function getUsernameExtension()
     {
-        $business_id = Auth::user()->business_id;
+        $business_uid = Auth::user()->business_uid;
 
-        $extension = ! empty(System::getProperty('enable_business_based_username')) ? '-'.str_pad($business_id, 2, 0, STR_PAD_LEFT) : null;
+        $extension = ! empty(System::getProperty('enable_business_based_username')) ? '-'.str_pad($business_uid, 2, 0, STR_PAD_LEFT) : null;
 
         return $extension;
     }
@@ -1712,9 +1712,9 @@ class Util
             $role->revokePermissionTo('access_all_locations');
         }
 
-        $business_id = Auth::user()->business_id;
+        $business_uid = Auth::user()->business_uid;
 
-        $all_locations = BusinessLocation::where('business_id', $business_id)->get();
+        $all_locations = BusinessLocation::where('business_uid', $business_uid)->get();
         foreach ($all_locations as $location) {
             if ($role->hasPermissionTo('location.'.$location->id)) {
                 $role->revokePermissionTo('location.'.$location->id);
@@ -1738,8 +1738,8 @@ class Util
             $location_ids = $request->input('location_permissions');
             $location_permissions = [];
             if (! empty($location_ids)) {
-                foreach ($location_ids as $location_id) {
-                    $location_permissions[] = 'location.'.$location_id;
+                foreach ($location_ids as $location_uid) {
+                    $location_permissions[] = 'location.'.$location_uid;
                 }
             }
         }

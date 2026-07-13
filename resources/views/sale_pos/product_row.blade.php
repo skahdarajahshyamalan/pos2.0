@@ -13,7 +13,7 @@
 	@endif
 @endforeach
 
-<tr class="product_row" data-row_index="{{$row_count}}" @if(!empty($so_line)) data-so_id="{{$so_line->transaction_id}}" @endif>
+<tr class="product_row" data-row_index="{{$row_count}}" @if(!empty($so_line)) data-so_id="{{$so_line->transaction_uid}}" @endif>
 	@if(!empty($is_serial_no))
 		<td class="serial_no" ></td>
 	@endif
@@ -204,10 +204,10 @@
 			<input type="hidden" name="products[{{$row_count}}][transaction_sell_lines_id]" class="form-control" value="{{$product->transaction_sell_lines_id}}">
 		@endif
 
-		<input type="hidden" name="products[{{$row_count}}][product_id]" class="form-control product_id" value="{{$product->product_id}}">
+		<input type="hidden" name="products[{{$row_count}}][product_uid]" class="form-control product_uid" value="{{$product->product_uid}}">
 
-		<input type="hidden" value="{{$product->variation_id}}" 
-			name="products[{{$row_count}}][variation_id]" class="row_variation_id">
+		<input type="hidden" value="{{$product->variation_uid}}" 
+			name="products[{{$row_count}}][variation_uid]" class="row_variation_id">
 
 		<input type="hidden" value="{{$product->enable_stock}}" 
 			name="products[{{$row_count}}][enable_stock]">
@@ -263,7 +263,7 @@
 			<span class="input-group-btn !tw-hidden md:!tw-table-cell"><button type="button" class="btn quantity-up !tw-text-emerald-600 active:tw-scale-95 tw-transition-transform !tw-border-slate-300 !tw-px-3 tw-inline-flex tw-items-center tw-justify-center tw-leading-none"><i class="fa fa-plus"></i></button></span>
 		</div>
 		
-		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
+		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_uid}}">
 		@if(count($sub_units) > 1)
 			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
                 @foreach($sub_units as $key => $value)
@@ -313,12 +313,12 @@
 				@endif
 
 				<input type="hidden" 
-					name="products[{{$row_count}}][combo][{{$k}}][product_id]"
-					value="{{$combo_product['product_id']}}">
+					name="products[{{$row_count}}][combo][{{$k}}][product_uid]"
+					value="{{$combo_product['product_uid']}}">
 
 					<input type="hidden" 
-					name="products[{{$row_count}}][combo][{{$k}}][variation_id]"
-					value="{{$combo_product['variation_id']}}">
+					name="products[{{$row_count}}][combo][{{$k}}][variation_uid]"
+					value="{{$combo_product['variation_uid']}}">
 
 					<input type="hidden"
 					class="combo_product_qty" 

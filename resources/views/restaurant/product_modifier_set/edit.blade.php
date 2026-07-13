@@ -75,7 +75,7 @@
         }
       },
       select: function( event, ui ) {
-        add_product_row(ui.item.product_id);
+        add_product_row(ui.item.product_uid);
       }
   })
   .autocomplete( "instance" )._renderItem = function( ul, item ) {
@@ -85,10 +85,10 @@
   };
 });
 
-function add_product_row(product_id){
+function add_product_row(product_uid){
   $.ajax({
     method: "GET",
-    url: '/modules/product-modifiers/product-row/' + product_id,
+    url: '/modules/product-modifiers/product-row/' + product_uid,
     dataType: "html",
     success: function(result){
       $('table#add-modifier-table').append(result);

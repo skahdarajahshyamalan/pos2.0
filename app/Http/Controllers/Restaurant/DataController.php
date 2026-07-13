@@ -29,12 +29,12 @@ class DataController extends Controller
     public function getPosDetails(Request $request)
     {
         if (request()->ajax()) {
-            $business_id = $request->session()->get('user.business_id');
-            $location_id = $request->get('location_id');
-            if (! empty($location_id)) {
-                $transaction_id = $request->get('transaction_id', null);
-                if (! empty($transaction_id)) {
-                    $transaction = Transaction::find($transaction_id);
+            $business_uid = $request->session()->get('user.business_uid');
+            $location_uid = $request->get('location_uid');
+            if (! empty($location_uid)) {
+                $transaction_uid = $request->get('transaction_uid', null);
+                if (! empty($transaction_uid)) {
+                    $transaction = Transaction::find($transaction_uid);
                     $view_data = ['res_table_id' => $transaction->res_table_id,
                         'res_waiter_id' => $transaction->res_waiter_id,
                     ];
@@ -48,12 +48,12 @@ class DataController extends Controller
                 $tables = null;
                 if ($this->commonUtil->isModuleEnabled('service_staff')) {
                     $waiters_enabled = true;
-                    $waiters = $this->commonUtil->getServiceStaff($business_id, $location_id, false);
+                    $waiters = $this->commonUtil->getServiceStaff($business_uid, $location_uid, false);
                 }
                 if ($this->commonUtil->isModuleEnabled('tables')) {
                     $tables_enabled = true;
-                    $tables = ResTable::where('business_id', $business_id)
-                            ->where('location_id', $location_id)
+                    $tables = ResTable::where('business_uid', $business_uid)
+                            ->where('location_uid', $location_uid)
                             ->pluck('name', 'id');
                 }
             } else {
@@ -83,19 +83,19 @@ class DataController extends Controller
         $table_id = request()->get('res_table_id');
         $res_waiter_id = request()->get('res_waiter_id');
 
-        Transaction::where('id', $input['transaction_id'])
+        Transaction::where('id', $input['transaction_uid'])
             ->where('type', 'sell')
-            ->where('business_id', $input['business_id'])
+            ->where('business_uid', $input['business_uid'])
             ->update(['res_table_id' => $table_id,
                 'res_waiter_id' => $res_waiter_id, ]);
     }
 
     public function checkStaffPin(Request $request){
         $service_staff_pin = $request->get('service_staff_pin');
-        $user_id = $request->get('user_id');
+        $user_uid = $request->get('user_uid');
 
-        $business_id = $request->session()->get('user.business_id');
-        $query = User::where('service_staff_pin', $service_staff_pin)->where('id', $user_id)->where('business_id', $business_id);
+        $business_uid = $request->session()->get('user.business_uid');
+        $query = User::where('service_staff_pin', $service_staff_pin)->where('id', $user_uid)->where('business_uid', $business_uid);
 
         $exists = $query->exists();
         if ($exists) {

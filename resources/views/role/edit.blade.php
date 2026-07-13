@@ -19,7 +19,7 @@
         <div class="col-md-4">
           <div class="form-group">
             {!! Form::label('name', __( 'user.role_name' ) . ':*') !!}
-              {!! Form::text('name', str_replace( '#' . auth()->user()->business_id, '', $role->name) , ['class' => 'form-control', 'required', 'placeholder' => __( 'user.role_name' ) ]); !!}
+              {!! Form::text('name', str_replace( '#' . auth()->user()->business_uid, '', $role->name) , ['class' => 'form-control', 'required', 'placeholder' => __( 'user.role_name' ) ]); !!}
           </div>
         </div>
         </div>

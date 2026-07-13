@@ -31,7 +31,7 @@
             <div class="tw-flex tw-items-center tw-gap-2">
                 <p><strong>@lang('sale.location'): &nbsp;</strong></p>
                 <div style="width: 28%">
-                    @if (empty($transaction->location_id))
+                    @if (empty($transaction->location_uid))
                         @if (count($business_locations) > 1)
                             {!! Form::select(
                                 'select_location_id',

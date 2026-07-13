@@ -25,14 +25,14 @@ class CustomerGroup extends Model
     /**
      * Return list of customer group for a business
      *
-     * @param $business_id int
+     * @param $business_uid int
      * @param $prepend_none = true (boolean)
      * @param $prepend_all = false (boolean)
      * @return array
      */
-    public static function forDropdown($business_id, $prepend_none = true, $prepend_all = false)
+    public static function forDropdown($business_uid, $prepend_none = true, $prepend_all = false)
     {
-        $all_cg = CustomerGroup::where('business_id', $business_id);
+        $all_cg = CustomerGroup::where('business_uid', $business_uid);
         $all_cg = $all_cg->pluck('name', 'id');
 
         //Prepend none

@@ -4,7 +4,7 @@
 			'variations' => [$purchase_line->variations],
 			'product' => $purchase_line->product,
 			'row_count' => $row_count,
-			'variation_id' => $purchase_line->variation_id,
+			'variation_uid' => $purchase_line->variation_uid,
 			'taxes' => $taxes,
 			'currency_details' => $currency_details,
 			'hide_tax' => $hide_tax,

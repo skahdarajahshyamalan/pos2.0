@@ -9,7 +9,7 @@
                 @lang('lang_v1.add_note')
             </h4>
         </div>
-        <!-- model id like project_id, user_id -->
+        <!-- model id like project_id, user_uid -->
         {!! Form::hidden('notable_id', $notable_id, ['class' => 'form-control']) !!}
         <!-- model name like App\User -->
         {!! Form::hidden('notable_type', $notable_type, ['class' => 'form-control']) !!}

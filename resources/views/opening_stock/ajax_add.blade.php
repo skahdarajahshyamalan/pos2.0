@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-xl" role="document">
 	<div class="modal-content">
 	{!! Form::open(['url' => action([\App\Http\Controllers\OpeningStockController::class, 'save']), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
-	{!! Form::hidden('product_id', $product->id); !!}
+	{!! Form::hidden('product_uid', $product->id); !!}
 		<div class="modal-header">
 		    <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		      <h4 class="modal-title" id="modalTitle">@lang('lang_v1.add_opening_stock')</h4>

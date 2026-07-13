@@ -51,7 +51,7 @@ class RecurringInvoiceNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'transaction_id' => $this->invoice->id,
+            'transaction_uid' => $this->invoice->id,
             'invoice_no' => $this->invoice->invoice_no,
             'invoice_status' => $this->invoice->status,
             'out_of_stock_product' => ! empty($this->invoice->out_of_stock_product) ? $this->invoice->out_of_stock_product : null,

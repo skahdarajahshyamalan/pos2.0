@@ -87,7 +87,7 @@
                             "ajax": {
                                 "url": "/reports/customer-group",
                                 "data": function ( d ) {
-                                    d.location_id = $('#cg_location_id').val();
+                                    d.location_uid = $('#cg_location_id').val();
                                     d.customer_group_id = $('#cg_customer_group_id').val();
                                     d.start_date = $('#cg_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
                                     d.end_date = $('#cg_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');

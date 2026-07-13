@@ -24,21 +24,21 @@
         </div>
         <div class="col-md-6" id="brand_input">
           <div class="form-group">
-            {!! Form::label('brand_id', __('product.brand') . ':') !!}
-              {!! Form::select('brand_id', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::label('brand_uid', __('product.brand') . ':') !!}
+              {!! Form::select('brand_uid', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
         <div class="col-sm-6" id="category_input">
           <div class="form-group">
-            {!! Form::label('category_id', __('product.category') . ':') !!}
-              {!! Form::select('category_id', $categories, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::label('category_uid', __('product.category') . ':') !!}
+              {!! Form::select('category_uid', $categories, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
         <div class="clearfix"></div>
         <div class="col-sm-6">
           <div class="form-group">
-            {!! Form::label('location_id', __('sale.location') . ':*') !!}
-              {!! Form::select('location_id', $locations, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
+            {!! Form::label('location_uid', __('sale.location') . ':*') !!}
+              {!! Form::select('location_uid', $locations, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
         <div class="col-md-6">

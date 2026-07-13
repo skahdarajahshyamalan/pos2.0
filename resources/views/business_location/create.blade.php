@@ -19,8 +19,8 @@
                 <div class="clearfix"></div>
                 <div class="col-sm-6">
                     <div class="form-group">
-                        {!! Form::label('location_id', __( 'lang_v1.location_id' ) . ':') !!}
-                        {!! Form::text('location_id', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.location_id' ) ]); !!}
+                        {!! Form::label('location_uid', __( 'lang_v1.location_uid' ) . ':') !!}
+                        {!! Form::text('location_uid', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.location_uid' ) ]); !!}
                     </div>
                 </div>
                 <div class="col-sm-6">

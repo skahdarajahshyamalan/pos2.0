@@ -3,7 +3,7 @@
 		'variations' => [$data['variation']],
 		'product' => $data['product'],
 		'row_count' => $row_count,
-		'variation_id' => $data['variation']->id,
+		'variation_uid' => $data['variation']->id,
 		'taxes' => $taxes,
 		'currency_details' => $currency_details,
 		'hide_tax' => $hide_tax,

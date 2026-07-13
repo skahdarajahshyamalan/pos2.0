@@ -117,7 +117,7 @@ class RecurringInvoice extends Command
                     $out_of_stock_product = null;
                     foreach ($transaction->sell_lines as $sell_line) {
                         if ($sell_line->product->enable_stock == 1) {
-                            $current_stock = $this->productUtil->getCurrentStock($sell_line->variation_id, $transaction->location_id);
+                            $current_stock = $this->productUtil->getCurrentStock($sell_line->variation_uid, $transaction->location_uid);
 
                             if ($current_stock < $sell_line->quantity) {
                                 $out_of_stock_product = $sell_line->product->name.' ('.$sell_line->product->sku.')';
@@ -135,16 +135,16 @@ class RecurringInvoice extends Command
                     if ($recurring_invoice->status == 'final') {
                         foreach ($transaction->sell_lines as $sell_line) {
                             $this->productUtil->decreaseProductQuantity(
-                                $sell_line->product_id,
-                                $sell_line->variation_id,
-                                $transaction->location_id,
+                                $sell_line->product_uid,
+                                $sell_line->variation_uid,
+                                $transaction->location_uid,
                                 $sell_line->quantity
                                 );
                         }
 
-                        $business = ['id' => $transaction->business_id,
+                        $business = ['id' => $transaction->business_uid,
                             'accounting_method' => $transaction->business->accounting_method,
-                            'location_id' => $transaction->location_id,
+                            'location_uid' => $transaction->location_uid,
                         ];
 
                         $this->transactionUtil->mapPurchaseSell($business, $recurring_invoice->sell_lines, 'purchase');
@@ -152,18 +152,18 @@ class RecurringInvoice extends Command
                         $contact = Contact::find($recurring_invoice->contact_id);
 
                         //Auto send notification
-                        $this->notificationUtil->autoSendNotification($transaction->business_id, 'new_sale', $recurring_invoice, $contact);
+                        $this->notificationUtil->autoSendNotification($transaction->business_uid, 'new_sale', $recurring_invoice, $contact);
                     }
 
                     $recurring_invoice->out_of_stock_product = $out_of_stock_product;
                     $recurring_invoice->subscription_no = $transaction->subscription_no;
 
                     //Save database notification
-                    $created_by = User::find($transaction->created_by);
-                    $this->notificationUtil->recurringInvoiceNotification($created_by, $recurring_invoice);
+                    $created_by_uid = User::find($transaction->created_by_uid);
+                    $this->notificationUtil->recurringInvoiceNotification($created_by_uid, $recurring_invoice);
 
                     //if admin is different
-                    if ($created_by->id != $transaction->business->owner_id) {
+                    if ($created_by_uid->id != $transaction->business->owner_id) {
                         $admin = User::find($transaction->business->owner_id);
                         $this->notificationUtil->recurringInvoiceNotification($admin, $recurring_invoice);
                     }

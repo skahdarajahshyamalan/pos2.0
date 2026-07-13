@@ -33,9 +33,9 @@ class CustomerGroupController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
+            $business_uid = request()->session()->get('user.business_uid');
 
-            $customer_group = CustomerGroup::where('customer_groups.business_id', $business_id)
+            $customer_group = CustomerGroup::where('customer_groups.business_uid', $business_uid)
                                     ->leftjoin('selling_price_groups as spg', 'spg.id', '=', 'customer_groups.selling_price_group_id')
                                 ->select(['customer_groups.name', 'customer_groups.amount', 'spg.name as selling_price_group', 'customer_groups.id', 'price_calculation_type']);
 
@@ -73,8 +73,8 @@ class CustomerGroupController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $price_groups = SellingPriceGroup::forDropdown($business_id, false);
+        $business_uid = request()->session()->get('user.business_uid');
+        $price_groups = SellingPriceGroup::forDropdown($business_uid, false);
 
         return view('customer_group.create')->with(compact('price_groups'));
     }
@@ -93,8 +93,8 @@ class CustomerGroupController extends Controller
 
         try {
             $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
-            $input['business_id'] = $request->session()->get('user.business_id');
-            $input['created_by'] = $request->session()->get('user.id');
+            $input['business_uid'] = $request->session()->get('user.business_uid');
+            $input['created_by_uid'] = $request->session()->get('user.id');
             $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
 
             $customer_group = CustomerGroup::create($input);
@@ -126,11 +126,11 @@ class CustomerGroupController extends Controller
         }
 
         if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $customer_group = CustomerGroup::where('business_id', $business_id)->find($id);
+            $business_uid = request()->session()->get('user.business_uid');
+            $customer_group = CustomerGroup::where('business_uid', $business_uid)->find($id);
 
-            $business_id = request()->session()->get('user.business_id');
-            $price_groups = SellingPriceGroup::forDropdown($business_id, false);
+            $business_uid = request()->session()->get('user.business_uid');
+            $price_groups = SellingPriceGroup::forDropdown($business_uid, false);
 
             return view('customer_group.edit')
                 ->with(compact('customer_group', 'price_groups'));
@@ -153,11 +153,11 @@ class CustomerGroupController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
-                $business_id = $request->session()->get('user.business_id');
+                $business_uid = $request->session()->get('user.business_uid');
 
                 $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
 
-                $customer_group = CustomerGroup::where('business_id', $business_id)->findOrFail($id);
+                $customer_group = CustomerGroup::where('business_uid', $business_uid)->findOrFail($id);
 
                 $customer_group->update($input);
 
@@ -190,9 +190,9 @@ class CustomerGroupController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_uid = request()->user()->business_uid;
 
-                $cg = CustomerGroup::where('business_id', $business_id)->findOrFail($id);
+                $cg = CustomerGroup::where('business_uid', $business_uid)->findOrFail($id);
                 $cg->delete();
 
                 $output = ['success' => true,

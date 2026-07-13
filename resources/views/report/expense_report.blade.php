@@ -16,15 +16,15 @@
               {!! Form::open(['url' => action([\App\Http\Controllers\ReportController::class, 'getExpenseReport']), 'method' => 'get' ]) !!}
                 <div class="col-md-4">
                     <div class="form-group">
-                        {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                        {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                        {!! Form::label('location_uid',  __('purchase.business_location') . ':') !!}
+                        {!! Form::select('location_uid', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        {!! Form::label('category_id', __('category.category').':') !!}
+                        {!! Form::label('category_uid', __('category.category').':') !!}
                         {!! Form::select('category', $categories, null, ['placeholder' =>
-                        __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'category_id']); !!}
+                        __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'category_uid']); !!}
                     </div>
                 </div>
                 <div class="col-md-4">

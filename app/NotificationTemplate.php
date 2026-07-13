@@ -21,13 +21,13 @@ class NotificationTemplate extends Model
     /**
      * Retrives notification template from database
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  string  $template_for
      * @return array $template
      */
-    public static function getTemplate($business_id, $template_for)
+    public static function getTemplate($business_uid, $template_for)
     {
-        $notif_template = NotificationTemplate::where('business_id', $business_id)
+        $notif_template = NotificationTemplate::where('business_uid', $business_uid)
                                                         ->where('template_for', $template_for)
                                                         ->first();
         $template = [
@@ -176,11 +176,11 @@ class NotificationTemplate extends Model
         ];
     }
 
-    public static function defaultNotificationTemplates($business_id = null)
+    public static function defaultNotificationTemplates($business_uid = null)
     {
         $notification_template_data = [
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'new_sale',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -199,7 +199,7 @@ class NotificationTemplate extends Model
             ],
 
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'payment_received',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -211,7 +211,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'payment_reminder',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -223,7 +223,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'new_booking',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -240,7 +240,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'new_order',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -253,7 +253,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'payment_paid',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -268,7 +268,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'items_received',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -281,7 +281,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'items_pending',
                 'email_body' => '<p>Dear {contact_name},<br />
                     This is to remind you that we have not yet received some items from invoice reference number {order_ref_number}. Please process it as soon as possible.</p>
@@ -294,7 +294,7 @@ class NotificationTemplate extends Model
             ],
 
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'new_quotation',
                 'email_body' => '<p>Dear {contact_name},</p>
 
@@ -311,7 +311,7 @@ class NotificationTemplate extends Model
                 'auto_send' => '0',
             ],
             [
-                'business_id' => $business_id,
+                'business_uid' => $business_uid,
                 'template_for' => 'purchase_order',
                 'email_body' => '<p>Dear {contact_name},</p>
 

@@ -30,13 +30,13 @@ class Brands extends Model
     /**
      * Return list of brands for a business
      *
-     * @param  int  $business_id
+     * @param  int  $business_uid
      * @param  bool  $show_none = false
      * @return array
      */
-    public static function forDropdown($business_id, $show_none = false, $filter_use_for_repair = false)
+    public static function forDropdown($business_uid, $show_none = false, $filter_use_for_repair = false)
     {
-        $query = Brands::where('business_id', $business_id);
+        $query = Brands::where('business_uid', $business_uid);
 
         if ($filter_use_for_repair) {
             $query->where('use_for_repair', 1);

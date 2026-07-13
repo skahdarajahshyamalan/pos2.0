@@ -18,9 +18,9 @@ class Warranty extends Model
      */
     protected $guarded = ['id'];
 
-    public static function forDropdown($business_id)
+    public static function forDropdown($business_uid)
     {
-        $warranties = Warranty::where('business_id', $business_id)
+        $warranties = Warranty::where('business_uid', $business_uid)
                             ->get();
         $dropdown = [];
 

@@ -15,24 +15,24 @@
     @component('components.widget', ['title' => $product->name])
         <div class="col-md-6">
             <div class="form-group">
-                {!! Form::label('product_id',  __('sale.product') . ':') !!}
-                {!! Form::select('product_id', [$product->id=>$product->name . ' - ' . $product->sku], $product->id, ['class' => 'form-control', 'style' => 'width:100%']); !!}
+                {!! Form::label('product_uid',  __('sale.product') . ':') !!}
+                {!! Form::select('product_uid', [$product->id=>$product->name . ' - ' . $product->sku], $product->id, ['class' => 'form-control', 'style' => 'width:100%']); !!}
             </div>
         </div>
         <div class="col-md-3">
             <div class="form-group">
-                {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                {!! Form::select('location_id', $business_locations, request()->input('location_id', null), ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                {!! Form::label('location_uid',  __('purchase.business_location') . ':') !!}
+                {!! Form::select('location_uid', $business_locations, request()->input('location_uid', null), ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
             </div>
         </div>
         @if($product->type == 'variable')
             <div class="col-md-3">
                 <div class="form-group">
-                    <label for="variation_id">@lang('product.variations'):</label>
-                    <select class="select2 form-control" name="variation_id" id="variation_id">
+                    <label for="variation_uid">@lang('product.variations'):</label>
+                    <select class="select2 form-control" name="variation_uid" id="variation_uid">
                         @foreach($product->variations as $variation)
                             <option value="{{$variation->id}}"
-                            @if(request()->input('variation_id', null) == $variation->id)
+                            @if(request()->input('variation_uid', null) == $variation->id)
                                 selected
                             @endif
                             >{{$variation->product_variation->name}} - {{$variation->name}} ({{$variation->sub_sku}})</option>
@@ -41,7 +41,7 @@
                 </div>
             </div>
         @else
-            <input type="hidden" id="variation_id" name="variation_id" value="{{$product->variations->first()->id}}">
+            <input type="hidden" id="variation_uid" name="variation_uid" value="{{$product->variations->first()->id}}">
         @endif
     @endcomponent
     @component('components.widget')
@@ -57,9 +57,9 @@
 @section('javascript')
    <script type="text/javascript">
         $(document).ready( function(){
-            load_stock_history($('#variation_id').val(), $('#location_id').val());
+            load_stock_history($('#variation_uid').val(), $('#location_uid').val());
 
-            $('#product_id').select2({
+            $('#product_uid').select2({
                 ajax: {
                     url: '/products/list-no-variation',
                     dataType: 'json',
@@ -85,10 +85,10 @@
             });
         });
 
-       function load_stock_history(variation_id, location_id) {
+       function load_stock_history(variation_uid, location_uid) {
             $('#product_stock_history').fadeOut();
             $.ajax({
-                url: '/products/stock-history/' + variation_id + "?location_id=" + location_id,
+                url: '/products/stock-history/' + variation_uid + "?location_uid=" + location_uid,
                 dataType: 'html',
                 success: function(result) {
                     $('#product_stock_history')
@@ -106,8 +106,8 @@
             });
        }
 
-       $(document).on('change', '#variation_id, #location_id', function(){
-            load_stock_history($('#variation_id').val(), $('#location_id').val());
+       $(document).on('change', '#variation_uid, #location_uid', function(){
+            load_stock_history($('#variation_uid').val(), $('#location_uid').val());
        });
    </script>
 @endsection

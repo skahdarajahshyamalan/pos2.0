@@ -212,7 +212,7 @@ class BusinessController extends Controller
             $business = $this->businessUtil->createNewBusiness($business_details);
 
             //Update user with business id
-            $user->business_id = $business->id;
+            $user->business_uid = $business->id;
             $user->save();
 
             $this->businessUtil->newBusinessDefaultResources($business->id, $user->id);
@@ -297,11 +297,11 @@ class BusinessController extends Controller
             $timezone_list[$timezone] = $timezone;
         }
 
-        $business_id = request()->session()->get('user.business_id');
-        $business = Business::where('id', $business_id)->first();
+        $business_uid = request()->session()->get('user.business_uid');
+        $business = Business::where('id', $business_uid)->first();
 
         $currencies = $this->businessUtil->allCurrencies();
-        $tax_details = TaxRate::forBusinessDropdown($business_id);
+        $tax_details = TaxRate::forBusinessDropdown($business_uid);
         $tax_rates = $tax_details['tax_rates'];
 
         $months = [];
@@ -320,7 +320,7 @@ class BusinessController extends Controller
             'cmsn_agnt' => __('lang_v1.select_from_commisssion_agents_list'),
         ];
 
-        $units_dropdown = Unit::forDropdown($business_id, true);
+        $units_dropdown = Unit::forDropdown($business_uid, true);
 
         $date_formats = Business::date_formats();
 
@@ -346,7 +346,7 @@ class BusinessController extends Controller
 
         $weighing_scale_setting = ! empty($business->weighing_scale_setting) ? $business->weighing_scale_setting : [];
 
-        $payment_types = $this->moduleUtil->payment_types(null, false, $business_id);
+        $payment_types = $this->moduleUtil->payment_types(null, false, $business_uid);
 
         return view('business.settings', compact('business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels', 'common_settings', 'weighing_scale_setting', 'payment_types'));
     }
@@ -436,8 +436,8 @@ class BusinessController extends Controller
                 $business_details[$value] = ! empty($request->input($value)) && $request->input($value) == 1 ? 1 : 0;
             }
 
-            $business_id = request()->session()->get('user.business_id');
-            $business = Business::where('id', $business_id)->first();
+            $business_uid = request()->session()->get('user.business_uid');
+            $business = Business::where('id', $business_uid)->first();
 
             //Update business settings
             if (! empty($business_details['logo'])) {
@@ -453,7 +453,7 @@ class BusinessController extends Controller
            // Get existing pos_settings
             $pos_settings = $request->input('pos_settings', []);
 
-            $pre_busines_detail = $this->businessUtil->getDetails($business_id);
+            $pre_busines_detail = $this->businessUtil->getDetails($business_uid);
             $pre_pos_setting = json_decode($pre_busines_detail->pos_settings, true) ?? [];
             for ($i = 1; $i <= 10; $i++) {
                 $inputName = "carousel_image_$i"; // Image field names should be like carousel_image_1, carousel_image_2, etc.
@@ -539,9 +539,9 @@ class BusinessController extends Controller
         // Second: uniqueness check (existing behavior)
         $query = User::where('email', $request->input('email'));
 
-        if (! empty($request->input('user_id'))) {
-            $user_id = $request->input('user_id');
-            $query->where('id', '!=', $user_id);
+        if (! empty($request->input('user_uid'))) {
+            $user_uid = $request->input('user_uid');
+            $query->where('id', '!=', $user_uid);
         }
 
         $exists = $query->exists();
@@ -565,7 +565,7 @@ class BusinessController extends Controller
             $api_token = request()->header('API-TOKEN');
             $api_settings = $this->moduleUtil->getApiSettings($api_token);
 
-            $settings = Business::where('id', $api_settings->business_id)
+            $settings = Business::where('id', $api_settings->business_uid)
                         ->value('ecom_settings');
 
             $settings_array = ! empty($settings) ? json_decode($settings, true) : [];

@@ -47,9 +47,9 @@
         <div class="clearfix"></div>
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('unit_id', __('product.unit') . ':*') !!}
+                {!! Form::label('unit_uid', __('product.unit') . ':*') !!}
                 <div class="input-group">
-                    {!! Form::select('unit_id', $units, !empty($duplicate_product->unit_id) ? $duplicate_product->unit_id : session('business.default_unit'), ['class' => 'form-control select2', 'required']); !!}
+                    {!! Form::select('unit_uid', $units, !empty($duplicate_product->unit_uid) ? $duplicate_product->unit_uid : session('business.default_unit'), ['class' => 'form-control select2', 'required']); !!}
                     <span class="input-group-btn">
                         <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\UnitController::class, 'create'], ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
                     </span>
@@ -75,9 +75,9 @@
 
         <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
             <div class="form-group">
-                {!! Form::label('brand_id', __('product.brand') . ':') !!}
+                {!! Form::label('brand_uid', __('product.brand') . ':') !!}
                 <div class="input-group">
-                    {!! Form::select('brand_id', $brands, !empty($duplicate_product->brand_id) ? $duplicate_product->brand_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+                    {!! Form::select('brand_uid', $brands, !empty($duplicate_product->brand_uid) ? $duplicate_product->brand_uid : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
                     <span class="input-group-btn">
                         <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\BrandController::class, 'create'], ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
                     </span>
@@ -86,8 +86,8 @@
         </div>
         <div class="col-sm-4 @if(!session('business.enable_category')) hide @endif">
             <div class="form-group">
-                {!! Form::label('category_id', __('product.category') . ':') !!}
-                {!! Form::select('category_id', $categories, !empty($duplicate_product->category_id) ? $duplicate_product->category_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+                {!! Form::label('category_uid', __('product.category') . ':') !!}
+                {!! Form::select('category_uid', $categories, !empty($duplicate_product->category_uid) ? $duplicate_product->category_uid : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
             </div>
         </div>
 
@@ -345,7 +345,7 @@
             <div class="form-group">
                 {!! Form::label('type', __('product.product_type') . ':*') !!} @show_tooltip(__('tooltip.product_type'))
                 {!! Form::select('type', $product_types, !empty($duplicate_product->type) ? $duplicate_product->type : null, ['class' => 'form-control select2',
-                'required', 'data-action' => !empty($duplicate_product) ? 'duplicate' : 'add', 'data-product_id' => !empty($duplicate_product) ? $duplicate_product->id : '0']); !!}
+                'required', 'data-action' => !empty($duplicate_product) ? 'duplicate' : 'add', 'data-product_uid' => !empty($duplicate_product) ? $duplicate_product->id : '0']); !!}
             </div>
         </div>
 

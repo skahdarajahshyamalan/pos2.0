@@ -127,7 +127,7 @@ class Product extends Model
      */
     public function modifier_products()
     {
-        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'modifier_set_id', 'product_id');
+        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'modifier_set_id', 'product_uid');
     }
 
     /**
@@ -135,7 +135,7 @@ class Product extends Model
      */
     public function modifier_sets()
     {
-        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'product_id', 'modifier_set_id');
+        return $this->belongsToMany(\App\Product::class, 'res_product_modifier_sets', 'product_uid', 'modifier_set_id');
     }
 
     /**
@@ -192,7 +192,7 @@ class Product extends Model
 
     public function product_locations()
     {
-        return $this->belongsToMany(\App\BusinessLocation::class, 'product_locations', 'product_id', 'location_id');
+        return $this->belongsToMany(\App\BusinessLocation::class, 'product_locations', 'product_uid', 'location_uid');
     }
 
     /**
@@ -201,11 +201,11 @@ class Product extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForLocation($query, $location_id)
+    public function scopeForLocation($query, $location_uid)
     {
-        return $query->where(function ($q) use ($location_id) {
-            $q->whereHas('product_locations', function ($query) use ($location_id) {
-                $query->where('product_locations.location_id', $location_id);
+        return $query->where(function ($q) use ($location_uid) {
+            $q->whereHas('product_locations', function ($query) use ($location_uid) {
+                $query->where('product_locations.location_uid', $location_uid);
             });
         });
     }

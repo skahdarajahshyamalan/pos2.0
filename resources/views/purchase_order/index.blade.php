@@ -122,7 +122,7 @@
                     url: '{{ action([\App\Http\Controllers\PurchaseOrderController::class, 'index']) }}',
                     data: function(d) {
                         if ($('#po_list_filter_location_id').length) {
-                            d.location_id = $('#po_list_filter_location_id').val();
+                            d.location_uid = $('#po_list_filter_location_id').val();
                         }
                         if ($('#po_list_filter_supplier_id').length) {
                             d.supplier_id = $('#po_list_filter_supplier_id').val();

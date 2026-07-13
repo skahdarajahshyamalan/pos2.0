@@ -81,9 +81,9 @@
 			@endif
 			<div class="col-sm-3">
 				<div class="form-group">
-					{!! Form::label('location_id', __('purchase.business_location').':*') !!}
+					{!! Form::label('location_uid', __('purchase.business_location').':*') !!}
 					@show_tooltip(__('tooltip.purchase_location'))
-					{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
+					{!! Form::select('location_uid', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
 				</div>
 			</div>
 
@@ -602,13 +602,13 @@
 				$('.payment_types_dropdown').change();
 			}
 			set_payment_type_dropdown();
-			$('select#location_id').change(function() {
+			$('select#location_uid').change(function() {
 				set_payment_type_dropdown();
 			});
     	});
-    	$(document).on('change', '.payment_types_dropdown, #location_id', function(e) {
-		    var default_accounts = $('select#location_id').length ? 
-		                $('select#location_id')
+    	$(document).on('change', '.payment_types_dropdown, #location_uid', function(e) {
+		    var default_accounts = $('select#location_uid').length ? 
+		                $('select#location_uid')
 		                .find(':selected')
 		                .data('default_payment_accounts') : [];
 		    var payment_types_dropdown = $('.payment_types_dropdown');
@@ -640,7 +640,7 @@
 		});
 
 		function set_payment_type_dropdown() {
-			var payment_settings = $('#location_id').find(':selected').data('default_payment_accounts');
+			var payment_settings = $('#location_uid').find(':selected').data('default_payment_accounts');
 			payment_settings = payment_settings ? payment_settings : [];
 			enabled_payment_types = [];
 			for (var key in payment_settings) {

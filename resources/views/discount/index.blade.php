@@ -140,7 +140,7 @@
                         var results = [];
                         for (var item in data) {
                             results.push({
-                                id: data[item].variation_id,
+                                id: data[item].variation_uid,
                                 text: data[item].text,
                             });
                         }

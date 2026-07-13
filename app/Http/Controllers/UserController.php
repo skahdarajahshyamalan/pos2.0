@@ -42,8 +42,8 @@ class UserController extends Controller
      */
     public function getProfile()
     {
-        $user_id = request()->session()->get('user.id');
-        $user = User::where('id', $user_id)->with(['media'])->first();
+        $user_uid = request()->session()->get('user.id');
+        $user = User::where('id', $user_uid)->with(['media'])->first();
         $config_languages = config('constants.langs');
         $languages = [];
         foreach ($config_languages as $key => $value) {
@@ -67,7 +67,7 @@ class UserController extends Controller
         }
 
         try {
-            $user_id = $request->session()->get('user.id');
+            $user_uid = $request->session()->get('user.id');
             $input = $request->only(['surname', 'first_name', 'last_name', 'email', 'language', 'marital_status',
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
                 'social_media_2', 'permanent_address', 'current_address',
@@ -81,15 +81,15 @@ class UserController extends Controller
                 $input['bank_details'] = json_encode($request->input('bank_details'));
             }
 
-            $user = User::find($user_id);
+            $user = User::find($user_uid);
             $user->update($input);
 
-            Media::uploadMedia($user->business_id, $user, request(), 'profile_photo', true);
+            Media::uploadMedia($user->business_uid, $user, request(), 'profile_photo', true);
 
             //update session
-            $input['id'] = $user_id;
-            $business_id = request()->session()->get('user.business_id');
-            $input['business_id'] = $business_id;
+            $input['id'] = $user_uid;
+            $business_uid = request()->session()->get('user.business_uid');
+            $input['business_uid'] = $business_uid;
             session()->put('user', $input);
 
             $output = ['success' => 1,
@@ -120,8 +120,8 @@ class UserController extends Controller
         }
 
         try {
-            $user_id = $request->session()->get('user.id');
-            $user = User::where('id', $user_id)->first();
+            $user_uid = $request->session()->get('user.id');
+            $user = User::where('id', $user_uid)->first();
 
             if (Hash::check($request->input('current_password'), $user->password)) {
                 $user->password = Hash::make($request->input('new_password'));

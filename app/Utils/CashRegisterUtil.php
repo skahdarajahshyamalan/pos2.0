@@ -17,8 +17,8 @@ class CashRegisterUtil extends Util
      */
     public function countOpenedRegister()
     {
-        $user_id = auth()->user()->id;
-        $count = CashRegister::where('user_id', $user_id)
+        $user_uid = auth()->user()->id;
+        $count = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->count();
 
@@ -34,8 +34,8 @@ class CashRegisterUtil extends Util
      */
     public function addSellPayments($transaction, $payments)
     {
-        $user_id = auth()->user()->id;
-        $register = CashRegister::where('user_id', $user_id)
+        $user_uid = auth()->user()->id;
+        $register = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->first();
         $payments_formatted = [];
@@ -52,7 +52,7 @@ class CashRegisterUtil extends Util
                     'pay_method' => $payment['method'],
                     'type' => $type,
                     'transaction_type' => $transaction->type,
-                    'transaction_id' => $transaction->id,
+                    'transaction_uid' => $transaction->id,
                 ]);
             }
         }
@@ -73,8 +73,8 @@ class CashRegisterUtil extends Util
      */
     public function updateSellPayments($status_before, $transaction, $payments)
     {
-        $user_id = auth()->user()->id;
-        $register = CashRegister::where('user_id', $user_id)
+        $user_uid = auth()->user()->id;
+        $register = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->first();
         //If draft -> final then add all
@@ -85,7 +85,7 @@ class CashRegisterUtil extends Util
         } elseif ($status_before == 'final' && $transaction->status == 'draft') {
             $this->refundSell($transaction);
         } elseif ($status_before == 'final' && $transaction->status == 'final') {
-            $prev_payments = CashRegisterTransaction::where('transaction_id', $transaction->id)
+            $prev_payments = CashRegisterTransaction::where('transaction_uid', $transaction->id)
                             ->select(
                                 DB::raw("SUM(IF(pay_method='cash', IF(type='credit', amount, -1 * amount), 0)) as total_cash"),
                                 DB::raw("SUM(IF(pay_method='card', IF(type='credit', amount, -1 * amount), 0)) as total_card"),
@@ -133,7 +133,7 @@ class CashRegisterUtil extends Util
                             'pay_method' => $key,
                             'type' => 'debit',
                             'transaction_type' => 'refund',
-                            'transaction_id' => $transaction->id,
+                            'transaction_uid' => $transaction->id,
                         ]);
                     } elseif ($value < 0) {
                         $payments_formatted[] = new CashRegisterTransaction([
@@ -141,7 +141,7 @@ class CashRegisterUtil extends Util
                             'pay_method' => $key,
                             'type' => 'credit',
                             'transaction_type' => 'sell',
-                            'transaction_id' => $transaction->id,
+                            'transaction_uid' => $transaction->id,
                         ]);
                     }
                 }
@@ -162,12 +162,12 @@ class CashRegisterUtil extends Util
      */
     public function refundSell($transaction)
     {
-        $user_id = auth()->user()->id;
-        $register = CashRegister::where('user_id', $user_id)
+        $user_uid = auth()->user()->id;
+        $register = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->first();
 
-        $total_payment = CashRegisterTransaction::where('transaction_id', $transaction->id)
+        $total_payment = CashRegisterTransaction::where('transaction_uid', $transaction->id)
                             ->select(
                                 DB::raw("SUM(IF(pay_method='cash', IF(type='credit', amount, -1 * amount), 0)) as total_cash"),
                                 DB::raw("SUM(IF(pay_method='card', IF(type='credit', amount, -1 * amount), 0)) as total_card"),
@@ -204,7 +204,7 @@ class CashRegisterUtil extends Util
                     'pay_method' => $key,
                     'type' => 'debit',
                     'transaction_type' => 'refund',
-                    'transaction_id' => $transaction->id,
+                    'transaction_uid' => $transaction->id,
                 ]);
             }
         }
@@ -227,8 +227,8 @@ class CashRegisterUtil extends Util
      */
     public function addAdvancePayment($transactionPayment)
     {
-        $user_id = auth()->user()->id;
-        $register = CashRegister::where('user_id', $user_id)
+        $user_uid = auth()->user()->id;
+        $register = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->first();
 
@@ -243,7 +243,7 @@ class CashRegisterUtil extends Util
                 'pay_method' => $transactionPayment->method,
                 'type' => 'credit',
                 'transaction_type' => 'advance_payment',
-                'transaction_id' => null,
+                'transaction_uid' => null,
                 'transaction_payment_id' => $transactionPayment->id,
             ]);
         }
@@ -269,17 +269,17 @@ class CashRegisterUtil extends Util
             'users as u',
             'u.id',
             '=',
-            'cash_registers.user_id'
+            'cash_registers.user_uid'
         )
         ->leftJoin(
             'business_locations as bl',
             'bl.id',
             '=',
-            'cash_registers.location_id'
+            'cash_registers.location_uid'
         );
         if (empty($register_id)) {
-            $user_id = auth()->user()->id;
-            $query->where('user_id', $user_id)
+            $user_uid = auth()->user()->id;
+            $query->where('user_uid', $user_uid)
                 ->where('cash_registers.status', 'open');
         } else {
             $query->where('cash_registers.id', $register_id);
@@ -288,9 +288,9 @@ class CashRegisterUtil extends Util
         $register_details = $query->select(
             'cash_registers.created_at as open_time',
             'cash_registers.closed_at as closed_at',
-            'cash_registers.user_id',
+            'cash_registers.user_uid',
             'cash_registers.closing_note',
-            'cash_registers.location_id',
+            'cash_registers.location_uid',
             'cash_registers.denominations',
             DB::raw("SUM(IF(transaction_type='initial', amount, 0)) as cash_in_hand"),
             DB::raw("SUM(IF(transaction_type='sell', amount, IF(transaction_type='refund', -1 * amount, 0))) as total_sale"),
@@ -365,11 +365,11 @@ class CashRegisterUtil extends Util
      *
      * Flow:
      * 1. Get all sale transaction_ids from the transactions table by matching
-     *    created_by (register user) and created_at between register open/close time.
+     *    created_by_uid (register user) and created_at between register open/close time.
      *    This catches ALL sales including credit sales that have no cash_register_transactions entry.
      * 2. Get all advance payment parent IDs (transaction_payment_id) from this register's
      *    cash_register_transactions (transaction_type='advance_payment')
-     * 3. Find child transaction_payments where parent_id IN (step 2) AND transaction_id IN (step 1)
+     * 3. Find child transaction_payments where parent_id IN (step 2) AND transaction_uid IN (step 1)
      * 4. Sum those child amounts — this is the portion of due collections that reduce this register's receivables
      *
      * @param  int|null  $register_id
@@ -379,8 +379,8 @@ class CashRegisterUtil extends Util
     {
         // Determine the register
         if (empty($register_id)) {
-            $user_id = auth()->user()->id;
-            $register = CashRegister::where('user_id', $user_id)
+            $user_uid = auth()->user()->id;
+            $register = CashRegister::where('user_uid', $user_uid)
                                     ->where('status', 'open')
                                     ->first();
         } else {
@@ -397,7 +397,7 @@ class CashRegisterUtil extends Util
         // Step 1: Get all sale transaction_ids for this register session from transactions table.
         // This includes credit sales and partially paid sales that may not have
         // any entry in cash_register_transactions.
-        $sale_transaction_ids = Transaction::where('created_by', $register->user_id)
+        $sale_transaction_ids = Transaction::where('created_by_uid', $register->user_uid)
             ->whereBetween('created_at', [$open_time, $close_time])
             ->where('type', 'sell')
             ->where('status', 'final')
@@ -421,9 +421,9 @@ class CashRegisterUtil extends Util
         }
 
         // Step 3 & 4: Sum child payments where parent is an advance from this register
-        // and the transaction_id is a sale from this register session
+        // and the transaction_uid is a sale from this register session
         $amount = \App\TransactionPayment::whereIn('parent_id', $advance_payment_ids)
-            ->whereIn('transaction_id', $sale_transaction_ids)
+            ->whereIn('transaction_uid', $sale_transaction_ids)
             ->sum('amount');
 
         return $amount;
@@ -432,22 +432,22 @@ class CashRegisterUtil extends Util
     /**
      * Get the transaction details for a particular register
      *
-     * @param $user_id int
+     * @param $user_uid int
      * @param $open_time datetime
      * @param $close_time datetime
      * @return array
      */
-    public function getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled = false)
+    public function getRegisterTransactionDetails($user_uid, $open_time, $close_time, $is_types_of_service_enabled = false)
     {
-        $product_details_by_brand = Transaction::where('transactions.created_by', $user_id)
+        $product_details_by_brand = Transaction::where('transactions.created_by_uid', $user_uid)
                 ->whereBetween('transactions.created_at', [$open_time, $close_time])
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
-                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
-                ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_uid')
+                ->join('products AS P', 'TSL.product_uid', '=', 'P.id')
                 ->where('TSL.children_type', '!=', 'combo')
-                ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                ->leftjoin('brands AS B', 'P.brand_uid', '=', 'B.id')
                 ->groupBy('B.id')
                 ->select(
                     'B.name as brand_name',
@@ -457,15 +457,15 @@ class CashRegisterUtil extends Util
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();
 
-        $product_details = Transaction::where('transactions.created_by', $user_id)
+        $product_details = Transaction::where('transactions.created_by_uid', $user_uid)
                 ->whereBetween('transactions.created_at', [$open_time, $close_time])
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
-                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
-                ->join('variations AS v', 'TSL.variation_id', '=', 'v.id')
+                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_uid')
+                ->join('variations AS v', 'TSL.variation_uid', '=', 'v.id')
                 ->join('product_variations AS pv', 'v.product_variation_id', '=', 'pv.id')
-                ->join('products AS p', 'v.product_id', '=', 'p.id')
+                ->join('products AS p', 'v.product_uid', '=', 'p.id')
                 ->where('TSL.children_type', '!=', 'combo')
                 ->groupBy('v.id')
                 ->select(
@@ -482,7 +482,7 @@ class CashRegisterUtil extends Util
         //If types of service
         $types_of_service_details = null;
         if ($is_types_of_service_enabled) {
-            $types_of_service_details = Transaction::where('transactions.created_by', $user_id)
+            $types_of_service_details = Transaction::where('transactions.created_by_uid', $user_uid)
                 ->whereBetween('transaction_date', [$open_time, $close_time])
                 ->where('transactions.is_direct_sale', 0)
                 ->where('transactions.type', 'sell')
@@ -497,7 +497,7 @@ class CashRegisterUtil extends Util
                 ->get();
         }
 
-        $transaction_details = Transaction::where('transactions.created_by', $user_id)
+        $transaction_details = Transaction::where('transactions.created_by_uid', $user_uid)
                 ->whereBetween('transactions.created_at', [$open_time, $close_time])
                 ->where('transactions.type', 'sell')
                 ->where('transactions.is_direct_sale', 0)
@@ -520,12 +520,12 @@ class CashRegisterUtil extends Util
     /**
      * Retrieves the currently opened cash register for the user
      *
-     * @param $int user_id
+     * @param $int user_uid
      * @return obj
      */
-    public function getCurrentCashRegister($user_id)
+    public function getCurrentCashRegister($user_uid)
     {
-        $register = CashRegister::where('user_id', $user_id)
+        $register = CashRegister::where('user_uid', $user_uid)
                                 ->where('status', 'open')
                                 ->first();
 
