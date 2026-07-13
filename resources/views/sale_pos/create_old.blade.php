@@ -133,7 +133,7 @@
 										<i class="fa fa-user"></i>
 									</span>
 									<input type="hidden" id="default_customer_id" 
-									value="{{ $walk_in_customer['id']}}" >
+									value="{{ $walk_in_customer['uid']}}" >
 									<input type="hidden" id="default_customer_name" 
 									value="{{ $walk_in_customer['name']}}" >
 									{!! Form::select('contact_uid', 
