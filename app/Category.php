@@ -87,7 +87,7 @@ class Category extends Model
         $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_uid', 0)
                             ->where('category_type', $type)
-                            ->select(DB::raw('IF(short_code IS NOT NULL, CONCAT(name, "-", short_code), name) as name'), 'id')
+                            ->select(DB::raw('IF(short_code IS NOT NULL, CONCAT(name, "-", short_code), name) as name'), 'uid')
                             ->orderBy('name', 'asc')
                             ->get();
 
