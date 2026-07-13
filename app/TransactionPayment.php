@@ -2,12 +2,17 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use App\Events\TransactionPaymentDeleted;
 use App\Events\TransactionPaymentUpdated;
 use Illuminate\Database\Eloquent\Model;
 
 class TransactionPayment extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     /**
      * The attributes that aren't mass assignable.
      *

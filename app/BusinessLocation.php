@@ -2,11 +2,16 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use DB;
 use Illuminate\Database\Eloquent\Model;
 
 class BusinessLocation extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     /**
      * The attributes that aren't mass assignable.
      *

@@ -2,10 +2,15 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Business extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     /**
      * The table associated with the model.
      *

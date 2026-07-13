@@ -2,10 +2,15 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 
 class CustomerGroup extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     protected $casts = [
         'deleted_at' => 'datetime',
     ];

@@ -2,12 +2,17 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class DocumentAndNote extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use LogsActivity;
 
     /**

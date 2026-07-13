@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,6 +11,9 @@ use Illuminate\Notifications\Notifiable;
 
 class Contact extends Authenticatable
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use Notifiable;
     use SoftDeletes;
 

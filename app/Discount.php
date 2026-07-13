@@ -2,10 +2,15 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Discount extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',

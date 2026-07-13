@@ -2,10 +2,15 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 
 class CashRegister extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     /**
      * The attributes that should be cast to native types.
      *

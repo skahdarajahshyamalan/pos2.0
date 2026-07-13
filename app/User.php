@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +15,9 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use HasFactory;
     use Notifiable;
     use SoftDeletes;

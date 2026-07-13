@@ -2,11 +2,16 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PaymentAccount extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use SoftDeletes;
 
     public static function account_types()

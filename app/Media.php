@@ -2,11 +2,16 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     /**
      * The attributes that aren't mass assignable.
      *

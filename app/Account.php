@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use App\Utils\Util;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use SoftDeletes;
 
     protected $guarded = ['id'];

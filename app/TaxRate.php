@@ -2,11 +2,16 @@
 
 namespace App;
 
+use App\Traits\HasUids;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TaxRate extends Model
 {
+    use HasUids;
+    protected $primaryKey = 'uid';
+
     use SoftDeletes;
     /**
      * The attributes that should be mutated to dates.
