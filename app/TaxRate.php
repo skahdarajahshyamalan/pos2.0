@@ -74,7 +74,7 @@ class TaxRate extends Model
     public static function forBusiness($business_uid)
     {
         $tax_rates = TaxRate::where('business_uid', $business_uid)
-                        ->select(['id', 'name', 'amount'])
+                        ->select(['uid as id', 'name', 'amount'])
                         ->get()
                         ->toArray();
 
