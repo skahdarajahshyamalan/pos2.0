@@ -14,7 +14,7 @@
 			{!! Form::select('products[' . $product->id . '][tax]', $taxes, $product->tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2 input-sm row_tax', 'style' => 'width: 100%;'],$tax_attributes); !!}
 		</td>
 		<td>
-			{!! Form::select('products[' . $product->id . '][product_locations][]', $business_locations, $product->product_locations->pluck('id'), ['class' => 'form-control select2', 'multiple']); !!}
+			{!! Form::select('products[' . $product->id . '][product_locations][]', $business_locations, $product->product_locations->pluck('uid'), ['class' => 'form-control select2', 'multiple']); !!}
 		</td>
 	<tr>
 	<tr>

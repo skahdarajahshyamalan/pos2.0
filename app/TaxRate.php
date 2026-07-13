@@ -46,7 +46,7 @@ class TaxRate extends Model
             $all_taxes->ExcludeForTaxGroup();
         }
         $result = $all_taxes->get();
-        $tax_rates = $result->pluck('name', 'id');
+        $tax_rates = $result->pluck('name', 'uid');
 
         //Prepend none
         if ($prepend_none) {

@@ -211,7 +211,7 @@ class TaxonomyController extends Controller
                                         ->where('parent_uid', 0)
                                         ->where('category_type', $category_type)
                                         ->where('uid', '!=', $id)
-                                        ->pluck('name', 'id');
+                                        ->pluck('name', 'uid');
             $is_parent = false;
 
             if ($category->parent_uid == 0) {

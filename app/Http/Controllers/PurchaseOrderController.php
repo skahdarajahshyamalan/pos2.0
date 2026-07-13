@@ -448,7 +448,7 @@ class PurchaseOrderController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         $taxes = TaxRate::where('business_uid', $business_uid)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
         $query = Transaction::where('business_uid', $business_uid)
                                 ->where('uid', $id)
                                 ->with(
@@ -584,7 +584,7 @@ class PurchaseOrderController extends Controller
                                                 $q->orWhereIn('id', $purchase->purchase_requisition_ids);
                                             }
                                         })
-                                        ->pluck('ref_no', 'id');
+                                        ->pluck('ref_no', 'uid');
         }
 
         return view('purchase_order.edit')
@@ -750,7 +750,7 @@ class PurchaseOrderController extends Controller
                                 ->findOrFail($id);
 
                 //unset purchase_order_line_uid if set
-                PurchaseLine::whereIn('purchase_order_line_uid', $transaction->purchase_lines->pluck('id'))
+                PurchaseLine::whereIn('purchase_order_line_uid', $transaction->purchase_lines->pluck('uid'))
                         ->update(['purchase_order_line_uid' => null]);
 
                 $log_properities = [

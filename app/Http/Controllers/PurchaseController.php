@@ -451,7 +451,7 @@ class PurchaseController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         $taxes = TaxRate::where('business_uid', $business_uid)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
         $purchase = Transaction::where('business_uid', $business_uid)
                                 ->where('uid', $id)
                                 ->with(
@@ -614,7 +614,7 @@ class PurchaseController extends Controller
                                                 $q->orWhereIn('id', $purchase->purchase_order_ids);
                                             }
                                         })
-                                        ->pluck('ref_no', 'id');
+                                        ->pluck('ref_no', 'uid');
         }
 
         return view('purchase.edit')
@@ -1313,7 +1313,7 @@ class PurchaseController extends Controller
         try {
             $business_uid = request()->session()->get('user.business_uid');
             $taxes = TaxRate::where('business_uid', $business_uid)
-                                ->pluck('name', 'id');
+                                ->pluck('name', 'uid');
             $purchase = Transaction::where('business_uid', $business_uid)
                                     ->where('uid', $id)
                                     ->with(

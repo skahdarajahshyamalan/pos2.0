@@ -205,7 +205,7 @@ class ManageUserController extends Controller
 
         $roles = $this->getRolesArray($business_uid);
 
-        $contact_access = $user->contactAccess->pluck('name', 'id')->toArray();
+        $contact_access = $user->contactAccess->pluck('name', 'uid')->toArray();
 
         if ($user->status == 'active') {
             $is_checked_checkbox = true;
@@ -441,7 +441,7 @@ class ManageUserController extends Controller
      */
     private function getRolesArray($business_uid)
     {
-        $roles_array = Role::where('business_uid', $business_uid)->get()->pluck('name', 'id');
+        $roles_array = Role::where('business_uid', $business_uid)->get()->pluck('name', 'uid');
         $roles = [];
 
         $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_uid);

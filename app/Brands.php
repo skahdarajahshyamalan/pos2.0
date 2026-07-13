@@ -43,7 +43,7 @@ class Brands extends Model
         }
 
         $brands = $query->orderBy('name', 'asc')
-                    ->pluck('name', 'id');
+                    ->pluck('name', 'uid');
 
         if ($show_none) {
             $brands->prepend(__('lang_v1.none'), '');

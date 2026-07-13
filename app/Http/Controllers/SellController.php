@@ -734,7 +734,7 @@ class SellController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         $taxes = TaxRate::where('business_uid', $business_uid)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
         $query = Transaction::where('business_uid', $business_uid)
                     ->where('uid', $id)
                     ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
@@ -1111,7 +1111,7 @@ class SellController extends Controller
                                         $q->orWhereIn('id', $transaction->sales_order_ids);
                                     }
                                 })
-                                ->pluck('invoice_no', 'id');
+                                ->pluck('invoice_no', 'uid');
         }
 
         $payment_types = $this->transactionUtil->payment_types($transaction->location_uid, false, $business_uid);

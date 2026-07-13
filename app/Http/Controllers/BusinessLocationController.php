@@ -117,11 +117,11 @@ class BusinessLocationController extends Controller
 
         $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $price_groups = SellingPriceGroup::forDropdown($business_uid);
 
@@ -226,10 +226,10 @@ class BusinessLocationController extends Controller
                                     ->find($id);
         $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
         $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $price_groups = SellingPriceGroup::forDropdown($business_uid);
 

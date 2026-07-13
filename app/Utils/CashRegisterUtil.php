@@ -402,7 +402,7 @@ class CashRegisterUtil extends Util
             ->where('type', 'sell')
             ->where('status', 'final')
             ->where('is_direct_sale', 0)
-            ->pluck('id')
+            ->pluck('uid')
             ->toArray();
 
         if (empty($sale_transaction_ids)) {

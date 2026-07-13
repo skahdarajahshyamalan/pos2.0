@@ -288,7 +288,7 @@ class ProductUtil extends Util
         //get removed variations
         $removed_variations = Variation::whereNotIn('id', $variations_ids)
                 ->where('product_uid', $product->id)
-                ->pluck('id');
+                ->pluck('uid');
 
         foreach ($removed_variations as $removed_variation_id) {
             //Check if purchase or sell exist for the deletable variation

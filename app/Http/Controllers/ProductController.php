@@ -399,7 +399,7 @@ class ProductController extends Controller
             if (! empty($duplicate_product->category_uid)) {
                 $sub_categories = Category::where('business_uid', $business_uid)
                         ->where('parent_uid', $duplicate_product->category_uid)
-                        ->pluck('name', 'id')
+                        ->pluck('name', 'uid')
                         ->toArray();
             }
 
@@ -632,7 +632,7 @@ class ProductController extends Controller
         $sub_categories = [];
         $sub_categories = Category::where('business_uid', $business_uid)
                         ->where('parent_uid', $product->category_uid)
-                        ->pluck('name', 'id')
+                        ->pluck('name', 'uid')
                         ->toArray();
         $sub_categories = ['' => 'None'] + $sub_categories;
 
@@ -790,7 +790,7 @@ class ProductController extends Controller
             $permitted_locations = auth()->user()->permitted_locations();
             //If not assigned location exists don't remove it
             if ($permitted_locations != 'all') {
-                $existing_product_locations = $product->product_locations()->pluck('id');
+                $existing_product_locations = $product->product_locations()->pluck('uid');
 
                 foreach ($existing_product_locations as $pl) {
                     if (! in_array($pl, $permitted_locations)) {
@@ -995,7 +995,7 @@ class ProductController extends Controller
 
                 //Check if product is added as an ingredient of any recipe
                 if ($this->moduleUtil->isModuleInstalled('Manufacturing')) {
-                    $variation_ids = $product->variations->pluck('id');
+                    $variation_ids = $product->variations->pluck('uid');
 
                     $exists_as_ingredient = \Modules\Manufacturing\Entities\MfgRecipeIngredient::whereIn('variation_uid', $variation_ids)
                         ->exists();
@@ -1085,7 +1085,7 @@ class ProductController extends Controller
                 return view('product.partials.single_product_form_part')
                         ->with(['profit_percent' => $profit_percent]);
             } elseif ($request->input('type') == 'variable') {
-                $variation_templates = VariationTemplate::where('business_uid', $business_uid)->pluck('name', 'id')->toArray();
+                $variation_templates = VariationTemplate::where('business_uid', $business_uid)->pluck('name', 'uid')->toArray();
                 $variation_templates = ['' => __('messages.please_select')] + $variation_templates;
 
                 return view('product.partials.variable_product_form_part')
@@ -1160,7 +1160,7 @@ class ProductController extends Controller
         $profit_percent = $business->default_profit_percent;
 
         $variation_templates = VariationTemplate::where('business_uid', $business_uid)
-                                                ->pluck('name', 'id')->toArray();
+                                                ->pluck('name', 'uid')->toArray();
         $variation_templates = ['' => __('messages.please_select')] + $variation_templates;
 
         $row_index = $request->input('row_index', 0);
@@ -1675,7 +1675,7 @@ class ProductController extends Controller
                         ->with(['brand', 'unit', 'category', 'sub_category', 'product_tax', 'variations', 'variations.product_variation', 'variations.group_prices', 'variations.media', 'product_locations', 'warranty', 'media'])
                         ->findOrFail($id);
 
-            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'id');
+            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'uid');
 
             $allowed_group_prices = [];
             foreach ($price_groups as $key => $value) {
@@ -1744,7 +1744,7 @@ class ProductController extends Controller
                     $can_be_deleted = true;
                     //Check if product is added as an ingredient of any recipe
                     if ($is_mfg_installed) {
-                        $variation_ids = $product->variations->pluck('id');
+                        $variation_ids = $product->variations->pluck('uid');
 
                         $exists_as_ingredient = \Modules\Manufacturing\Entities\MfgRecipeIngredient::whereIn('variation_uid', $variation_ids)
                             ->exists();
@@ -1905,7 +1905,7 @@ class ProductController extends Controller
                             ->with(['variations', 'variations.product_variation', 'variations.group_prices'])
                             ->first();
 
-        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'id');
+        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'uid');
 
         $allowed_group_prices = [];
         foreach ($price_groups as $key => $value) {
@@ -2171,7 +2171,7 @@ class ProductController extends Controller
             $taxes = $tax_dropdown['tax_rates'];
             $tax_attributes = $tax_dropdown['attributes'];
 
-            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'id');
+            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'uid');
             $business_locations = BusinessLocation::forDropdown($business_uid);
 
             return view('product.bulk-edit')->with(compact(
@@ -2300,7 +2300,7 @@ class ProductController extends Controller
         $taxes = $tax_dropdown['tax_rates'];
         $tax_attributes = $tax_dropdown['attributes'];
 
-        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'id');
+        $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'uid');
         $business_locations = BusinessLocation::forDropdown($business_uid);
 
         return view('product.partials.bulk_edit_product_row')->with(compact(
@@ -2362,7 +2362,7 @@ class ProductController extends Controller
                                 ->get();
             DB::beginTransaction();
             foreach ($products as $product) {
-                $product_locations = $product->product_locations->pluck('id')->toArray();
+                $product_locations = $product->product_locations->pluck('uid')->toArray();
 
                 if ($update_type == 'add') {
                     $product_locations = array_unique(array_merge($location_ids, $product_locations));

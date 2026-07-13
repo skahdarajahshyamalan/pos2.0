@@ -62,7 +62,7 @@ class ExpenseCategoryController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
         $categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNull('parent_uid')
-                        ->pluck('name', 'id');
+                        ->pluck('name', 'uid');
 
         return view('expense_category.create')->with(compact('categories'));
     }
@@ -131,7 +131,7 @@ class ExpenseCategoryController extends Controller
 
             $categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNull('parent_uid')
-                        ->pluck('name', 'id');
+                        ->pluck('name', 'uid');
 
             return view('expense_category.edit')
                     ->with(compact('expense_category', 'categories'));

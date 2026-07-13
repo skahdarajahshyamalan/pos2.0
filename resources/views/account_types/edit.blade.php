@@ -15,7 +15,7 @@
 
       <div class="form-group">
         	{!! Form::label('parent_account_type_uid', __( 'lang_v1.parent_account_type' ) . ':') !!}
-          	{!! Form::select('parent_account_type_uid', $account_types->pluck('name', 'id'), $account_type->parent_account_type_uid, ['class' => 'form-control', 'placeholder' => __( 'messages.please_select' )]); !!}
+          	{!! Form::select('parent_account_type_uid', $account_types->pluck('name', 'uid'), $account_type->parent_account_type_uid, ['class' => 'form-control', 'placeholder' => __( 'messages.please_select' )]); !!}
       </div>
     </div>
 

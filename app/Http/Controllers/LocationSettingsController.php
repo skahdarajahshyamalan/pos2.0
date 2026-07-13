@@ -52,10 +52,10 @@ class LocationSettingsController extends Controller
 
         $invoice_layouts = InvoiceLayout::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
         $invoice_schemes = InvoiceScheme::where('business_uid', $business_uid)
                             ->get()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         return view('location_settings.index')
             ->with(compact('location', 'printReceiptOnInvoice', 'receiptPrinterType', 'printers', 'invoice_layouts', 'invoice_schemes'));

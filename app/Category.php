@@ -91,7 +91,7 @@ class Category extends Model
                             ->orderBy('name', 'asc')
                             ->get();
 
-        $dropdown = $categories->pluck('name', 'id');
+        $dropdown = $categories->pluck('name', 'uid');
 
         return $dropdown;
     }

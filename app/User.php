@@ -194,7 +194,7 @@ class User extends Authenticatable
         }
 
         $all_users = $query->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"))->get();
-        $users = $all_users->pluck('full_name', 'id');
+        $users = $all_users->pluck('full_name', 'uid');
 
         //Prepend none
         if ($prepend_none) {
@@ -222,7 +222,7 @@ class User extends Authenticatable
                         ->where('is_cmmsn_agnt', 1)
                         ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
-        $users = $all_cmmsn_agnts->pluck('full_name', 'id');
+        $users = $all_cmmsn_agnts->pluck('full_name', 'uid');
 
         //Prepend none
         if ($prepend_none) {
@@ -245,7 +245,7 @@ class User extends Authenticatable
         $all_users = User::where('business_uid', $business_uid)
                         ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
-        $users = $all_users->pluck('full_name', 'id');
+        $users = $all_users->pluck('full_name', 'uid');
 
         //Prepend none
         if ($prepend_none) {

@@ -36,7 +36,7 @@ class TypesOfService extends Model
     public static function forDropdown($business_uid)
     {
         $types_of_service = TypesOfService::where('business_uid', $business_uid)
-                    ->pluck('name', 'id');
+                    ->pluck('name', 'uid');
 
         return $types_of_service;
     }

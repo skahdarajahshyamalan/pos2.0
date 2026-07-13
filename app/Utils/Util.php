@@ -773,7 +773,7 @@ class Util
             }
 
             if ($for_dropdown) {
-                $waiters = $waiters->select('id', DB::raw('CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, "")) as full_name'))->get()->pluck('full_name', 'id');
+                $waiters = $waiters->select('id', DB::raw('CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, "")) as full_name'))->get()->pluck('full_name', 'uid');
             } else {
                 $waiters = $waiters->get();
             }
@@ -1593,7 +1593,7 @@ class Util
     public function getDropdownForRoles($business_uid)
     {
         $app_roles = Role::where('business_uid', $business_uid)
-            ->pluck('name', 'id');
+            ->pluck('name', 'uid');
 
         $roles = [];
         foreach ($app_roles as $key => $value) {

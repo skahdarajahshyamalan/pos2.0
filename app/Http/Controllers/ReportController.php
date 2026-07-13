@@ -488,7 +488,7 @@ class ReportController extends Controller
         $categories = Category::forDropdown($business_uid, 'product');
         $brands = Brands::forDropdown($business_uid);
         $units = Unit::where('business_uid', $business_uid)
-                            ->pluck('short_name', 'id');
+                            ->pluck('short_name', 'uid');
         $business_locations = BusinessLocation::forDropdown($business_uid, true);
 
         return view('report.stock_report')
@@ -1010,7 +1010,7 @@ class ReportController extends Controller
         $categories = Category::forDropdown($business_uid, 'product');
         $brands = Brands::forDropdown($business_uid);
         $units = Unit::where('business_uid', $business_uid)
-                            ->pluck('short_name', 'id');
+                            ->pluck('short_name', 'uid');
         $business_locations = BusinessLocation::forDropdown($business_uid, true);
 
         return view('report.trending_products')
@@ -1062,7 +1062,7 @@ class ReportController extends Controller
             ->dataset(__('report.total_expense'), 'column', $values);
 
         $categories = ExpenseCategory::where('business_uid', $business_uid)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $business_locations = BusinessLocation::forDropdown($business_uid, true);
 
@@ -1526,7 +1526,7 @@ class ReportController extends Controller
         $categories = Category::forDropdown($business_uid, 'product');
         $brands = Brands::forDropdown($business_uid);
         $units = Unit::where('business_uid', $business_uid)
-                            ->pluck('short_name', 'id');
+                            ->pluck('short_name', 'uid');
         $business_locations = BusinessLocation::forDropdown($business_uid, true);
         $view_stock_filter = [
             \Carbon::now()->subDay()->format('Y-m-d') => __('report.expired'),
@@ -2303,7 +2303,7 @@ class ReportController extends Controller
         $categories = Category::forDropdown($business_uid, 'product');
         $brands = Brands::forDropdown($business_uid);
         $units = Unit::where('business_uid', $business_uid)
-                            ->pluck('short_name', 'id');
+                            ->pluck('short_name', 'uid');
         $business_locations = BusinessLocation::forDropdown($business_uid, true);
 
         return view('report.lot_report')

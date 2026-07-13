@@ -114,7 +114,7 @@ class DiscountController extends Controller
 
         $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_uid', 0)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $brands = Brands::forDropdown($business_uid);
 
@@ -204,7 +204,7 @@ class DiscountController extends Controller
 
             $categories = Category::where('business_uid', $business_uid)
                             ->where('parent_uid', 0)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
             $brands = Brands::forDropdown($business_uid);
 

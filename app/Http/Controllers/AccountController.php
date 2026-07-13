@@ -647,7 +647,7 @@ class AccountController extends Controller
 
             $to_accounts = Account::where('business_uid', $business_uid)
                             ->NotClosed()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
             return view('account.transfer')
                 ->with(compact('from_account', 'to_accounts'));
@@ -745,7 +745,7 @@ class AccountController extends Controller
 
             $from_accounts = Account::where('business_uid', $business_uid)
                             ->NotClosed()
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
             return view('account.deposit')
                 ->with(compact('account', 'account', 'from_accounts'));
@@ -1243,7 +1243,7 @@ class AccountController extends Controller
 
         $accounts = Account::where('business_uid', $business_uid)
                         ->NotClosed()
-                        ->pluck('name', 'id');
+                        ->pluck('name', 'uid');
 
         return view('account.edit_account_transaction')
             ->with(compact('accounts', 'account_transaction'));

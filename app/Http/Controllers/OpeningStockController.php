@@ -98,7 +98,7 @@ class OpeningStockController extends Controller
             $locations = BusinessLocation::forDropdown($business_uid);
 
             //Unset locations where product is not available
-            $available_locations = $product->product_locations->pluck('id')->toArray();
+            $available_locations = $product->product_locations->pluck('uid')->toArray();
             foreach ($locations as $key => $value) {
                 if (! in_array($key, $available_locations)) {
                     unset($locations[$key]);

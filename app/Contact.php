@@ -194,7 +194,7 @@ class Contact extends Authenticatable
             $all_contacts->onlyOwnContact();
         }
 
-        $suppliers = $all_contacts->pluck('supplier', 'id');
+        $suppliers = $all_contacts->pluck('supplier', 'uid');
 
         //Prepend none
         if ($prepend_none) {
@@ -230,7 +230,7 @@ class Contact extends Authenticatable
             $all_contacts->onlyOwnContact();
         }
 
-        $customers = $all_contacts->pluck('customer', 'id');
+        $customers = $all_contacts->pluck('customer', 'uid');
 
         //Prepend none
         if ($prepend_none) {

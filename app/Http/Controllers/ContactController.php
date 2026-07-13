@@ -671,7 +671,7 @@ class ContactController extends Controller
         $is_selected_contacts = User::isSelectedContacts(auth()->user()->id);
         $user_contacts = [];
         if ($is_selected_contacts) {
-            $user_contacts = auth()->user()->contactAccess->pluck('id')->toArray();
+            $user_contacts = auth()->user()->contactAccess->pluck('uid')->toArray();
         }
 
         if (! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {
@@ -1291,7 +1291,7 @@ class ContactController extends Controller
         $is_selected_contacts = User::isSelectedContacts(auth()->user()->id);
         $user_contacts = [];
         if ($is_selected_contacts) {
-            $user_contacts = auth()->user()->contactAccess->pluck('id')->toArray();
+            $user_contacts = auth()->user()->contactAccess->pluck('uid')->toArray();
         }
 
         if (! auth()->user()->can('supplier.view') && auth()->user()->can('supplier.view_own')) {

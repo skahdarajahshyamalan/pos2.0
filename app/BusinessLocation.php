@@ -50,7 +50,7 @@ class BusinessLocation extends Model
         if ($append_id) {
             $query->select(
                 DB::raw("IF(location_uid IS NULL OR location_uid='', name, CONCAT(name, ' (', location_uid, ')')) AS name"),
-                'id',
+                'uid',
                 'receipt_printer_type',
                 'selling_price_group_uid',
                 'default_payment_accounts',
@@ -62,7 +62,7 @@ class BusinessLocation extends Model
 
         $result = $query->get();
 
-        $locations = $result->pluck('name', 'id');
+        $locations = $result->pluck('name', 'uid');
 
         $price_groups = SellingPriceGroup::forDropdown($business_uid);
 

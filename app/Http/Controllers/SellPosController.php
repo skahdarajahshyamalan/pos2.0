@@ -1893,7 +1893,7 @@ class SellPosController extends Controller
                 ->orderBy('p.name', 'asc')
                 ->paginate(50);
 
-            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'id');
+            $price_groups = SellingPriceGroup::where('business_uid', $business_uid)->active()->pluck('name', 'uid');
 
             $allowed_group_prices = [];
             foreach ($price_groups as $key => $value) {

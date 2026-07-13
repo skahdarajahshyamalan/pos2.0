@@ -4920,7 +4920,7 @@ class TransactionUtil extends Util
                 $business = Business::findOrFail($business_uid);
                 $transaction_payments = $transaction->payment_lines;
                 $deleted_sell_lines = $transaction->sell_lines;
-                $deleted_sell_lines_ids = $deleted_sell_lines->pluck('id')->toArray();
+                $deleted_sell_lines_ids = $deleted_sell_lines->pluck('uid')->toArray();
                 $this->deleteSellLines(
                     $deleted_sell_lines_ids,
                     $transaction->location_uid

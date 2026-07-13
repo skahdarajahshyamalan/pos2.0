@@ -33,7 +33,7 @@ class CustomerGroup extends Model
     public static function forDropdown($business_uid, $prepend_none = true, $prepend_all = false)
     {
         $all_cg = CustomerGroup::where('business_uid', $business_uid);
-        $all_cg = $all_cg->pluck('name', 'id');
+        $all_cg = $all_cg->pluck('name', 'uid');
 
         //Prepend none
         if ($prepend_none) {

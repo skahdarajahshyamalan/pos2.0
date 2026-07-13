@@ -283,7 +283,7 @@ class ExpenseController extends Controller
 
         $categories = ExpenseCategory::where('business_uid', $business_uid)
                             ->whereNull('parent_uid')
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
 
         $users = User::forDropdown($business_uid, false, true, true);
 
@@ -293,7 +293,7 @@ class ExpenseController extends Controller
 
         $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->whereNotNull('parent_uid')
-                        ->pluck('name', 'id')
+                        ->pluck('name', 'uid')
                         ->toArray();
 
         return view('expense.index')
@@ -325,7 +325,7 @@ class ExpenseController extends Controller
 
         $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
                                 ->whereNull('parent_uid')
-                                ->pluck('name', 'id');
+                                ->pluck('name', 'uid');
 
         $users = User::forDropdown($business_uid, true, true);
 
@@ -448,7 +448,7 @@ class ExpenseController extends Controller
 
         $expense_categories = ExpenseCategory::where('business_uid', $business_uid)
                                 ->whereNull('parent_uid')
-                                ->pluck('name', 'id');
+                                ->pluck('name', 'uid');
         $expense = Transaction::where('business_uid', $business_uid)
                                 ->where('uid', $id)
                                 ->first();
@@ -465,7 +465,7 @@ class ExpenseController extends Controller
         if (!empty($expense->expense_category_uid)) {
             $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
                 ->where('parent_uid', $expense->expense_category_uid)
-                ->pluck('name', 'id')
+                ->pluck('name', 'uid')
                 ->toArray();
         }
 

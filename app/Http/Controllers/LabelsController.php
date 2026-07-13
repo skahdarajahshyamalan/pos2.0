@@ -56,7 +56,7 @@ class LabelsController extends Controller
         if (! empty($purchase_id) || ! empty($product_uid)) {
             $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                     ->active()
-                                    ->pluck('name', 'id');
+                                    ->pluck('name', 'uid');
         }
 
         $barcode_settings = Barcode::where('business_uid', $business_uid)
@@ -64,7 +64,7 @@ class LabelsController extends Controller
                                 ->select(DB::raw('CONCAT(name, ", ", COALESCE(description, "")) as name, id, is_default'))
                                 ->get();
         $default = $barcode_settings->where('is_default', 1)->first();
-        $barcode_settings = $barcode_settings->pluck('name', 'id');
+        $barcode_settings = $barcode_settings->pluck('name', 'uid');
 
         return view('labels.show')
             ->with(compact('products', 'barcode_settings', 'default', 'price_groups'));
@@ -88,7 +88,7 @@ class LabelsController extends Controller
 
                 $price_groups = SellingPriceGroup::where('business_uid', $business_uid)
                                             ->active()
-                                            ->pluck('name', 'id');
+                                            ->pluck('name', 'uid');
 
                 return view('labels.partials.show_table_rows')
                         ->with(compact('products', 'index', 'price_groups'));

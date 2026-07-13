@@ -67,7 +67,7 @@ class Printer extends Model
     {
         $query = Printer::where('business_uid', $business_uid);
 
-        $printers = $query->pluck('name', 'id');
+        $printers = $query->pluck('name', 'uid');
         if ($show_select) {
             $printers->prepend(__('messages.please_select'), '');
         }

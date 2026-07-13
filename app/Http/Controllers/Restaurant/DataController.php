@@ -54,7 +54,7 @@ class DataController extends Controller
                     $tables_enabled = true;
                     $tables = ResTable::where('business_uid', $business_uid)
                             ->where('location_uid', $location_uid)
-                            ->pluck('name', 'id');
+                            ->pluck('name', 'uid');
                 }
             } else {
                 $tables = [];

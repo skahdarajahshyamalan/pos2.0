@@ -24,7 +24,7 @@ class InvoiceScheme extends Model
     public static function forDropdown($business_uid)
     {
         $dropdown = InvoiceScheme::where('business_uid', $business_uid)
-                                ->pluck('name', 'id');
+                                ->pluck('name', 'uid');
 
         return $dropdown;
     }

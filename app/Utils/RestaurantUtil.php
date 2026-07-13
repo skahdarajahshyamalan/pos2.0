@@ -111,7 +111,7 @@ class RestaurantUtil extends Util
 
         //Get all users of service staff roles
         if (! empty($service_staff_roles)) {
-            $service_staff = User::where('business_uid', $business_uid)->role($service_staff_roles)->get()->pluck('first_name', 'id');
+            $service_staff = User::where('business_uid', $business_uid)->role($service_staff_roles)->get()->pluck('first_name', 'uid');
         }
 
         return $service_staff;

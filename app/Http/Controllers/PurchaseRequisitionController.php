@@ -342,7 +342,7 @@ class PurchaseRequisitionController extends Controller
                                 ->find($id);
 
                 //unset purchase_order_line_uid if set
-                PurchaseLine::whereIn('purchase_requisition_line_uid', $transaction->purchase_lines->pluck('id'))
+                PurchaseLine::whereIn('purchase_requisition_line_uid', $transaction->purchase_lines->pluck('uid'))
                         ->update(['purchase_requisition_line_uid' => null]);
 
                 $transaction->delete();
