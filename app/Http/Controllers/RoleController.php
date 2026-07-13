@@ -42,18 +42,18 @@ class RoleController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $roles = Role::where('business_uid', $business_uid)
-                        ->select(['name', 'id', 'is_default', 'business_uid']);
+                        ->select(['name', 'uid', 'is_default', 'business_uid']);
 
             return DataTables::of($roles)
                 ->addColumn('action', function ($row) {
                     if (! $row->is_default || $row->name == 'Cashier#'.$row->business_uid) {
                         $action = '';
                         if (auth()->user()->can('roles.update')) {
-                            $action .= '<a href="'.action([\App\Http\Controllers\RoleController::class, 'edit'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> '.__('messages.edit').'</a>';
+                            $action .= '<a href="'.action([\App\Http\Controllers\RoleController::class, 'edit'], [$row->uid]).'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> '.__('messages.edit').'</a>';
                         }
                         if (auth()->user()->can('roles.delete')) {
-                            $action .= '&nbsp
-                                <button data-href="'.action([\App\Http\Controllers\RoleController::class, 'destroy'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_role_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
+                            $action .= '&nbsp;
+                                <button data-href="'.action([\App\Http\Controllers\RoleController::class, 'destroy'], [$row->uid]).'" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_role_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
                         }
 
                         return $action;
@@ -69,7 +69,7 @@ class RoleController extends Controller
 
                     return $role_name;
                 })
-                ->removeColumn('id')
+                ->removeColumn('uid')
                 ->removeColumn('is_default')
                 ->removeColumn('business_uid')
                 ->rawColumns([1])
