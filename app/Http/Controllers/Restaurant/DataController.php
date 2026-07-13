@@ -83,7 +83,7 @@ class DataController extends Controller
         $table_id = request()->get('res_table_id');
         $res_waiter_id = request()->get('res_waiter_id');
 
-        Transaction::where('id', $input['transaction_uid'])
+        Transaction::where('uid', $input['transaction_uid'])
             ->where('type', 'sell')
             ->where('business_uid', $input['business_uid'])
             ->update(['res_table_id' => $table_id,
@@ -95,7 +95,7 @@ class DataController extends Controller
         $user_uid = $request->get('user_uid');
 
         $business_uid = $request->session()->get('user.business_uid');
-        $query = User::where('service_staff_pin', $service_staff_pin)->where('id', $user_uid)->where('business_uid', $business_uid);
+        $query = User::where('service_staff_pin', $service_staff_pin)->where('uid', $user_uid)->where('business_uid', $business_uid);
 
         $exists = $query->exists();
         if ($exists) {

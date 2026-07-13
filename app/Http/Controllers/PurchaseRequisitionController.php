@@ -279,7 +279,7 @@ class PurchaseRequisitionController extends Controller
 
         $query = Transaction::where('business_uid', $business_uid)
                         ->where('type', 'purchase_requisition')
-                        ->where('id', $id)
+                        ->where('uid', $id)
                             ->with(
                                 'purchase_lines',
                                 'purchase_lines.product',

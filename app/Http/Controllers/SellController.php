@@ -664,7 +664,7 @@ class SellController extends Controller
         $is_order_request_enabled = false;
         $is_crm = $this->moduleUtil->isModuleInstalled('Crm');
         if ($is_crm) {
-            $crm_settings = Business::where('id', auth()->user()->business_uid)
+            $crm_settings = Business::where('uid', auth()->user()->business_uid)
                                 ->value('crm_settings');
             $crm_settings = ! empty($crm_settings) ? json_decode($crm_settings, true) : [];
 
@@ -736,7 +736,7 @@ class SellController extends Controller
         $taxes = TaxRate::where('business_uid', $business_uid)
                             ->pluck('name', 'id');
         $query = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
                         $q->whereNull('parent_sell_line_id');
                     }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
@@ -1090,7 +1090,7 @@ class SellController extends Controller
         $is_order_request_enabled = false;
         $is_crm = $this->moduleUtil->isModuleInstalled('Crm');
         if ($is_crm) {
-            $crm_settings = Business::where('id', auth()->user()->business_uid)
+            $crm_settings = Business::where('uid', auth()->user()->business_uid)
                                 ->value('crm_settings');
             $crm_settings = ! empty($crm_settings) ? json_decode($crm_settings, true) : [];
 
@@ -1892,7 +1892,7 @@ class SellController extends Controller
                         ->where('invoice_no', $invoice_no);
         
         if (!empty($transaction_uid)) {
-            $query->where('id', '!=', $transaction_uid);
+            $query->where('uid', '!=', $transaction_uid);
         }
         
         $count = $query->count();

@@ -242,7 +242,7 @@ class RoleController extends Controller
             $business_uid = $request->session()->get('user.business_uid');
 
             $count = Role::where('name', $role_name.'#'.$business_uid)
-                        ->where('id', '!=', $id)
+                        ->where('uid', '!=', $id)
                         ->where('business_uid', $business_uid)
                         ->count();
             if ($count == 0) {

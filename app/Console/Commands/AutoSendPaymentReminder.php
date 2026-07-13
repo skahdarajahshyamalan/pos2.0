@@ -58,7 +58,7 @@ class AutoSendPaymentReminder extends Command
                                         ->get();
 
             foreach ($templates as $template) {
-                $business = Business::with(['currency'])->where('id', $template->business_uid)->first();
+                $business = Business::with(['currency'])->where('uid', $template->business_uid)->first();
 
                 $data = [
                     'subject' => $template->subject ?? '',

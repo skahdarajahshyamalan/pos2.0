@@ -72,7 +72,7 @@ class GroupTaxController extends Controller
             $input['created_by_uid'] = $request->session()->get('user.uid');
             $sub_tax_ids = $request->input('taxes');
 
-            $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
+            $sub_taxes = TaxRate::whereIn('uid', $sub_tax_ids)->get();
             $amount = 0;
             foreach ($sub_taxes as $sub_tax) {
                 $amount += $sub_tax->amount;
@@ -146,7 +146,7 @@ class GroupTaxController extends Controller
                 $business_uid = $request->session()->get('user.business_uid');
                 $sub_tax_ids = $request->input('taxes');
 
-                $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
+                $sub_taxes = TaxRate::whereIn('uid', $sub_tax_ids)->get();
                 $amount = 0;
                 foreach ($sub_taxes as $sub_tax) {
                     $amount += $sub_tax->amount;

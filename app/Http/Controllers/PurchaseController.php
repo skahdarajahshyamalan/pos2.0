@@ -453,7 +453,7 @@ class PurchaseController extends Controller
         $taxes = TaxRate::where('business_uid', $business_uid)
                             ->pluck('name', 'id');
         $purchase = Transaction::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->with(
                                     'contact',
                                     'purchase_lines',
@@ -553,7 +553,7 @@ class PurchaseController extends Controller
                             ->ExcludeForTaxGroup()
                             ->get();
         $purchase = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->with(
                         'contact',
                         'purchase_lines',
@@ -798,7 +798,7 @@ class PurchaseController extends Controller
                     return $output;
                 }
 
-                $transaction = Transaction::where('id', $id)
+                $transaction = Transaction::where('uid', $id)
                                 ->where('business_uid', $business_uid)
                                 ->with(['purchase_lines'])
                                 ->first();
@@ -838,7 +838,7 @@ class PurchaseController extends Controller
                         );
                     }
                     PurchaseLine::where('transaction_uid', $transaction->id)
-                                ->whereIn('id', $delete_purchase_line_ids)
+                                ->whereIn('uid', $delete_purchase_line_ids)
                                 ->delete();
 
                     //Update mapping of purchase & Sell.
@@ -1046,7 +1046,7 @@ class PurchaseController extends Controller
 
             if (! empty($product_uid)) {
                 $row_count = $request->input('row_count');
-                $product = Product::where('id', $product_uid)
+                $product = Product::where('uid', $product_uid)
                                     ->with(['unit', 'second_unit'])
                                     ->first();
 
@@ -1060,7 +1060,7 @@ class PurchaseController extends Controller
                                     },
                                 ]);
                 if ($variation_uid !== '0') {
-                    $query->where('id', $variation_uid);
+                    $query->where('uid', $variation_uid);
                 }
 
                 $variations = $query->get();
@@ -1148,7 +1148,7 @@ class PurchaseController extends Controller
                         break;
                     }
 
-                    $product = Product::where('id', $variation->product_uid)
+                    $product = Product::where('uid', $variation->product_uid)
                                     ->where('business_uid', $business_uid)
                                     ->with(['unit'])
                                     ->first();
@@ -1289,7 +1289,7 @@ class PurchaseController extends Controller
                             ->where('ref_no', $ref_no)
                             ->where('contact_id', $contact_id);
             if (! empty($purchase_id)) {
-                $query->where('id', '!=', $purchase_id);
+                $query->where('uid', '!=', $purchase_id);
             }
             $count = $query->count();
         }
@@ -1315,7 +1315,7 @@ class PurchaseController extends Controller
             $taxes = TaxRate::where('business_uid', $business_uid)
                                 ->pluck('name', 'id');
             $purchase = Transaction::where('business_uid', $business_uid)
-                                    ->where('id', $id)
+                                    ->where('uid', $id)
                                     ->with(
                                         'contact',
                                         'purchase_lines',

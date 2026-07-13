@@ -163,7 +163,7 @@ class AccountTypeController extends Controller
         $business_uid = session()->get('user.business_uid');
 
         AccountType::where('business_uid', $business_uid)
-                                     ->where('id', $id)
+                                     ->where('uid', $id)
                                      ->delete();
 
         //Upadete parent account if set

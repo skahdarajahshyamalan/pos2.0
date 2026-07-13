@@ -434,7 +434,7 @@ class SellReturnController extends Controller
 
         $business_uid = request()->session()->get('user.business_uid');
         $query = Transaction::where('business_uid', $business_uid)
-            ->where('id', $id)
+            ->where('uid', $id)
             ->with(
                 'contact',
                 'return_parent',
@@ -510,7 +510,7 @@ class SellReturnController extends Controller
                 //Begin transaction
                 DB::beginTransaction();
 
-                $query = Transaction::where('id', $id)
+                $query = Transaction::where('uid', $id)
                     ->where('business_uid', $business_uid)
                     ->where('type', 'sell_return')
                     ->with(['sell_lines', 'payment_lines']);
@@ -640,7 +640,7 @@ class SellReturnController extends Controller
                 $business_uid = $request->session()->get('user.business_uid');
 
                 $transaction = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $transaction_uid)
+                    ->where('uid', $transaction_uid)
                     ->first();
 
                 if (empty($transaction)) {

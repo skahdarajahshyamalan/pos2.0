@@ -2931,7 +2931,7 @@ class ReportController extends Controller
 
         if (! empty(request()->input('location_uid'))) {
             $location = BusinessLocation::where('business_uid', $business_uid)
-                                        ->where('id', $location_uid)
+                                        ->where('uid', $location_uid)
                                         ->first();
             $stock_details = $this->productUtil->getVariationStockMisMatch($business_uid, $variation_uid, $location_uid);
         }

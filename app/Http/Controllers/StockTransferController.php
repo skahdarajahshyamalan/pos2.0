@@ -391,7 +391,7 @@ class StockTransferController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         $sell_transfer = Transaction::where('business_uid', $business_uid)
-                            ->where('id', $id)
+                            ->where('uid', $id)
                             ->where('type', 'sell_transfer')
                             ->with(
                                 'contact',
@@ -459,7 +459,7 @@ class StockTransferController extends Controller
                 }
 
                 //Get sell transfer transaction
-                $sell_transfer = Transaction::where('id', $id)
+                $sell_transfer = Transaction::where('uid', $id)
                                     ->where('type', 'sell_transfer')
                                     ->with(['sell_lines'])
                                     ->first();
@@ -493,7 +493,7 @@ class StockTransferController extends Controller
 
                     if (! empty($purchase_sell_line)) {
                         //Decrease quntity sold from purchase line
-                        PurchaseLine::where('id', $purchase_sell_line->purchase_line_id)
+                        PurchaseLine::where('uid', $purchase_sell_line->purchase_line_id)
                                 ->decrement('quantity_sold', $sell_line->quantity);
 
                         $deleted_sell_purchase_ids[] = $purchase_sell_line->id;
@@ -532,7 +532,7 @@ class StockTransferController extends Controller
 
                 //Delete sale line purchase line
                 if (! empty($deleted_sell_purchase_ids)) {
-                    TransactionSellLinesPurchaseLines::whereIn('id', $deleted_sell_purchase_ids)
+                    TransactionSellLinesPurchaseLines::whereIn('uid', $deleted_sell_purchase_ids)
                         ->delete();
                 }
 
@@ -569,7 +569,7 @@ class StockTransferController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $sell_transfer = Transaction::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->where('type', 'sell_transfer')
                                 ->with(
                                     'contact',

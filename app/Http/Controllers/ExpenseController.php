@@ -450,7 +450,7 @@ class ExpenseController extends Controller
                                 ->whereNull('parent_id')
                                 ->pluck('name', 'id');
         $expense = Transaction::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->first();
 
         $users = User::forDropdown($business_uid, true, true);
@@ -540,7 +540,7 @@ class ExpenseController extends Controller
                         $q->where('type', 'expense')
                             ->orWhere('type', 'expense_refund');
                     })
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->first();
 
                 //Delete Cash register transactions

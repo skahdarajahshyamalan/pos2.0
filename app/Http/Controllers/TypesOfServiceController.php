@@ -182,7 +182,7 @@ class TypesOfServiceController extends Controller
             $input['location_price_group'] = ! empty($input['location_price_group']) ? json_encode($input['location_price_group']) : null;
 
             TypesOfService::where('business_uid', $business_uid)
-                        ->where('id', $id)
+                        ->where('uid', $id)
                         ->update($input);
 
             $output = ['success' => true,
@@ -215,7 +215,7 @@ class TypesOfServiceController extends Controller
             try {
                 $business_uid = request()->session()->get('user.business_uid');
                 TypesOfService::where('business_uid', $business_uid)
-                        ->where('id', $id)
+                        ->where('uid', $id)
                         ->delete();
 
                 $output = ['success' => true,

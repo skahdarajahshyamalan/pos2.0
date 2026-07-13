@@ -210,7 +210,7 @@ class TaxonomyController extends Controller
             $parent_categories = Category::where('business_uid', $business_uid)
                                         ->where('parent_id', 0)
                                         ->where('category_type', $category_type)
-                                        ->where('id', '!=', $id)
+                                        ->where('uid', '!=', $id)
                                         ->pluck('name', 'id');
             $is_parent = false;
 

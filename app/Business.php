@@ -121,7 +121,7 @@ class Business extends Model
     public static function update_business($business_uid, $details)
     {
         if (! empty($details)) {
-            Business::where('id', $business_uid)
+            Business::where('uid', $business_uid)
                 ->update($details);
         }
     }

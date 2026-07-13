@@ -173,7 +173,7 @@ class AccountReportsController extends Controller
         $account_ids = [];
         if ($permitted_locations != 'all') {
             $locations = BusinessLocation::where('business_uid', $business_uid)
-                            ->whereIn('id', $permitted_locations)
+                            ->whereIn('uid', $permitted_locations)
                             ->get();
 
             foreach ($locations as $location) {

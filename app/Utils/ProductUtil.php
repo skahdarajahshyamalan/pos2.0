@@ -221,7 +221,7 @@ class ProductUtil extends Util
                     if (! empty($v['sub_sku'])) {
                         $data['sub_sku'] = $v['sub_sku'];
                     }
-                    $variation = Variation::where('id', $k)
+                    $variation = Variation::where('uid', $k)
                             ->where('product_variation_id', $key)
                             ->first();
 
@@ -322,7 +322,7 @@ class ProductUtil extends Util
 
             //if purchase sell dont exists delete the variation
             if ($is_variation_delatable) {
-                Variation::where('id', $removed_variation_id)
+                Variation::where('uid', $removed_variation_id)
                     ->delete();
             } else {
                 throw new \Exception(__('lang_v1.purchase_already_exist'));
@@ -359,7 +359,7 @@ class ProductUtil extends Util
 
         //Check if stock is enabled or not.
         if ($product->enable_stock == 1 && $qty_difference != 0) {
-            $variation = Variation::where('id', $variation_uid)
+            $variation = Variation::where('uid', $variation_uid)
                             ->where('product_uid', $product_uid)
                             ->first();
 
@@ -705,7 +705,7 @@ class ProductUtil extends Util
     public function generateProductSku($string)
     {
         $business_uid = request()->session()->get('user.business_uid');
-        $sku_prefix = Business::where('id', $business_uid)->value('sku_prefix');
+        $sku_prefix = Business::where('uid', $business_uid)->value('sku_prefix');
 
         return $sku_prefix.str_pad($string, 4, '0', STR_PAD_LEFT);
     }
@@ -895,7 +895,7 @@ class ProductUtil extends Util
      */
     public function updateProductFromPurchase($variation_data)
     {
-        $variation_details = Variation::where('id', $variation_data['variation_uid'])
+        $variation_details = Variation::where('uid', $variation_data['variation_uid'])
                                         ->with(['product', 'product.product_tax'])
                                         ->first();
         $tax_rate = 0;
@@ -1077,7 +1077,7 @@ class ProductUtil extends Util
 
         $price_exc_tax = $price_inc_tax;
         if (! empty($price_inc_tax) && ! empty($tax_id)) {
-            $tax_amount = TaxRate::where('id', $tax_id)->value('amount');
+            $tax_amount = TaxRate::where('uid', $tax_id)->value('amount');
             $price_exc_tax = $this->calc_percentage_base($price_inc_tax, $tax_amount);
         }
 
@@ -1325,7 +1325,7 @@ class ProductUtil extends Util
 
                 //Delete deleted purchase lines
                 PurchaseLine::where('transaction_uid', $transaction->id)
-                        ->whereIn('id', $delete_purchase_line_ids)
+                        ->whereIn('uid', $delete_purchase_line_ids)
                         ->delete();
             }
         }

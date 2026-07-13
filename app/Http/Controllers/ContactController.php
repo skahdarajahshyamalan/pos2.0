@@ -984,7 +984,7 @@ class ContactController extends Controller
             $query = Contact::where('business_uid', $business_uid)
                             ->where('contact_id', $contact_id);
             if (! empty($hidden_id)) {
-                $query->where('id', '!=', $hidden_id);
+                $query->where('uid', '!=', $hidden_id);
             }
             $count = $query->count();
             if ($count > 0) {
@@ -1602,7 +1602,7 @@ class ContactController extends Controller
                         ->whereNotNull('position');
 
         if (! empty(request()->input('contacts'))) {
-            $query->whereIn('id', request()->input('contacts'));
+            $query->whereIn('uid', request()->input('contacts'));
         }
         $contacts = $query->get();
 
@@ -1677,7 +1677,7 @@ class ContactController extends Controller
                         ->where('mobile', 'like', "%{$mobile_number}");
 
         if (! empty($request->input('contact_id'))) {
-            $query->where('id', '!=', $request->input('contact_id'));
+            $query->where('uid', '!=', $request->input('contact_id'));
         }
 
         $contacts = $query->pluck('name')->toArray();
@@ -1704,7 +1704,7 @@ class ContactController extends Controller
                         ->where('tax_number', $tax_number);
 
         if (! empty($request->input('contact_id'))) {
-            $query->where('id', '!=', $request->input('contact_id'));
+            $query->where('uid', '!=', $request->input('contact_id'));
         }
 
         $contacts = $query->pluck('name')->toArray();

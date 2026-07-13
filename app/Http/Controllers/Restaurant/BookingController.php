@@ -167,7 +167,7 @@ class BookingController extends Controller
         if (request()->ajax()) {
             $business_uid = request()->session()->get('user.business_uid');
             $booking = Booking::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->with(['table', 'customer', 'correspondent', 'waiter', 'location'])
                                 ->first();
             if (! empty($booking)) {
@@ -245,7 +245,7 @@ class BookingController extends Controller
         try {
             $business_uid = request()->session()->get('user.business_uid');
             $booking = Booking::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->delete();
             $output = ['success' => 1,
                 'msg' => trans('lang_v1.deleted_success'),

@@ -407,7 +407,7 @@ class Transaction extends Model
         if (! empty($this->sales_order_ids)) {
             $sales_orders = Transaction::where('business_uid', $this->business_uid)
                                 ->where('type', 'sales_order')
-                                ->whereIn('id', $this->sales_order_ids)
+                                ->whereIn('uid', $this->sales_order_ids)
                                 ->get();
         }
 

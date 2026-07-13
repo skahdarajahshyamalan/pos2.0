@@ -401,7 +401,7 @@ class PurchaseReturnController extends Controller
             if (request()->ajax()) {
                 $business_uid = request()->session()->get('user.business_uid');
 
-                $purchase_return = Transaction::where('id', $id)
+                $purchase_return = Transaction::where('uid', $id)
                                 ->where('business_uid', $business_uid)
                                 ->where('type', 'purchase_return')
                                 ->with(['purchase_lines'])
@@ -417,10 +417,10 @@ class PurchaseReturnController extends Controller
                         $this->productUtil->updateProductQuantity($purchase_return->location_uid, $purchase_line->product_uid, $purchase_line->variation_uid, $purchase_line->quantity_returned, 0, null, false);
                     }
                     PurchaseLine::where('transaction_uid', $purchase_return->id)
-                                ->whereIn('id', $delete_purchase_line_ids)
+                                ->whereIn('uid', $delete_purchase_line_ids)
                                 ->delete();
                 } else {
-                    $parent_purchase = Transaction::where('id', $purchase_return->return_parent_id)
+                    $parent_purchase = Transaction::where('uid', $purchase_return->return_parent_id)
                                 ->where('business_uid', $business_uid)
                                 ->where('type', 'purchase')
                                 ->with(['purchase_lines'])

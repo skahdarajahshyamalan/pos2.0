@@ -625,7 +625,7 @@ class ProductController extends Controller
 
         $product = Product::where('business_uid', $business_uid)
                             ->with(['product_locations'])
-                            ->where('id', $id)
+                            ->where('uid', $id)
                             ->firstOrFail();
 
         //Sub-category
@@ -683,7 +683,7 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             $product = Product::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->with(['product_variations'])
                                 ->first();
 
@@ -970,7 +970,7 @@ class ProductController extends Controller
                     }
                 }
 
-                $product = Product::where('id', $id)
+                $product = Product::where('uid', $id)
                                 ->where('business_uid', $business_uid)
                                 ->with('variations')
                                 ->first();
@@ -1182,7 +1182,7 @@ class ProductController extends Controller
         $business = Business::findorfail($business_uid);
         $profit_percent = $business->default_profit_percent;
 
-        $template = VariationTemplate::where('id', $request->input('template_id'))
+        $template = VariationTemplate::where('uid', $request->input('template_id'))
                                                 ->with(['values'])
                                                 ->first();
         $row_index = $request->input('row_index');
@@ -1216,7 +1216,7 @@ class ProductController extends Controller
             $business_uid = $request->session()->get('user.business_uid');
 
             if (! empty($product_uid)) {
-                $product = Product::where('id', $product_uid)
+                $product = Product::where('uid', $product_uid)
                         ->with(['unit'])
                         ->first();
 
@@ -1224,7 +1224,7 @@ class ProductController extends Controller
                         ->with(['product_variation']);
 
                 if ($variation_uid !== '0') {
-                    $query->where('id', $variation_uid);
+                    $query->where('uid', $variation_uid);
                 }
                 $variations = $query->get();
 
@@ -1390,7 +1390,7 @@ class ProductController extends Controller
         $query = Product::where('business_uid', $business_uid)
                         ->where('sku', $sku);
         if (! empty($product_uid)) {
-            $query->where('id', '!=', $product_uid);
+            $query->where('uid', '!=', $product_uid);
         }
         $count = $query->count();
 
@@ -1434,7 +1434,7 @@ class ProductController extends Controller
         $query = Product::where('business_uid', $business_uid)
                         ->where('name', $name);
         if (! empty($product_uid)) {
-            $query->where('id', '!=', $product_uid);
+            $query->where('uid', '!=', $product_uid);
         }
         $count = $query->count();
 
@@ -1515,7 +1515,7 @@ class ProductController extends Controller
 
         $barcode_types = $this->barcode_types;
 
-        $default_profit_percent = Business::where('id', $business_uid)->value('default_profit_percent');
+        $default_profit_percent = Business::where('uid', $business_uid)->value('default_profit_percent');
 
         $locations = BusinessLocation::forDropdown($business_uid);
 
@@ -1731,7 +1731,7 @@ class ProductController extends Controller
                 $selected_rows = explode(',', $request->input('selected_rows'));
 
                 $products = Product::where('business_uid', $business_uid)
-                                    ->whereIn('id', $selected_rows)
+                                    ->whereIn('uid', $selected_rows)
                                     ->with(['purchase_lines', 'variations'])
                                     ->get();
                 $deletable_products = [];
@@ -1901,7 +1901,7 @@ class ProductController extends Controller
         $business_uid = request()->session()->get('user.business_uid');
 
         $product = Product::where('business_uid', $business_uid)
-                            ->where('id', $id)
+                            ->where('uid', $id)
                             ->with(['variations', 'variations.product_variation', 'variations.group_prices'])
                             ->first();
 
@@ -1945,7 +1945,7 @@ class ProductController extends Controller
                 DB::beginTransaction();
 
                 $products = Product::where('business_uid', $business_uid)
-                                    ->whereIn('id', $selected_products)
+                                    ->whereIn('uid', $selected_products)
                                     ->update(['is_inactive' => 1]);
 
                 DB::commit();
@@ -1981,7 +1981,7 @@ class ProductController extends Controller
         if (request()->ajax()) {
             try {
                 $business_uid = request()->session()->get('user.business_uid');
-                $product = Product::where('id', $id)
+                $product = Product::where('uid', $id)
                                 ->where('business_uid', $business_uid)
                                 ->update(['is_inactive' => 0]);
 
@@ -2119,7 +2119,7 @@ class ProductController extends Controller
                 },
             ]);
 
-            $variations = is_array($variation_ids) ? $query->whereIn('id', $variation_ids)->get() : $query->where('id', $variation_ids)->first();
+            $variations = is_array($variation_ids) ? $query->whereIn('uid', $variation_ids)->get() : $query->where('uid', $variation_ids)->first();
         } catch (\Exception $e) {
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
@@ -2147,7 +2147,7 @@ class ProductController extends Controller
             $business_uid = $request->session()->get('user.business_uid');
 
             $products = Product::where('business_uid', $business_uid)
-                                ->whereIn('id', $selected_products)
+                                ->whereIn('uid', $selected_products)
                                 ->with(['variations', 'variations.product_variation', 'variations.group_prices', 'product_locations'])
                                 ->get();
 
@@ -2357,7 +2357,7 @@ class ProductController extends Controller
             $product_ids = explode(',', $selected_products);
 
             $products = Product::where('business_uid', $business_uid)
-                                ->whereIn('id', $product_ids)
+                                ->whereIn('uid', $product_ids)
                                 ->with(['product_locations'])
                                 ->get();
             DB::beginTransaction();
@@ -2448,7 +2448,7 @@ class ProductController extends Controller
             DB::beginTransaction();
             if ($this->moduleUtil->isModuleInstalled('Woocommerce')) {
                 Product::where('business_uid', $business_uid)
-                        ->whereIn('id', $product_ids)
+                        ->whereIn('uid', $product_ids)
                         ->update(['woocommerce_disable_sync' => $woocommerce_disable_sync]);
             }
             DB::commit();

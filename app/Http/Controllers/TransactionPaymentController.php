@@ -174,7 +174,7 @@ class TransactionPaymentController extends Controller
         }
 
         if (request()->ajax()) {
-            $transaction = Transaction::where('id', $id)
+            $transaction = Transaction::where('uid', $id)
                                         ->with(['contact', 'business', 'transaction_for'])
                                         ->first();
             $payments_query = TransactionPayment::where('transaction_uid', $id);
@@ -211,7 +211,7 @@ class TransactionPaymentController extends Controller
 
             $payment_line = TransactionPayment::with(['denominations'])->where('method', '!=', 'advance')->findOrFail($id);
 
-            $transaction = Transaction::where('id', $payment_line->transaction_uid)
+            $transaction = Transaction::where('uid', $payment_line->transaction_uid)
                                         ->where('business_uid', $business_uid)
                                         ->with(['contact', 'location'])
                                         ->first();
@@ -624,7 +624,7 @@ class TransactionPaymentController extends Controller
 
             $transaction = null;
             if (! empty($single_payment_line->transaction_uid)) {
-                $transaction = Transaction::where('id', $single_payment_line->transaction_uid)
+                $transaction = Transaction::where('uid', $single_payment_line->transaction_uid)
                                 ->with(['contact', 'location', 'transaction_for'])
                                 ->first();
             } else {

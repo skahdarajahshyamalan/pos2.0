@@ -1758,7 +1758,7 @@ class SellPosController extends Controller
                 $business_uid = $request->session()->get('user.business_uid');
 
                 $transaction = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $transaction_uid)
+                    ->where('uid', $transaction_uid)
                     ->with(['location'])
                     ->first();
 
@@ -2453,7 +2453,7 @@ class SellPosController extends Controller
 
     private function getVariationsDetails($business_uid, $location_uid, $variation_ids)
     {
-        $variation_details = Variation::whereIn('id', $variation_ids)
+        $variation_details = Variation::whereIn('uid', $variation_ids)
             ->with([
                 'product' => function ($q) use ($business_uid) {
                     $q->where('business_uid', $business_uid);
@@ -2475,7 +2475,7 @@ class SellPosController extends Controller
         $business_uid = $request->session()->get('user.business_uid');
 
         $types_of_service = TypesOfService::where('business_uid', $business_uid)
-            ->where('id', $types_of_service_id)
+            ->where('uid', $types_of_service_id)
             ->first();
 
         $price_group_id = !empty($types_of_service->location_price_group[$location_uid])
@@ -2911,7 +2911,7 @@ class SellPosController extends Controller
 
     public function markAsAvailable($user_uid)
     {
-        $service_staff = User::where('id', $user_uid)
+        $service_staff = User::where('uid', $user_uid)
             ->update(['paused_at' => null, 'available_at' => null]);
 
         return ['success' => true];
@@ -2995,7 +2995,7 @@ class SellPosController extends Controller
                 $business_uid = request()->session()->get('user.business_uid');
 
                 $transaction = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $id)->findOrFail($id);
+                    ->where('uid', $id)->findOrFail($id);
 
                 DB::beginTransaction();
 
@@ -3006,7 +3006,7 @@ class SellPosController extends Controller
                 if ($request->sell_details) {
                     foreach ($request->sell_details as $sell) {
 
-                        TransactionSellLine::where('id', $sell['id'])->update([
+                        TransactionSellLine::where('uid', $sell['id'])->update([
                             'res_service_staff_id' => $sell['res_service_staff_id'],
                         ]);
                     }

@@ -187,7 +187,7 @@ class InvoiceSchemeController extends Controller
 
             $input['start_number'] = ($input['number_type'] == 'aleatory') ? '' : $input['start_number'];
 
-            $invoice = InvoiceScheme::where('id', $id)->update($input);
+            $invoice = InvoiceScheme::where('uid', $id)->update($input);
 
             $output = ['success' => true,
                 'msg' => __('invoice.updated_success'),

@@ -22,7 +22,7 @@ class ProductModifierSetController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
             $modifer_set = Product::where('business_uid', $business_uid)
                         ->where('type', 'modifier')
-                        ->where('id', $id)
+                        ->where('uid', $id)
                         ->with(['modifier_products'])
                         ->first();
 
@@ -42,7 +42,7 @@ class ProductModifierSetController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $product = Product::where('business_uid', $business_uid)
-                        ->where('id', $product_uid)
+                        ->where('uid', $product_uid)
                         ->first();
 
             return view('restaurant.product_modifier_set.product_row')
@@ -66,7 +66,7 @@ class ProductModifierSetController extends Controller
             $user_uid = $request->session()->get('user.uid');
 
             $modifer_set = Product::where('business_uid', $business_uid)
-                    ->where('id', $modifier_set_id)
+                    ->where('uid', $modifier_set_id)
                     ->where('type', 'modifier')
                     ->first();
 
@@ -98,7 +98,7 @@ class ProductModifierSetController extends Controller
 
         $quantity = $request->input('quantity', 1);
 
-        $modifiers = Variation::whereIn('id', $selected)
+        $modifiers = Variation::whereIn('uid', $selected)
                         ->get();
 
         if (count($modifiers) > 0) {

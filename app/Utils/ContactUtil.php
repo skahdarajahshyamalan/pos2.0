@@ -148,7 +148,7 @@ class ContactUtil extends Util
         if (! empty($input['contact_id'])) {
             $count = Contact::where('business_uid', $business_uid)
                     ->where('contact_id', $input['contact_id'])
-                    ->where('id', '!=', $id)
+                    ->where('uid', '!=', $id)
                     ->count();
         }
 

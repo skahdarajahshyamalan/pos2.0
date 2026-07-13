@@ -279,7 +279,7 @@ class BusinessLocationController extends Controller
             $input['featured_products'] = ! empty($input['featured_products']) ? json_encode($input['featured_products']) : null;
 
             BusinessLocation::where('business_uid', $business_uid)
-                            ->where('id', $id)
+                            ->where('uid', $id)
                             ->update($input);
 
             $output = ['success' => true,
@@ -325,7 +325,7 @@ class BusinessLocationController extends Controller
             $query = BusinessLocation::where('business_uid', $business_uid)
                             ->where('location_uid', $location_uid);
             if (! empty($hidden_id)) {
-                $query->where('id', '!=', $hidden_id);
+                $query->where('uid', '!=', $hidden_id);
             }
             $count = $query->count();
             if ($count > 0) {

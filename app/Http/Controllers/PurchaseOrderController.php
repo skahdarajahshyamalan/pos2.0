@@ -450,7 +450,7 @@ class PurchaseOrderController extends Controller
         $taxes = TaxRate::where('business_uid', $business_uid)
                             ->pluck('name', 'id');
         $query = Transaction::where('business_uid', $business_uid)
-                                ->where('id', $id)
+                                ->where('uid', $id)
                                 ->with(
                                     'contact',
                                     'purchase_lines',
@@ -519,7 +519,7 @@ class PurchaseOrderController extends Controller
                             ->ExcludeForTaxGroup()
                             ->get();
         $query = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->with(
                         'contact',
                         'purchase_lines',
@@ -806,7 +806,7 @@ class PurchaseOrderController extends Controller
                                 ->get();
 
         $purchase = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->with(
                         'contact',
                         'purchase_lines',

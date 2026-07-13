@@ -154,7 +154,7 @@ class LedgerDiscountController extends Controller
 
             Transaction::where('business_uid', $business_uid)
                     ->where('type', 'ledger_discount')
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->update($transaction_data);
 
             $output = ['success' => true, 'msg' => __('lang_v1.success')];
@@ -188,7 +188,7 @@ class LedgerDiscountController extends Controller
         try {
             Transaction::where('business_uid', $business_uid)
                     ->where('type', 'ledger_discount')
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->delete();
 
             $output = ['success' => true, 'msg' => __('lang_v1.success')];

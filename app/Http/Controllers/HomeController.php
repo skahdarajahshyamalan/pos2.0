@@ -79,7 +79,7 @@ class HomeController extends Controller
 
         $fy = $this->businessUtil->getCurrentFinancialYear($business_uid);
 
-        $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
+        $currency = Currency::where('uid', request()->session()->get('business.currency_id'))->first();
         //ensure start date starts from at least 30 days before to get sells last 30 days
         $least_30_days = \Carbon::parse($fy['start'])->subDays(30)->format('Y-m-d');
 

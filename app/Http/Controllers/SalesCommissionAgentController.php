@@ -150,7 +150,7 @@ class SalesCommissionAgentController extends Controller
                 $input['cmmsn_percent'] = $this->commonUtil->num_uf($input['cmmsn_percent']);
                 $business_uid = $request->session()->get('user.business_uid');
 
-                $user = User::where('id', $id)
+                $user = User::where('uid', $id)
                             ->where('business_uid', $business_uid)
                             ->where('is_cmmsn_agnt', 1)
                             ->first();
@@ -187,7 +187,7 @@ class SalesCommissionAgentController extends Controller
             try {
                 $business_uid = request()->session()->get('user.business_uid');
 
-                User::where('id', $id)
+                User::where('uid', $id)
                     ->where('business_uid', $business_uid)
                     ->where('is_cmmsn_agnt', 1)
                     ->delete();

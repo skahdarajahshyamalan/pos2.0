@@ -175,7 +175,7 @@ class BarcodeController extends Controller
                 $input['paper_height'] = $request->input('paper_height');
             }
 
-            $barcode = Barcode::where('id', $id)->update($input);
+            $barcode = Barcode::where('uid', $id)->update($input);
 
             $output = ['success' => 1,
                 'msg' => __('barcode.updated_success'),

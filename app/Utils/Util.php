@@ -635,7 +635,7 @@ class Util
         }
 
         $unit = Unit::where('base_unit_id', $base_unit_id)
-            ->where('id', $unit_uid)
+            ->where('uid', $unit_uid)
             ->first();
         if (empty($unit)) {
             return 1;

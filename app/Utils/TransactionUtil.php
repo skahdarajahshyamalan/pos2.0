@@ -164,7 +164,7 @@ class TransactionUtil extends Util
         $transaction = $transaction_uid;
 
         if (! is_object($transaction)) {
-            $transaction = Transaction::where('id', $transaction_uid)
+            $transaction = Transaction::where('uid', $transaction_uid)
                         ->where('business_uid', $business_uid)
                         ->firstOrFail();
         }
@@ -645,7 +645,7 @@ class TransactionUtil extends Util
     public function deleteSellLines($transaction_line_ids, $location_uid, $adjust_qty = true)
     {
         if (! empty($transaction_line_ids)) {
-            $sell_lines = TransactionSellLine::whereIn('id', $transaction_line_ids)
+            $sell_lines = TransactionSellLine::whereIn('uid', $transaction_line_ids)
                         ->get();
 
             //Adjust quanity
@@ -663,7 +663,7 @@ class TransactionUtil extends Util
             TransactionSellLine::whereIn('so_line_id', $transaction_line_ids)
                     ->update(['so_line_id' => null]);
 
-            TransactionSellLine::whereIn('id', $transaction_line_ids)
+            TransactionSellLine::whereIn('uid', $transaction_line_ids)
                 ->delete();
         }
     }
@@ -718,7 +718,7 @@ class TransactionUtil extends Util
         if ($transaction->type == 'purchase') {
             $prefix_type = 'purchase_payment';
         }
-        $contact_balance = Contact::where('id', $transaction->contact_id)->value('balance');
+        $contact_balance = Contact::where('uid', $transaction->contact_id)->value('balance');
         $denominations = [];
         foreach ($payments as $payment) {
             //Check if transaction_sell_lines_id is set.
@@ -859,7 +859,7 @@ class TransactionUtil extends Util
         // Set payment for to transaction contact id
         $payment['payment_for'] = $transaction->contact_id;
 
-        $tp = TransactionPayment::where('id', $payment_id)
+        $tp = TransactionPayment::where('uid', $payment_id)
                             ->first();
 
         $transaction_type = ! empty($transaction->type) ? $transaction->type : null;
@@ -2410,7 +2410,7 @@ class TransactionUtil extends Util
     private function getInvoiceScheme($business_uid, $location_uid)
     {
         $scheme_id = BusinessLocation::where('business_uid', $business_uid)
-                    ->where('id', $location_uid)
+                    ->where('uid', $location_uid)
                     ->first()
                     ->invoice_scheme_id;
         if (! empty($scheme_id) && $scheme_id != 0) {
@@ -3368,7 +3368,7 @@ class TransactionUtil extends Util
                             ];
 
                         //Update purchase line
-                        PurchaseLine::where('id', $row->purchase_lines_id)
+                        PurchaseLine::where('uid', $row->purchase_lines_id)
                             ->update(['quantity_adjusted' => $row->quantity_adjusted + $qty_allocated]);
                     }
                 } elseif ($mapping_type == 'purchase') {
@@ -3381,7 +3381,7 @@ class TransactionUtil extends Util
                             'updated_at' => \Carbon::now(),
                         ];
                         //Update purchase line
-                        PurchaseLine::where('id', $row->purchase_lines_id)
+                        PurchaseLine::where('uid', $row->purchase_lines_id)
                             ->update(['quantity_sold' => $row->quantity_sold + $qty_allocated]);
                     }
                 } elseif ($mapping_type == 'production_purchase') {
@@ -3395,7 +3395,7 @@ class TransactionUtil extends Util
                         ];
 
                         //Update purchase line
-                        PurchaseLine::where('id', $row->purchase_lines_id)
+                        PurchaseLine::where('uid', $row->purchase_lines_id)
                             ->update(['mfg_quantity_used' => $row->mfg_quantity_used + $qty_allocated]);
                     }
                 }
@@ -3504,14 +3504,14 @@ class TransactionUtil extends Util
             if (! empty($sell_purchases)) {
                 //Decrease the quantity sold of products
                 foreach ($sell_purchases as $row) {
-                    PurchaseLine::where('id', $row['purchase_line_id'])
+                    PurchaseLine::where('uid', $row['purchase_line_id'])
                         ->decrement('quantity_sold', $row['quantity']);
 
                     $sell_purchase_ids[] = $row['id'];
                 }
 
                 //Delete the lines.
-                TransactionSellLinesPurchaseLines::whereIn('id', $sell_purchase_ids)
+                TransactionSellLinesPurchaseLines::whereIn('uid', $sell_purchase_ids)
                     ->delete();
             }
         } elseif ($status_before == 'draft' && $transaction->status == 'final') {
@@ -3593,19 +3593,19 @@ class TransactionUtil extends Util
     private function mapDecrementPurchaseQuantity($sell_line_id, $decrement_qty)
     {
         $sell_purchase_line = TransactionSellLinesPurchaseLines::where('sell_line_id', $sell_line_id)
-                                ->orderBy('id', 'desc')
+                                ->orderBy('uid', 'desc')
                                 ->get();
 
         foreach ($sell_purchase_line as $row) {
             if ($row->quantity > $decrement_qty) {
-                PurchaseLine::where('id', $row->purchase_line_id)
+                PurchaseLine::where('uid', $row->purchase_line_id)
                     ->decrement('quantity_sold', $decrement_qty);
 
                 $row->quantity = $row->quantity - $decrement_qty;
                 $row->save();
                 $decrement_qty = 0;
             } else {
-                PurchaseLine::where('id', $row->purchase_line_id)
+                PurchaseLine::where('uid', $row->purchase_line_id)
                     ->decrement('quantity_sold', $decrement_qty);
                 $row->delete();
             }
@@ -3632,11 +3632,11 @@ class TransactionUtil extends Util
         }
 
         $map_line = TransactionSellLinesPurchaseLines::whereIn('stock_adjustment_line_id', $line_ids)
-                            ->orderBy('id', 'desc')
+                            ->orderBy('uid', 'desc')
                             ->get();
 
         foreach ($map_line as $row) {
-            PurchaseLine::where('id', $row->purchase_line_id)
+            PurchaseLine::where('uid', $row->purchase_line_id)
                 ->decrement('quantity_adjusted', $row->quantity);
         }
 
@@ -3755,7 +3755,7 @@ class TransactionUtil extends Util
                             'product_uid' => $row->sell_product_id,
                             'variation_uid' => $row->sell_variation_id,
                         ];
-                        PurchaseLine::where('id', $row->purchase_line_id)
+                        PurchaseLine::where('uid', $row->purchase_line_id)
                             ->decrement('quantity_sold', $row->quantity);
                     } else {
                         $stock_adjustment_lines[] =
@@ -3764,12 +3764,12 @@ class TransactionUtil extends Util
                                 'product_uid' => $row->adjust_product_id,
                                 'variation_uid' => $row->adjust_variation_id,
                             ];
-                        PurchaseLine::where('id', $row->purchase_line_id)
+                        PurchaseLine::where('uid', $row->purchase_line_id)
                             ->decrement('quantity_adjusted', $row->quantity);
                     }
 
                     $extra_sold = $extra_sold - $row->quantity;
-                    TransactionSellLinesPurchaseLines::where('id', $row->tslpl_id)->delete();
+                    TransactionSellLinesPurchaseLines::where('uid', $row->tslpl_id)->delete();
                 } else {
                     if (! empty($row->sell_line_id)) {
                         $sell_lines[] = (object) ['id' => $row->sell_line_id,
@@ -3777,7 +3777,7 @@ class TransactionUtil extends Util
                             'product_uid' => $row->sell_product_id,
                             'variation_uid' => $row->sell_variation_id,
                         ];
-                        PurchaseLine::where('id', $row->purchase_line_id)
+                        PurchaseLine::where('uid', $row->purchase_line_id)
                             ->decrement('quantity_sold', $extra_sold);
                     } else {
                         $stock_adjustment_lines[] =
@@ -3787,11 +3787,11 @@ class TransactionUtil extends Util
                                 'variation_uid' => $row->adjust_variation_id,
                             ];
 
-                        PurchaseLine::where('id', $row->purchase_line_id)
+                        PurchaseLine::where('uid', $row->purchase_line_id)
                             ->decrement('quantity_adjusted', $extra_sold);
                     }
 
-                    TransactionSellLinesPurchaseLines::where('id', $row->tslpl_id)->update(['quantity' => $row->quantity - $extra_sold]);
+                    TransactionSellLinesPurchaseLines::where('uid', $row->tslpl_id)->update(['quantity' => $row->quantity - $extra_sold]);
 
                     $extra_sold = 0;
                 }
@@ -4878,7 +4878,7 @@ class TransactionUtil extends Util
             return $output;
         }
 
-        $transaction = Transaction::where('id', $transaction_uid)
+        $transaction = Transaction::where('uid', $transaction_uid)
                     ->where('business_uid', $business_uid)
                     ->whereIn('type', ['sell', 'sales_order'])
                     ->with(['sell_lines', 'payment_lines'])
@@ -6435,7 +6435,7 @@ class TransactionUtil extends Util
                                 ->get();
 
         $purchase = Transaction::where('business_uid', $business_uid)
-                    ->where('id', $transaction_uid)
+                    ->where('uid', $transaction_uid)
                     ->with(
                         'contact',
                         'purchase_lines',

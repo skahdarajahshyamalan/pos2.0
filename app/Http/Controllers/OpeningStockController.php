@@ -48,7 +48,7 @@ class OpeningStockController extends Controller
 
         //Get the product
         $product = Product::where('business_uid', $business_uid)
-                            ->where('id', $product_uid)
+                            ->where('uid', $product_uid)
                             ->with(['variations',
                                 'variations.product_variation',
                                 'unit',
@@ -151,7 +151,7 @@ class OpeningStockController extends Controller
             $user_uid = $request->session()->get('user.uid');
 
             $product = Product::where('business_uid', $business_uid)
-                                ->where('id', $product_uid)
+                                ->where('uid', $product_uid)
                                 ->with(['variations', 'product_tax'])
                                 ->first();
 
@@ -298,7 +298,7 @@ class OpeningStockController extends Controller
                                     }
                                     //Delete deleted purchase lines
                                     PurchaseLine::where('transaction_uid', $transaction->id)
-                                                ->whereIn('id', $delete_purchase_line_ids)
+                                                ->whereIn('uid', $delete_purchase_line_ids)
                                                 ->delete();
                                 }
 

@@ -339,7 +339,7 @@ class StockAdjustmentController extends Controller
             if (request()->ajax()) {
                 DB::beginTransaction();
 
-                $stock_adjustment = Transaction::where('id', $id)
+                $stock_adjustment = Transaction::where('uid', $id)
                                     ->where('type', 'stock_adjustment')
                                     ->with(['stock_adjustment_lines'])
                                     ->first();
@@ -438,7 +438,7 @@ class StockAdjustmentController extends Controller
         }
 
         try {
-            $purchase_line = PurchaseLine::where('id', $purchase_line_id)
+            $purchase_line = PurchaseLine::where('uid', $purchase_line_id)
                                     ->with(['transaction'])
                                     ->first();
 

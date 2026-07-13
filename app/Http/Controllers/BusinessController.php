@@ -298,7 +298,7 @@ class BusinessController extends Controller
         }
 
         $business_uid = request()->session()->get('user.business_uid');
-        $business = Business::where('id', $business_uid)->first();
+        $business = Business::where('uid', $business_uid)->first();
 
         $currencies = $this->businessUtil->allCurrencies();
         $tax_details = TaxRate::forBusinessDropdown($business_uid);
@@ -437,7 +437,7 @@ class BusinessController extends Controller
             }
 
             $business_uid = request()->session()->get('user.business_uid');
-            $business = Business::where('id', $business_uid)->first();
+            $business = Business::where('uid', $business_uid)->first();
 
             //Update business settings
             if (! empty($business_details['logo'])) {
@@ -541,7 +541,7 @@ class BusinessController extends Controller
 
         if (! empty($request->input('user_uid'))) {
             $user_uid = $request->input('user_uid');
-            $query->where('id', '!=', $user_uid);
+            $query->where('uid', '!=', $user_uid);
         }
 
         $exists = $query->exists();
@@ -565,7 +565,7 @@ class BusinessController extends Controller
             $api_token = request()->header('API-TOKEN');
             $api_settings = $this->moduleUtil->getApiSettings($api_token);
 
-            $settings = Business::where('id', $api_settings->business_uid)
+            $settings = Business::where('uid', $api_settings->business_uid)
                         ->value('ecom_settings');
 
             $settings_array = ! empty($settings) ? json_decode($settings, true) : [];

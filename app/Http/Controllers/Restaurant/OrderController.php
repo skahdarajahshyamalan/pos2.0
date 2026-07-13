@@ -116,7 +116,7 @@ class OrderController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
             $user_uid = request()->session()->get('user.uid');
 
-            $query = TransactionSellLine::where('id', $id);
+            $query = TransactionSellLine::where('uid', $id);
 
             if ($this->restUtil->is_service_staff($user_uid)) {
                 $query->where('res_service_staff_id', $user_uid);

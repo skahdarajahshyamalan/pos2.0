@@ -43,7 +43,7 @@ class BusinessLocation extends Model
         if ($check_permission) {
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
-                $query->whereIn('id', $permitted_locations);
+                $query->whereIn('uid', $permitted_locations);
             }
         }
 

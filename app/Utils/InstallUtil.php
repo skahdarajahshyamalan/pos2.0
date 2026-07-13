@@ -43,7 +43,7 @@ class InstallUtil extends Util
 
                         if (! empty($sa_lines) && is_array($sa_lines)) {
                             foreach ($sa_lines as $line) {
-                                $variation = Variation::where('id', $line->variation_uid)
+                                $variation = Variation::where('uid', $line->variation_uid)
                                                 ->where('product_uid', $line->product_uid)
                                                 ->first();
 

@@ -348,7 +348,7 @@
 			<td colspan="3">
 				@if(!empty($tax_array))
 		        	@foreach($tax_array as $key => $value)
-		        		{{$taxes->where('id', $key)->first()->name}} ({{$taxes->where('id', $key)->first()->amount}}%) : @format_currency(array_sum($value)) <br>
+		        		{{$taxes->where('uid', $key)->first()->name}} ({{$taxes->where('uid', $key)->first()->amount}}%) : @format_currency(array_sum($value)) <br>
 		        	@endforeach
 		        @endif
 				

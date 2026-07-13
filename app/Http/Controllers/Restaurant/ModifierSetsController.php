@@ -186,7 +186,7 @@ class ModifierSetsController extends Controller
             $business_uid = $request->session()->get('user.business_uid');
 
             $modifer_set = Product::where('business_uid', $business_uid)
-                            ->where('id', $id)
+                            ->where('uid', $id)
                             ->with(['variations'])
                             ->first();
 
@@ -219,7 +219,7 @@ class ModifierSetsController extends Controller
             $user_uid = $request->session()->get('user.uid');
 
             $modifer_set = Product::where('business_uid', $business_uid)
-                    ->where('id', $id)
+                    ->where('uid', $id)
                     ->where('type', 'modifier')
                     ->first();
             $modifer_set->update(['name' => $input['name']]);
@@ -297,7 +297,7 @@ class ModifierSetsController extends Controller
 
             Product::where('business_uid', $business_uid)
                 ->where('type', 'modifier')
-                ->where('id', $id)
+                ->where('uid', $id)
                 ->delete();
 
             DB::commit();

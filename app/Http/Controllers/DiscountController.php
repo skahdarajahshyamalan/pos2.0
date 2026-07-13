@@ -334,7 +334,7 @@ class DiscountController extends Controller
                 DB::beginTransaction();
 
                 Discount::where('business_uid', $business_uid)
-                            ->whereIn('id', $selected_discounts)
+                            ->whereIn('uid', $selected_discounts)
                             ->update(['is_active' => 0]);
 
                 DB::commit();
@@ -370,7 +370,7 @@ class DiscountController extends Controller
         if (request()->ajax()) {
             try {
                 $business_uid = request()->session()->get('user.business_uid');
-                Discount::where('id', $id)
+                Discount::where('uid', $id)
                     ->where('business_uid', $business_uid)
                     ->update(['is_active' => 1]);
 

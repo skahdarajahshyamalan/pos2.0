@@ -43,7 +43,7 @@ class UserController extends Controller
     public function getProfile()
     {
         $user_uid = request()->session()->get('user.uid');
-        $user = User::where('id', $user_uid)->with(['media'])->first();
+        $user = User::where('uid', $user_uid)->with(['media'])->first();
         $config_languages = config('constants.langs');
         $languages = [];
         foreach ($config_languages as $key => $value) {
@@ -121,7 +121,7 @@ class UserController extends Controller
 
         try {
             $user_uid = $request->session()->get('user.uid');
-            $user = User::where('id', $user_uid)->first();
+            $user = User::where('uid', $user_uid)->first();
 
             if (Hash::check($request->input('current_password'), $user->password)) {
                 $user->password = Hash::make($request->input('new_password'));
