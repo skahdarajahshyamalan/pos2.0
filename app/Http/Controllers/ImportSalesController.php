@@ -66,7 +66,7 @@ class ImportSalesController extends Controller
                             ->where('type', 'sell')
                             ->whereNotNull('import_batch')
                             ->with(['sales_person'])
-                            ->select('id', 'import_batch', 'import_time', 'invoice_no', 'created_by_uid')
+                            ->select('uid', 'import_batch', 'import_time', 'invoice_no', 'created_by_uid')
                             ->orderBy('import_batch', 'desc')
                             ->get();
 
