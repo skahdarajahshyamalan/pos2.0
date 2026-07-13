@@ -23,14 +23,14 @@ class ExpenseCategoryController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $expense_category = ExpenseCategory::where('business_uid', $business_uid)
-                        ->select(['name', 'code', 'id', 'parent_uid']);
+                        ->select(['name', 'code', 'uid', 'parent_uid']);
 
             return Datatables::of($expense_category)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\ExpenseCategoryController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".expense_category_modal"><i class="glyphicon glyphicon-edit"></i>  @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\ExpenseCategoryController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".expense_category_modal"><i class="glyphicon glyphicon-edit"></i>  @lang("messages.edit")</button>
                         &nbsp;
-                        <button data-href="{{action(\'App\Http\Controllers\ExpenseCategoryController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_expense_category"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
+                        <button data-href="{{action(\'App\Http\Controllers\ExpenseCategoryController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_expense_category"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
                 ->editColumn('name', function ($row) {
                     if (! empty($row->parent_uid)) {
@@ -227,14 +227,14 @@ class ExpenseCategoryController extends Controller
             $business_uid = $request->session()->get('user.business_uid');
             $sub_categories = ExpenseCategory::where('business_uid', $business_uid)
                         ->where('parent_uid', $category_uid)
-                        ->select(['name', 'id'])
+                        ->select(['name', 'uid'])
                         ->get();
         }
 
         $html = '<option value="">'.__('lang_v1.none').'</option>';
         if (! empty($sub_categories)) {
             foreach ($sub_categories as $sub_category) {
-                $html .= '<option value="'.$sub_category->id.'">'.$sub_category->name.'</option>';
+                $html .= '<option value="'.$sub_category->uid.'">'.$sub_category->name.'</option>';
             }
         }
         echo $html;
