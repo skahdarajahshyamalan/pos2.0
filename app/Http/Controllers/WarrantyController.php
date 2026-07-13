@@ -19,14 +19,14 @@ class WarrantyController extends Controller
 
         if (request()->ajax()) {
             $warranties = Warranty::where('business_uid', $business_uid)
-                         ->select(['id', 'name', 'description', 'duration', 'duration_type']);
+                         ->select(['uid', 'name', 'description', 'duration', 'duration_type']);
 
             return Datatables::of($warranties)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\WarrantyController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".view_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>'
+                    '<button data-href="{{action(\'App\Http\Controllers\WarrantyController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".view_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>'
                  )
-                 ->removeColumn('id')
+                 ->removeColumn('uid')
                  ->editColumn('duration', function ($row) {
                      return $row->duration.' '.__('lang_v1.'.$row->duration_type);
                  })

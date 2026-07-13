@@ -3815,7 +3815,7 @@ class ReportController extends Controller
         $business_uid = $request->session()->get('user.business_uid');
         $taxes = TaxRate::where('business_uid', $business_uid)
                         ->where('is_tax_group', 0)
-                        ->select(['id', 'name', 'amount'])
+                        ->select(['uid', 'name', 'amount'])
                         ->get()
                         ->toArray();
 
@@ -3965,7 +3965,7 @@ class ReportController extends Controller
         $business_uid = $request->session()->get('user.business_uid');
         $taxes = TaxRate::where('business_uid', $business_uid)
                         ->where('is_tax_group', 0)
-                        ->select(['id', 'name', 'amount'])
+                        ->select(['uid', 'name', 'amount'])
                         ->get()
                         ->toArray();
 
