@@ -292,14 +292,14 @@ class BusinessUtil extends Util
             $layout = InvoiceLayout::where('is_default', 1)
                                     ->where('business_uid', $business_uid)
                                     ->first();
-            $invoice_layout_uid = $layout->id;
+            $invoice_layout_uid = $layout->uid;
         }
 
         if (empty($invoice_scheme_uid)) {
             $scheme = InvoiceScheme::where('is_default', 1)
                                     ->where('business_uid', $business_uid)
                                     ->first();
-            $invoice_scheme_uid = $scheme->id;
+            $invoice_scheme_uid = $scheme->uid;
         }
 
         //Update reference count
