@@ -76,7 +76,7 @@
                                 @foreach( $invoice_layouts as $layout)
                                 <div class="col-md-3">
                                     <div class="icon-link">
-                                        <a href="{{action([\App\Http\Controllers\InvoiceLayoutController::class, 'edit'], [$layout->id])}}">
+                                        <a href="{{action([\App\Http\Controllers\InvoiceLayoutController::class, 'edit'], [$layout->uid])}}">
                                             <i class="fa fa-file-alt fa-4x"></i>
                                             {{ $layout->name }}
                                         </a>
