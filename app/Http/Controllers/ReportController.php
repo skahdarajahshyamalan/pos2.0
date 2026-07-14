@@ -2324,8 +2324,8 @@ class ReportController extends Controller
         $business_uid = $request->session()->get('user.business_uid');
         if ($request->ajax()) {
             $supplier_id = $request->get('supplier_id', null);
-            $contact_filter1 = ! empty($supplier_id) ? "AND t.contact_uid=$supplier_id" : '';
-            $contact_filter2 = ! empty($supplier_id) ? "AND transactions.contact_uid=$supplier_id" : '';
+            $contact_filter1 = ! empty($supplier_id) ? "AND t.contact_uid='$supplier_id'" : '';
+            $contact_filter2 = ! empty($supplier_id) ? "AND transactions.contact_uid='$supplier_id'" : '';
 
             $location_uid = $request->get('location_uid', null);
 
@@ -2339,7 +2339,7 @@ class ReportController extends Controller
                 ->where('transaction_payments.business_uid', $business_uid)
                 ->where(function ($q) use ($business_uid, $contact_filter1, $contact_filter2, $parent_payment_query_part) {
                     $q->whereRaw("(transaction_payments.transaction_uid IS NOT NULL AND t.type IN ('purchase', 'opening_balance')  $parent_payment_query_part $contact_filter1)")
-                        ->orWhereRaw("EXISTS(SELECT * FROM transaction_payments as tp JOIN transactions ON tp.transaction_uid = transactions.uid WHERE transactions.type IN ('purchase', 'opening_balance') AND transactions.business_uid = $business_uid AND tp.parent_uid=transaction_payments.uid $contact_filter2)");
+                        ->orWhereRaw("EXISTS(SELECT * FROM transaction_payments as tp JOIN transactions ON tp.transaction_uid = transactions.uid WHERE transactions.type IN ('purchase', 'opening_balance') AND transactions.business_uid = '$business_uid' AND tp.parent_uid=transaction_payments.uid $contact_filter2)");
                 })
 
                 ->select(
@@ -2448,8 +2448,8 @@ class ReportController extends Controller
         $payment_types = $this->transactionUtil->payment_types(null, true, $business_uid);
         if ($request->ajax()) {
             $customer_id = $request->get('supplier_id', null);
-            $contact_filter1 = ! empty($customer_id) ? "AND t.contact_uid=$customer_id" : '';
-            $contact_filter2 = ! empty($customer_id) ? "AND transactions.contact_uid=$customer_id" : '';
+            $contact_filter1 = ! empty($customer_id) ? "AND t.contact_uid='$customer_id'" : '';
+            $contact_filter2 = ! empty($customer_id) ? "AND transactions.contact_uid='$customer_id'" : '';
 
             $location_uid = $request->get('location_uid', null);
             $parent_payment_query_part = empty($location_uid) ? 'AND transaction_payments.parent_uid IS NULL' : '';
@@ -2501,7 +2501,7 @@ class ReportController extends Controller
                 ->where('transaction_payments.business_uid', $business_uid)
                 ->where(function ($q) use ($business_uid, $contact_filter1, $contact_filter2, $parent_payment_query_part) {
                     $q->whereRaw("(transaction_payments.transaction_uid IS NOT NULL AND t.type IN ('sell', 'opening_balance') $parent_payment_query_part $contact_filter1)")
-                        ->orWhereRaw("EXISTS(SELECT * FROM transaction_payments as tp JOIN transactions ON tp.transaction_uid = transactions.uid WHERE transactions.type IN ('sell', 'opening_balance') AND transactions.business_uid = $business_uid AND tp.parent_uid=transaction_payments.uid $contact_filter2)");
+                        ->orWhereRaw("EXISTS(SELECT * FROM transaction_payments as tp JOIN transactions ON tp.transaction_uid = transactions.uid WHERE transactions.type IN ('sell', 'opening_balance') AND transactions.business_uid = '$business_uid' AND tp.parent_uid=transaction_payments.uid $contact_filter2)");
                 })
                 ->select(
                     'customer_subquery.customer_name as customer',
