@@ -23,18 +23,18 @@ class BarcodeController extends Controller
             $business_uid = request()->session()->get('user.business_uid');
 
             $barcodes = Barcode::where('business_uid', $business_uid)
-                        ->select(['name', 'description', 'id', 'is_default']);
+                        ->select(['name', 'description', 'uid', 'is_default']);
 
             return Datatables::of($barcodes)
                 ->addColumn(
                     'action',
-                    '<a href="{{action(\'App\Http\Controllers\BarcodeController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
+                    '<a href="{{action(\'App\Http\Controllers\BarcodeController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
                         &nbsp;
-                        <button type="button" data-href="{{action(\'App\Http\Controllers\BarcodeController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_barcode_button" @if($is_default) disabled @endif><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>&nbsp;
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\BarcodeController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_barcode_button" @if($is_default) disabled @endif><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>&nbsp;
                         @if($is_default)
                             <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent" disabled><i class="fa fa-check-square-o" aria-hidden="true"></i> @lang("barcode.default")</button>
                         @else
-                            <button class="btn btn-xs btn-info set_default" data-href="{{action(\'App\Http\Controllers\BarcodeController@setDefault\', [$id])}}">@lang("barcode.set_as_default")</button>
+                            <button class="btn btn-xs btn-info set_default" data-href="{{action(\'App\Http\Controllers\BarcodeController@setDefault\', [$uid])}}">@lang("barcode.set_as_default")</button>
                         @endif
                         '
                 )
