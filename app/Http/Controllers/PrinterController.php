@@ -24,7 +24,7 @@ class PrinterController extends Controller
 
             $printer = Printer::where('business_uid', $business_uid)
                         ->select(['name', 'connection_type',
-                            'capability_profile', 'char_per_line', 'ip_address', 'port', 'path', 'id', ]);
+                            'capability_profile', 'char_per_line', 'ip_address', 'port', 'path', 'uid', ]);
 
             return Datatables::of($printer)
                 ->editColumn('capability_profile', function ($row) {
@@ -36,11 +36,11 @@ class PrinterController extends Controller
                 ->addColumn(
                     'action',
                     '@can("printer.update")
-                    <a href="{{action(\'App\Http\Controllers\PrinterController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
+                    <a href="{{action(\'App\Http\Controllers\PrinterController@edit\', [$uid])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
                         &nbsp;
                     @endcan
                     @can("printer.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\PrinterController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_printer_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\PrinterController@destroy\', [$uid])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_printer_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->removeColumn('uid')
