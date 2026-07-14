@@ -14,7 +14,7 @@ use App\Printer;
 use App\Unit;
 use App\User;
 use Illuminate\Support\Facades\DB;
-use App\\Models\\Role;
+use App\Models\Role;
 use App\VariationLocationDetails;
 
 

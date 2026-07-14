@@ -17,7 +17,7 @@ use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\\Models\\Permission;
+use App\Models\Permission;
 use App\Rules\ReCaptcha;
 use Illuminate\Support\Facades\Validator;
 

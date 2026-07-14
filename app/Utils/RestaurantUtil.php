@@ -7,7 +7,7 @@ use App\Transaction;
 use App\TransactionSellLine;
 use App\User;
 use Illuminate\Support\Facades\DB;
-use App\\Models\\Role;
+use App\Models\Role;
 
 class RestaurantUtil extends Util
 {
