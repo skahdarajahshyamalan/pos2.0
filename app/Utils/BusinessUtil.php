@@ -144,7 +144,7 @@ class BusinessUtil extends Util
      */
     public function allCurrencies()
     {
-        $currencies = Currency::select('id', DB::raw("concat(country, ' - ',currency, '(', code, ') ') as info"))
+        $currencies = Currency::select('uid', DB::raw("concat(country, ' - ',currency, '(', code, ') ') as info"))
                 ->orderBy('country')
                 ->pluck('info', 'uid');
 
