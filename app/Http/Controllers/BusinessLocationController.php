@@ -10,7 +10,7 @@ use App\SellingPriceGroup;
 use App\Utils\ModuleUtil;
 use App\Utils\Util;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
+use App\\Models\\Permission;
 use Yajra\DataTables\Facades\DataTables;
 
 class BusinessLocationController extends Controller

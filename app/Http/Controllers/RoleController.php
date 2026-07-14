@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\SellingPriceGroup;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\\Models\\Permission;
+use App\\Models\\Role;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 

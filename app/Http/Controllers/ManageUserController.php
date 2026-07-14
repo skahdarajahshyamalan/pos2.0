@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Activitylog\Models\Activity;
-use Spatie\Permission\Models\Role;
+use App\\Models\\Role;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\UserCreatedOrModified;
 

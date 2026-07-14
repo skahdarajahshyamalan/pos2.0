@@ -9,7 +9,7 @@ use App\VariationGroupPrice;
 use DB;
 use Excel;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
+use App\\Models\\Permission;
 use Yajra\DataTables\Facades\DataTables;
 
 class SellingPriceGroupController extends Controller

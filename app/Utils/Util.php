@@ -18,7 +18,7 @@ use DB;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use App\\Models\\Role;
 use Illuminate\Support\Str; // Add this at the top with other imports
 
 class Util
