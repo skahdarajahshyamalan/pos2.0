@@ -293,6 +293,9 @@ class ModulesController extends Controller
                     return redirect()->back()->with(['status' => $output]);
                 }
 
+                // Refactor extracted module files from integer id / _id to string uid / _uid
+                $this->refactorModuleFilesToUid($module_dir);
+
                 // Clear module assets cache when new module is uploaded
                 Cache::forget('module_assets');
 
@@ -321,5 +324,65 @@ class ModulesController extends Controller
     private function __available_modules()
     {
         return 'a:15:{i:0;O:8:"stdClass":4:{s:1:"n";s:10:"Essentials";s:2:"dn";s:17:"Essentials Module";s:1:"u";s:53:"https://ultimatefosters.com/recommends/essential-app/";s:1:"d";s:49:"Essentials features for every growing businesses.";}i:1;O:8:"stdClass":4:{s:1:"n";s:10:"Superadmin";s:2:"dn";s:17:"Superadmin Module";s:1:"u";s:54:"https://ultimatefosters.com/recommends/superadmin-app/";s:1:"d";s:76:"Turn your POS to SaaS application and start earning by selling subscriptions";}i:2;O:8:"stdClass":4:{s:1:"n";s:11:"Woocommerce";s:2:"dn";s:18:"Woocommerce Module";s:1:"u";s:55:"https://ultimatefosters.com/recommends/woocommerce-app/";s:1:"d";s:36:"Sync your Woocommerce store with POS";}i:3;O:8:"stdClass":4:{s:1:"n";s:13:"Manufacturing";s:2:"dn";s:20:"Manufacturing Module";s:1:"u";s:57:"https://ultimatefosters.com/recommends/manufacturing-app/";s:1:"d";s:70:"Manufacture products from raw materials, organise recipe & ingredients";}i:4;O:8:"stdClass":4:{s:1:"n";s:7:"Project";s:2:"dn";s:14:"Project Module";s:1:"u";s:51:"https://ultimatefosters.com/recommends/project-app/";s:1:"d";s:66:"Manage Projects, tasks, tasks time logs, activities and much more.";}i:5;O:8:"stdClass":4:{s:1:"n";s:6:"Repair";s:2:"dn";s:13:"Repair Module";s:1:"u";s:50:"https://ultimatefosters.com/recommends/repair-app/";s:1:"d";s:248:"Repair module helps with complete repair service management of electronic goods like Cellphone, Computers, Desktops, Tablets, Television, Watch, Wireless devices, Printers, Electronic instruments and many more similar devices which you can imagine!";}i:6;O:8:"stdClass":4:{s:1:"n";s:3:"Crm";s:2:"dn";s:10:"CRM Module";s:1:"u";s:63:"https://ultimatefosters.com/product/crm-module-for-ultimatepos/";s:1:"d";s:39:"Customer relationship management module";}i:7;O:8:"stdClass":4:{s:1:"n";s:16:"ProductCatalogue";s:2:"dn";s:16:"ProductCatalogue";s:1:"u";s:90:"https://codecanyon.net/item/digital-product-catalogue-menu-module-for-ultimatepos/28825346";s:1:"d";s:32:"Digital Product catalogue Module";}i:8;O:8:"stdClass":4:{s:1:"n";s:10:"Accounting";s:2:"dn";s:17:"Accounting Module";s:1:"u";s:82:"https://ultimatefosters.com/product/accounting-bookkeeping-module-for-ultimatepos/";s:1:"d";s:48:"Accounting & Book keeping module for UltimatePOS";}i:9;O:8:"stdClass":4:{s:1:"n";s:12:"AiAssistance";s:2:"dn";s:19:"AiAssistance Module";s:1:"u";s:73:"https://ultimatefosters.com/product/ai-assistance-module-for-ultimatepos/";s:1:"d";s:104:"AI Assistant module for UltimatePOS. This module used openAI API to help with in copywriting & reporting";}i:10;O:8:"stdClass":4:{s:1:"n";s:15:"AssetManagement";s:2:"dn";s:22:"AssetManagement Module";s:1:"u";s:76:"https://ultimatefosters.com/product/asset-management-module-for-ultimatepos/";s:1:"d";s:40:"Useful for managing all kinds of assets.";}i:11;O:8:"stdClass":4:{s:1:"n";s:3:"Cms";s:2:"dn";s:10:"Cms Module";s:1:"u";s:59:"https://ultimatefosters.com/product/ultimatepos-cms-module/";s:1:"d";s:153:"Mini CMS (content management system) Module for UltimatePOS to help manage all frontend contents like Landing page, Blogs, Contact us & many other pages.";}i:12;O:8:"stdClass":4:{s:1:"n";s:9:"Connector";s:2:"dn";s:20:"Connector/API Module";s:1:"u";s:68:"https://ultimatefosters.com/product/rest-api-module-for-ultimatepos/";s:1:"d";s:24:"Provide the API for POS.";}i:13;O:8:"stdClass":4:{s:1:"n";s:3:"Gym";s:2:"dn";s:10:"Gym Module";s:1:"u";s:74:"https://ultimatefosters.com/product/gym-management-module-for-ultimatepos/";s:1:"d";s:37:"Gym Management module for UltimatePOS";}i:14;O:8:"stdClass":4:{s:1:"n";s:3:"Hms";s:2:"dn";s:23:"Hotel Management Module";s:1:"u";s:87:"https://ultimatefosters.com/product/hms-hotel-management-system-module-for-ultimatepos/";s:1:"d";s:119:"Hotel Management System module for UltimatePOS, provides features for room bookings, extras, coupons & related features";}}';
+    }
+
+    /**
+     * Post-extraction helper to refactor uploaded module files from integer 'id' / '_id' to string 'uid' / '_uid'.
+     */
+    private function refactorModuleFilesToUid($module_dir)
+    {
+        if (! is_dir($module_dir)) {
+            return;
+        }
+
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($module_dir));
+        foreach ($iterator as $file) {
+            if ($file->isDir() || strtolower($file->getExtension()) !== 'php') {
+                continue;
+            }
+
+            $filepath = $file->getPathname();
+            $content = file_get_contents($filepath);
+            $originalContent = $content;
+
+            // 1. Primary keys in Migrations
+            $content = preg_replace('/\$table->increments\([\'"]id[\'"]\)/i', '$table->string(\'uid\', 30)->primary()', $content);
+            $content = preg_replace('/\$table->bigIncrements\([\'"]id[\'"]\)/i', '$table->string(\'uid\', 30)->primary()', $content);
+            $content = preg_replace('/\$table->id\(\)/i', '$table->string(\'uid\', 30)->primary()', $content);
+
+            // 2. Foreign Key Column Definitions in Migrations
+            $content = preg_replace('/\$table->(?:integer|unsignedInteger|bigInteger|unsignedBigInteger)\([\'"]([a-zA-Z0-9_]+)_id[\'"]\)/i', '$table->string(\'$1_uid\', 30)->nullable()', $content);
+
+            // 3. Foreign Key column string replacements
+            $column_map = [
+                'business_id' => 'business_uid',
+                'location_id' => 'location_uid',
+                'user_id' => 'user_uid',
+                'contact_id' => 'contact_uid',
+                'transaction_id' => 'transaction_uid',
+                'product_id' => 'product_uid',
+                'variation_id' => 'variation_uid',
+                'category_id' => 'category_uid',
+                'brand_id' => 'brand_uid',
+                'unit_id' => 'unit_uid',
+                'tax_id' => 'tax_uid',
+                'created_by' => 'created_by_uid',
+            ];
+
+            foreach ($column_map as $oldKey => $newKey) {
+                $content = str_replace("'$oldKey'", "'$newKey'", $content);
+                $content = str_replace('"' . $oldKey . '"', '"' . $newKey . '"', $content);
+            }
+
+            // 4. Query filter and reference replacements
+            $content = str_replace('user.business_id', 'user.business_uid', $content);
+            $content = str_replace("where('id',", "where('uid',", $content);
+            $content = str_replace("whereIn('id',", "whereIn('uid',", $content);
+            $content = str_replace("orderBy('id'", "orderBy('uid'", $content);
+
+            if ($content !== $originalContent) {
+                file_put_contents($filepath, $content);
+            }
+        }
     }
 }
