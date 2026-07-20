@@ -353,7 +353,16 @@ class ModulesController extends Controller
             // 2. Foreign Key Column Definitions in Migrations
             $content = preg_replace('/\$table->(?:integer|unsignedInteger|bigInteger|unsignedBigInteger)\([\'"]([a-zA-Z0-9_]+)_id[\'"]\)/i', '$table->string(\'$1_uid\', 30)->nullable()', $content);
 
-            // 3. Foreign Key column string replacements
+            // 3. Remove ->unsigned() from string(...) column definitions
+            $content = preg_replace('/(\$table->string\([^;\r\n]+)->unsigned\(\)/i', '$1', $content);
+
+            // 4. Foreign Key references('id') -> references('uid')
+            $content = preg_replace('/references\([\'"]id[\'"]\)/i', 'references(\'uid\')', $content);
+
+            // 5. Automatic 'uid' injection for DB table inserts in migrations
+            $content = preg_replace('/(\[\s*[\'"]key[\'"]\s*=>)/i', '[\'uid\' => uniqid(\'\', true), \'key\' =>', $content);
+
+            // 6. Foreign Key column string replacements
             $column_map = [
                 'business_id' => 'business_uid',
                 'location_id' => 'location_uid',
@@ -367,6 +376,8 @@ class ModulesController extends Controller
                 'unit_id' => 'unit_uid',
                 'tax_id' => 'tax_uid',
                 'created_by' => 'created_by_uid',
+                'package_id' => 'package_uid',
+                'created_id' => 'created_uid',
             ];
 
             foreach ($column_map as $oldKey => $newKey) {
@@ -374,7 +385,7 @@ class ModulesController extends Controller
                 $content = str_replace('"' . $oldKey . '"', '"' . $newKey . '"', $content);
             }
 
-            // 4. Query filter and reference replacements
+            // 6. Query filter and reference replacements
             $content = str_replace('user.business_id', 'user.business_uid', $content);
             $content = str_replace("where('id',", "where('uid',", $content);
             $content = str_replace("whereIn('id',", "whereIn('uid',", $content);
