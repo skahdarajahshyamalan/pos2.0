@@ -36,8 +36,8 @@ class SuperadminController extends Controller
         $currency = System::getCurrency();
 
         //Count all busineses not subscribed.
-        $not_subscribed = Business::leftjoin('subscriptions AS s', 'business.id', '=', 's.business_id')
-            ->whereNull('s.id')
+        $not_subscribed = Business::leftjoin('subscriptions AS s', 'business.uid', '=', 's.business_uid')
+            ->whereNull('s.uid')
             ->count();
 
         $subscriptions = $this->_monthly_sell_data();

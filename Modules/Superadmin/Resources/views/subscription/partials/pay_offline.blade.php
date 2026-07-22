@@ -1,5 +1,5 @@
 <div class="col-md-12">
-	<form action="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->id])}}" method="POST">
+	<form action="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->uid])}}" method="POST">
 	 	{{ csrf_field() }}
 	 	<input type="hidden" name="gateway" value="{{$k}}">
 

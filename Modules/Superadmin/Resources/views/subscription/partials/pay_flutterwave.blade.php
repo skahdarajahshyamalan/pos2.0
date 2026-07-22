@@ -30,7 +30,7 @@
             payment_options: "card, mobilemoneyghana, ussd",
             redirect_url: "{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'postFlutterwavePaymentCallback'])}}",// specified redirect URL
             meta: {
-                package_id: "{{$package->id}}",
+                package_id: "{{$package->uid}}",
                 gateway: "{{$v}}",
                 business_id: "{{$user['business_uid']}}",
                 user_id: "{{$user['id']}}"

@@ -16,7 +16,7 @@
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['route' => ['packages.update', $packages->id], 'method' => 'put', 'id' => 'edit_package_form']) !!}
+	{!! Form::open(['route' => ['packages.update', $packages->uid], 'method' => 'put', 'id' => 'edit_package_form']) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 

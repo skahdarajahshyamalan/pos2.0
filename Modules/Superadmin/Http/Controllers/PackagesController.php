@@ -197,7 +197,7 @@ class PackagesController extends Controller
                 }
 
                 //Update subscription package details
-                $subscriptions = Subscription::where('package_id', $package->id)
+                $subscriptions = Subscription::where('package_uid', $package->uid)
                                             ->whereDate('end_date', '>=', \Carbon::now())
                                             ->update(['package_details' => json_encode($package_details)]);
             }

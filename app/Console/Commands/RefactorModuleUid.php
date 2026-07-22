@@ -98,10 +98,26 @@ class RefactorModuleUid extends Command
             // 4. Foreign Key references('id') -> references('uid')
             $content = preg_replace('/references\([\'"]id[\'"]\)/i', 'references(\'uid\')', $content);
 
-            // 5. Automatic 'uid' injection for DB table inserts in migrations
-            $content = preg_replace('/(\[\s*[\'"]key[\'"]\s*=>)/i', '[\'uid\' => uniqid(\'\', true), \'key\' =>', $content);
+            // 6. Query joins, table prefix and alias primary key references
+            $content = str_replace('business.id', 'business.uid', $content);
+            $content = str_replace('users.id', 'users.uid', $content);
+            $content = str_replace('subscriptions.id', 'subscriptions.uid', $content);
+            $content = str_replace('packages.id', 'packages.uid', $content);
+            $content = str_replace('pages.id', 'pages.uid', $content);
+            $content = str_replace('s.id', 's.uid', $content);
+            $content = str_replace('b.id', 'b.uid', $content);
+            $content = str_replace('t.id', 't.uid', $content);
+            $content = str_replace('bl.id', 'bl.uid', $content);
+            $content = str_replace("whereNull('s.id')", "whereNull('s.uid')", $content);
 
-            // 6. Foreign Key Column Name Substitutions
+            // Table-prefixed foreign key column references e.g. s.business_id -> s.business_uid
+            $content = preg_replace('/([a-zA-Z0-9_]+)\.(business|location|user|contact|transaction|product|variation|category|brand|unit|tax|package|created|owner)_id\b/i', '$1.$2_uid', $content);
+
+            // 7. Model and view object ->id and ->business_id property references
+            $content = preg_replace('/\$([a-zA-Z0-9_]+)->id\b/', '$$1->uid', $content);
+            $content = preg_replace('/\$([a-zA-Z0-9_]+)->business_id\b/', '$$1->business_uid', $content);
+
+            // 8. Foreign Key column string replacements
             $column_map = [
                 'business_id' => 'business_uid',
                 'location_id' => 'location_uid',
@@ -117,6 +133,7 @@ class RefactorModuleUid extends Command
                 'created_by' => 'created_by_uid',
                 'package_id' => 'package_uid',
                 'created_id' => 'created_uid',
+                'owner_id' => 'owner_uid',
             ];
 
             foreach ($column_map as $oldKey => $newKey) {
@@ -124,7 +141,7 @@ class RefactorModuleUid extends Command
                 $content = str_replace('"' . $oldKey . '"', '"' . $newKey . '"', $content);
             }
 
-            // 6. Query filters and reference replacements
+            // 9. Query filters and reference replacements
             $content = str_replace('user.business_id', 'user.business_uid', $content);
             $content = str_replace("where('id',", "where('uid',", $content);
             $content = str_replace("whereIn('id',", "whereIn('uid',", $content);

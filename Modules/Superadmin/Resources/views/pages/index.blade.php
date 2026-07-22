@@ -44,8 +44,8 @@
                                         {{$page->menu_order}}
                                     </span>
 									
-									<a href="{{action([\Modules\Superadmin\Http\Controllers\PageController::class, 'edit'], [$page->id])}}" class="btn btn-box-tool" title="edit"><i class="fa fa-edit"></i></a>
-									<a href="{{action([\Modules\Superadmin\Http\Controllers\PageController::class, 'destroy'], [$page->id])}}" class="btn btn-box-tool delete_page" title="delete"><i class="fa fa-trash"></i></a>
+									<a href="{{action([\Modules\Superadmin\Http\Controllers\PageController::class, 'edit'], [$page->uid])}}" class="btn btn-box-tool" title="edit"><i class="fa fa-edit"></i></a>
+									<a href="{{action([\Modules\Superadmin\Http\Controllers\PageController::class, 'destroy'], [$page->uid])}}" class="btn btn-box-tool delete_page" title="delete"><i class="fa fa-trash"></i></a>
 	              					
 								</div>
 							</div>

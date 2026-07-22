@@ -1,6 +1,6 @@
 <div class="col-md-12">
 
-	<form action="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->id])}}" method="POST">
+	<form action="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->uid])}}" method="POST">
 		<!-- Note that the amount is in paise -->
 		<script
 		    src="https://checkout.razorpay.com/v1/checkout.js"

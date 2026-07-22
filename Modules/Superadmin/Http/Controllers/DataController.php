@@ -39,7 +39,7 @@ class DataController extends Controller
             $notification_data = [
                 'msg' => $msg,
                 'icon_class' => 'fas fa-exclamation-triangle bg-yellow',
-                'link' => action([\App\Http\Controllers\HomeController::class, 'showNotification'], [$notification->id]),
+                'link' => action([\App\Http\Controllers\HomeController::class, 'showNotification'], [$notification->uid]),
                 'show_popup' => true,
                 'read_at' => $notification->read_at,
                 'created_at' => $notification->created_at->diffForHumans(),

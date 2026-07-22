@@ -141,7 +141,7 @@ class Subscription extends Model
      */
     public function created_user()
     {
-        return $this->belongsTo(\App\User::class, 'created_id');
+        return $this->belongsTo(\App\User::class, 'created_uid');
     }
 
     /**

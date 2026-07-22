@@ -73,7 +73,7 @@ class BaseController extends Controller
         }
 
         $subscription = ['business_uid' => $business_id,
-            'package_id' => $package->id,
+            'package_uid' => $package->uid,
             'paid_via' => $gateway,
             'payment_transaction_id' => $payment_transaction_id,
         ];
@@ -108,7 +108,7 @@ class BaseController extends Controller
             }
         }
 
-        $subscription['created_id'] = $user_id;
+        $subscription['created_uid'] = $user_id;
         $subscription = Subscription::create($subscription);
 
         if (! $is_superadmin) {

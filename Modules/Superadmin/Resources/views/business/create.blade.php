@@ -18,8 +18,8 @@
                     <div class="col-md-12"><hr></div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            {!! Form::label('package_id', __( 'superadmin::lang.subscription_packages' ) . ':') !!}
-                            {!! Form::select('package_id', $packages, null, ['class' => 'form-control', 'placeholder' => __( 'messages.please_select' ) ]); !!}
+                            {!! Form::label('package_uid', __( 'superadmin::lang.subscription_packages' ) . ':') !!}
+                            {!! Form::select('package_uid', $packages, null, ['class' => 'form-control', 'placeholder' => __( 'messages.please_select' ) ]); !!}
                         </div>
                     </div>
                     <div class="col-md-4">

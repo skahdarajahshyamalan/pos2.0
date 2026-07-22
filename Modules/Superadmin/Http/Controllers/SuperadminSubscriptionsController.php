@@ -38,16 +38,16 @@ class SuperadminSubscriptionsController extends BaseController
         }
 
         if (request()->ajax()) {
-            $superadmin_subscription = Subscription::join('business', 'subscriptions.business_id', '=', 'business.id')
-                ->join('packages', 'subscriptions.package_id', '=', 'packages.id')
+            $superadmin_subscription = Subscription::join('business', 'subscriptions.business_uid', '=', 'business.uid')
+                ->join('packages', 'subscriptions.package_uid', '=', 'packages.uid')
                 ->select('business.name as business_name', 'packages.name as package_name', 'subscriptions.status',
-                 'subscriptions.created_at', 'subscriptions.start_date', 'subscriptions.trial_end_date', 'subscriptions.end_date', 'subscriptions.package_price', 'subscriptions.paid_via', 'subscriptions.payment_transaction_id', 'subscriptions.id');
+                 'subscriptions.created_at', 'subscriptions.start_date', 'subscriptions.trial_end_date', 'subscriptions.end_date', 'subscriptions.package_price', 'subscriptions.paid_via', 'subscriptions.payment_transaction_id', 'subscriptions.uid');
 
             if(!empty(request()->input('status'))) {
                 $superadmin_subscription->where('subscriptions.status', request()->input('status'));
             }
-            if(!empty(request()->input('package_id'))) {
-                $superadmin_subscription->where('packages.id', request()->input('package_id'));
+            if(!empty(request()->input('package_uid'))) {
+                $superadmin_subscription->where('packages.uid', request()->input('package_uid'));
             }
 
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
@@ -113,7 +113,7 @@ class SuperadminSubscriptionsController extends BaseController
      */
     public function create()
     {
-        $business_id = request()->input('business_uid');
+        $business_uid = request()->input('business_uid');
         $packages = Package::active()->orderby('sort_order')->pluck('name', 'id');
 
         $gateways = $this->_payment_gateways();
@@ -137,8 +137,8 @@ class SuperadminSubscriptionsController extends BaseController
         try {
             DB::beginTransaction();
 
-            $input = $request->only(['business_uid', 'package_id', 'paid_via', 'payment_transaction_id']);
-            $package = Package::find($input['package_id']);
+            $input = $request->only(['business_uid', 'package_uid', 'paid_via', 'payment_transaction_id']);
+            $package = Package::find($input['package_uid']);
             $user_id = $request->session()->get('user.id');
 
             $subscription = $this->_add_subscription($input['business_uid'], $package, $input['paid_via'], $input['payment_transaction_id'], $user_id, true);
@@ -208,7 +208,7 @@ class SuperadminSubscriptionsController extends BaseController
                 $subscriptions = Subscription::findOrFail($id);
 
                 if ($subscriptions->status != 'approved' && empty($subscriptions->start_date) && $input['status'] == 'approved') {
-                    $dates = $this->_get_package_dates($subscriptions->business_id, $subscriptions->package);
+                    $dates = $this->_get_package_dates($subscriptions->business_uid, $subscriptions->package);
                     $subscriptions->start_date = $dates['start'];
                     $subscriptions->end_date = $dates['end'];
                     $subscriptions->trial_end_date = $dates['trial'];

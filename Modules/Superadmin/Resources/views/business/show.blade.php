@@ -248,7 +248,7 @@
         var users_table = $('#users_table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '/superadmin/users/' + "{{$business->id}}",
+            ajax: '/superadmin/users/' + "{{$business->uid}}",
             columnDefs: [ {
                 "targets": [4],
                 "orderable": false,

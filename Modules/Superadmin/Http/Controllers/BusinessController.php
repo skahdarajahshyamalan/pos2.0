@@ -51,17 +51,17 @@ class BusinessController extends BaseController
         if (request()->ajax()) {
             $date_today = \Carbon::today();
             $businesses = Business::leftjoin('subscriptions AS s', function ($join) use ($date_today) {
-                $join->on('business.id', '=', 's.business_id')
+                $join->on('business.uid', '=', 's.business_uid')
                                     ->whereDate('s.start_date', '<=', $date_today)
                                     ->whereDate('s.end_date', '>=', $date_today)
                                     ->where('s.status', 'approved');
             })
-                            ->leftjoin('packages as p', 's.package_id', '=', 'p.id')
-                            ->leftjoin('business_locations as bl', 'business.id', '=', 'bl.business_id')
-                            ->leftjoin('users as u', 'u.id', '=', 'business.owner_id')
+                            ->leftjoin('packages as p', 's.package_uid', '=', 'p.id')
+                            ->leftjoin('business_locations as bl', 'business.uid', '=', 'bl.business_uid')
+                            ->leftjoin('users as u', 'u.id', '=', 'business.owner_uid')
                             ->leftjoin('users as creator', 'creator.id', '=', 'business.created_by')
                             ->select(
-                                    'business.id',
+                                    'business.uid',
                                     'business.name',
                                     DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as owner_name"),
                                     'u.email as owner_email',
@@ -79,7 +79,7 @@ class BusinessController extends BaseController
                                     'p.name as package_name',
                                     'business.created_at',
                                     DB::raw("CONCAT(COALESCE(creator.surname, ''), ' ', COALESCE(creator.first_name, ''), ' ', COALESCE(creator.last_name, '')) as biz_creator")
-                                )->groupBy('business.id');
+                                )->groupBy('business.uid');
 
             if (! empty(request()->package_id)) {
                 $businesses->where('p.id', request()->package_id);
@@ -121,23 +121,23 @@ class BusinessController extends BaseController
                 ->editColumn('is_active', '@if($is_active == 1) <span class="label bg-green">@lang("business.is_active")</span> @else <span class="label bg-gray">@lang("lang_v1.inactive")</span> @endif')
                 ->addColumn('action', function ($row) {
                     $html = '<a href="'.
-                            action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'show'], [$row->id]).'"
+                            action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'show'], [$row->uid]).'"
                                 class="btn btn-info btn-xs">'.__('superadmin::lang.manage').'</a>
-                            <button type="button" class="btn btn-primary btn-xs btn-modal" data-href="'.action([\Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'create'], ['business_uid' => $row->id]).'" data-container=".view_modal">'
+                            <button type="button" class="btn btn-primary btn-xs btn-modal" data-href="'.action([\Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'create'], ['business_uid' => $row->uid]).'" data-container=".view_modal">'
                                   .__('superadmin::lang.add_subscription').'</button>';
 
                     if ($row->is_active == 1) {
-                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'toggleActive'], [$row->id, 0]).'"
+                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'toggleActive'], [$row->uid, 0]).'"
                                     class="btn btn-danger btn-xs link_confirmation">'.__('lang_v1.deactivate').'
                                 </a>';
                     } else {
-                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'toggleActive'], [$row->id, 1]).'"
+                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'toggleActive'], [$row->uid, 1]).'"
                                     class="btn btn-success btn-xs link_confirmation">'.__('lang_v1.activate').'
                                 </a>';
                     }
 
-                    if (request()->session()->get('user.business_uid') != $row->id) {
-                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'destroy'], [$row->id]).'"
+                    if (request()->session()->get('user.business_uid') != $row->uid) {
+                        $html .= ' <a href="'.action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'destroy'], [$row->uid]).'"
                                     class="btn btn-danger btn-xs delete_business_confirmation">'.__('messages.delete').'</a>';
                     }
 
@@ -161,7 +161,7 @@ class BusinessController extends BaseController
                 ->make(true);
         }
 
-        $business_id = request()->session()->get('user.business_uid');
+        $business_uid = request()->session()->get('user.business_uid');
 
         $packages = Package::listPackages()->pluck('name', 'id');
 
@@ -191,25 +191,25 @@ class BusinessController extends BaseController
     {
         if ($filter == 'today') {
             $today = \Carbon::today()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) = '$today') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) = '$today') $operator 0");
         } elseif ($filter == 'yesterday') {
             $yesterday = \Carbon::yesterday()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$yesterday') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$yesterday') $operator 0");
         } elseif ($filter == 'this_week') {
             $this_week = \Carbon::today()->subDays(7)->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$this_week') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$this_week') $operator 0");
         } elseif ($filter == 'this_month') {
             $this_month = \Carbon::today()->firstOfMonth()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$this_month') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$this_month') $operator 0");
         } elseif ($filter == 'last_month') {
             $last_month = \Carbon::today()->subDays(30)->firstOfMonth()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$last_month') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$last_month') $operator 0");
         } elseif ($filter == 'this_year') {
             $this_year = \Carbon::today()->firstOfYear()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$this_year') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$this_year') $operator 0");
         } elseif ($filter == 'last_year') {
             $last_year = \Carbon::today()->subYear()->firstOfYear()->format('Y-m-d');
-            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_id = business.id AND DATE(t.transaction_date) >= '$last_year') $operator 0");
+            $query->whereRaw("(SELECT COUNT(id) FROM transactions as t WHERE t.business_uid = business.uid AND DATE(t.transaction_date) >= '$last_year') $operator 0");
         }
 
         return $query;
@@ -279,7 +279,7 @@ class BusinessController extends BaseController
             $business_location = $request->only(['name', 'country', 'state', 'city', 'zip_code', 'landmark', 'website', 'mobile', 'alternate_number']);
 
             //Create the business
-            $business_details['owner_id'] = $user->id;
+            $business_details['owner_uid'] = $user->uid;
             if (! empty($business_details['start_date'])) {
                 $business_details['start_date'] = $this->businessUtil->uf_date($business_details['start_date']);
             }
@@ -299,20 +299,20 @@ class BusinessController extends BaseController
             $business = $this->businessUtil->createNewBusiness($business_details);
 
             //Update user with business id
-            $user->business_id = $business->id;
+            $user->business_uid = $business->uid;
             $user->save();
 
-            $this->businessUtil->newBusinessDefaultResources($business->id, $user->id);
-            $new_location = $this->businessUtil->addLocation($business->id, $business_location);
+            $this->businessUtil->newBusinessDefaultResources($business->uid, $user->uid);
+            $new_location = $this->businessUtil->addLocation($business->uid, $business_location);
 
             //create new permission with the new location
-            Permission::create(['name' => 'location.'.$new_location->id]);
+            Permission::create(['name' => 'location.'.$new_location->uid]);
 
-            $subscription_details = $request->only(['package_id', 'paid_via', 'payment_transaction_id']);
+            $subscription_details = $request->only(['package_uid', 'paid_via', 'payment_transaction_id']);
 
             //Add subscription if present
-            if (! empty($subscription_details['package_id']) && ! empty($subscription_details['paid_via'])) {
-                $subscription = $this->_add_subscription($business->id, $subscription_details['package_id'], $subscription_details['paid_via'], $subscription_details['payment_transaction_id'], $request->session()->get('user.id'), true);
+            if (! empty($subscription_details['package_uid']) && ! empty($subscription_details['paid_via'])) {
+                $subscription = $this->_add_subscription($business->uid, $subscription_details['package_uid'], $subscription_details['paid_via'], $subscription_details['payment_transaction_id'], $request->session()->get('user.id'), true);
             }
 
             DB::commit();
@@ -356,7 +356,7 @@ class BusinessController extends BaseController
 
         $created_id = $business->created_by;
 
-        $created_by = ! empty($created_id) ? User::find($created_id) : null;
+        $created_by_uid = ! empty($created_id) ? User::find($created_id) : null;
 
         return view('superadmin::business.show')
             ->with(compact('business', 'created_by_uid'));
@@ -488,7 +488,7 @@ class BusinessController extends BaseController
                 ->addColumn(
                     'role',
                     function ($row) {
-                        $role_name = $this->moduleUtil->getUserRoleName($row->id);
+                        $role_name = $this->moduleUtil->getUserRoleName($row->uid);
 
                         return $role_name;
                     }

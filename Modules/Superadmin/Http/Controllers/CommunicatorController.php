@@ -55,10 +55,10 @@ class CommunicatorController extends Controller
         $input = $request->input();
 
         //Get business owners
-        $business_owners = User::join('business as B', 'users.id', '=', 'B.owner_id')
+        $business_owners = User::join('business as B', 'users.uid', '=', 'B.owner_uid')
                         ->whereIn('B.id', $input['recipients'])
                         ->select('users.*')
-                        ->groupBy('users.id')
+                        ->groupBy('users.uid')
                         ->get();
 
         //Send notifications

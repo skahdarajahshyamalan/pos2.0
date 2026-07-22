@@ -25,7 +25,7 @@
         <input type="hidden" name="currency" value="{{$currency_code}}"> {{--Ghana:GHS, Nigeria:NGN, USD--}}
 
         <!-- additional info -->
-        <input type="hidden" name="metadata" value="{{ json_encode($array = ['package_id' => $package->id, 'gateway' => $v, 'business_uid' => $user['business_uid'], 'user_uid' => $user['id']]) }}" > {{-- For other necessary things you want to add to your payload. it is optional though --}}
+        <input type="hidden" name="metadata" value="{{ json_encode($array = ['package_uid' => $package->uid, 'gateway' => $v, 'business_uid' => $user['business_uid'], 'user_uid' => $user['id']]) }}" > {{-- For other necessary things you want to add to your payload. it is optional though --}}
 
         <!-- transaction ref -->
         <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}

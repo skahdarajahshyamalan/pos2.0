@@ -17,7 +17,7 @@ class PesaPalController extends Controller
         if ($status == 'COMPLETED') {
             if ($subscription->status != 'approved') {
                 //Update the date
-                $dates = $this->_get_package_dates($subscription->business_id, $subscription->package);
+                $dates = $this->_get_package_dates($subscription->business_uid, $subscription->package);
                 $subscription->status = 'approved';
                 $subscription->start_date = $dates['start'];
                 $subscription->end_date = $dates['end'];

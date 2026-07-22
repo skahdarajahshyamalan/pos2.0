@@ -17,8 +17,8 @@
     @component('components.filters', ['title' => __('report.filters')])
         <div class="col-md-3">
             <div class="form-group">
-                {!! Form::label('package_id',  __('superadmin::lang.packages') . ':') !!}
-                {!! Form::select('package_id', $packages, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
+                {!! Form::label('package_uid',  __('superadmin::lang.packages') . ':') !!}
+                {!! Form::select('package_uid', $packages, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -96,7 +96,7 @@
                             url: '/superadmin/superadmin-subscription',
                             data: function(d) {
                                 if ($('#package_id').length) {
-                                    d.package_id = $('#package_id').val();
+                                    d.package_uid = $('#package_id').val();
                                 }
                                 if ($('#subscription_status').length) {
                                     d.status = $('#subscription_status').val();

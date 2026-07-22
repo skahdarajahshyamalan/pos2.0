@@ -105,7 +105,7 @@ class SubscriptionController extends BaseController
             //Check if one time only package
             if (empty($form_register) && $package->is_one_time) {
                 $count_subcriptions = Subscription::where('business_uid', $business_id)
-                                                ->where('package_id', $package_id)
+                                                ->where('package_uid', $package_id)
                                                 ->count();
 
                 if ($count_subcriptions > 0) {
@@ -261,7 +261,7 @@ class SubscriptionController extends BaseController
         $pesapal_session = $request->session()->pull('pesapal');
 
         if ($pesapal_session['ref'] == $merchant_reference) {
-            $package_id = $pesapal_session['package_id'];
+            $package_id = $pesapal_session['package_uid'];
 
             $business_id = request()->session()->get('user.business_uid');
             $business_name = request()->session()->get('business.name');
@@ -308,7 +308,7 @@ class SubscriptionController extends BaseController
             'metadata' => $metadata,
         ]);
 
-        return $charge->id;
+        return $charge->uid;
     }
 
     /**
@@ -379,8 +379,8 @@ class SubscriptionController extends BaseController
         ];
         $data['invoice_id'] = $invoice_id;
         $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
-        $data['return_url'] = action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->id]);
-        $data['cancel_url'] = action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'pay'], [$package->id]);
+        $data['return_url'] = action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'confirm'], [$package->uid]);
+        $data['cancel_url'] = action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'pay'], [$package->uid]);
         $data['total'] = (float) $package->price;
 
         // if payment is not recurring just perform transaction on PayPal and get the payment status
@@ -462,7 +462,7 @@ class SubscriptionController extends BaseController
         $payment = $razorpay_api->payment->fetch($razorpay_payment_id)->capture(['amount' => $package->price * 100]); // Captures a payment
 
         if (empty($payment->error_code)) {
-            return $payment->id;
+            return $payment->uid;
         } else {
             $error_description = $payment->error_description;
             throw new \Exception($error_description);
@@ -488,7 +488,7 @@ class SubscriptionController extends BaseController
     {
         $payment = Paystack::getPaymentData();
         $business_id = $payment['data']['metadata']['business_uid'];
-        $package_id = $payment['data']['metadata']['package_id'];
+        $package_id = $payment['data']['metadata']['package_uid'];
         $gateway = $payment['data']['metadata']['gateway'];
         $payment_transaction_id = $payment['data']['reference'];
         $user_id = $payment['data']['metadata']['user_uid'];
@@ -540,7 +540,7 @@ class SubscriptionController extends BaseController
         if ($payment['status'] == 'success') {
             //Add subscription
             $business_id = $payment['data']['meta']['business_uid'];
-            $package_id = $payment['data']['meta']['package_id'];
+            $package_id = $payment['data']['meta']['package_uid'];
             $gateway = $payment['data']['meta']['gateway'];
             $payment_transaction_id = $payment['data']['tx_ref'];
             $user_id = $payment['data']['meta']['user_uid'];
@@ -605,16 +605,16 @@ class SubscriptionController extends BaseController
 
         $business_id = request()->session()->get('user.business_uid');
 
-        $subscriptions = Subscription::where('subscriptions.business_id', $business_id)
+        $subscriptions = Subscription::where('subscriptions.business_uid', $business_id)
                         ->leftjoin(
                             'packages as P',
-                            'subscriptions.package_id',
+                            'subscriptions.package_uid',
                             '=',
                             'P.id'
                         )
                         ->leftjoin(
                             'users as U',
-                            'subscriptions.created_id',
+                            'subscriptions.created_uid',
                             '=',
                             'U.id'
                         )
@@ -649,7 +649,7 @@ class SubscriptionController extends BaseController
                  $query->whereRaw("CONCAT(COALESCE(U.surname, ''), ' ', COALESCE(U.first_name, ''), ' ', COALESCE(U.last_name, '')) like ?", ["%{$keyword}%"]);
              })
              ->addColumn('action', function ($row) {
-                 return '<button type="button" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal" data-href="'.action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'show'], $row->id).'" ><i class="fa fa-eye" aria-hidden="true"></i> '.__('messages.view').'</button>';
+                 return '<button type="button" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal" data-href="'.action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'show'], $row->uid).'" ><i class="fa fa-eye" aria-hidden="true"></i> '.__('messages.view').'</button>';
              })
              ->rawColumns(['package_price', 'action'])
              ->make(true);

@@ -11,8 +11,8 @@
 
     <div class="modal-body">
       <div class="form-group">
-        {!! Form::label('package_id', __( 'superadmin::lang.subscription_packages' ) . ':*') !!}
-          {!! Form::select('package_id', $packages, null, ['class' => 'form-control', 'required', 'placeholder' => __( 'messages.please_select' ) ]); !!}
+        {!! Form::label('package_uid', __( 'superadmin::lang.subscription_packages' ) . ':*') !!}
+          {!! Form::select('package_uid', $packages, null, ['class' => 'form-control', 'required', 'placeholder' => __( 'messages.please_select' ) ]); !!}
       </div>
       <div class="form-group">
         {!! Form::label('paid_via', __( 'superadmin::lang.paid_via' ) . ':*') !!}

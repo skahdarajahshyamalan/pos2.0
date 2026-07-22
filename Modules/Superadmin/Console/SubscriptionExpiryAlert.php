@@ -57,7 +57,7 @@ class SubscriptionExpiryAlert extends Command
 
             //Check if next subscription available
             $next_sub_start_date = \Carbon::today()->addDays($next_alert_days)->toDateString();
-            $next_subscription = Subscription::where('business_uid', $subscription->business_id)
+            $next_subscription = Subscription::where('business_uid', $subscription->business_uid)
                                     ->whereDate('start_date', '=', $next_sub_start_date)
                                     ->approved()
                                     ->first();

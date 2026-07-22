@@ -1,7 +1,7 @@
 <!-- Modal -->
 <div class="modal-dialog" role="document">
     <div class="modal-content">
-     {!! Form::open(['url' => action([\Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'update'],$subscription->id), 'method' => 'PUT', 'id' => 'status_change_form']) !!}
+     {!! Form::open(['url' => action([\Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'update'],$subscription->uid), 'method' => 'PUT', 'id' => 'status_change_form']) !!}
 
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

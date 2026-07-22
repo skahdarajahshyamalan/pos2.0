@@ -94,7 +94,7 @@
 					<a href="{{$package->custom_link}}" class="btn btn-block btn-success">{{$package->custom_link_text}}</a>
 				@else
 					@if(isset($action_type) && $action_type == 'register')
-						<a href="{{ route('business.getRegister') }}?package={{$package->id}}" 
+						<a href="{{ route('business.getRegister') }}?package={{$package->uid}}" 
 						class="btn btn-block btn-success">
 		    				@if($package->price != 0)
 		    					@lang('superadmin::lang.register_subscribe')
@@ -103,7 +103,7 @@
 		    				@endif
 	    				</a>
 					@else
-	    				<a href="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'pay'], [$package->id])}}" 
+	    				<a href="{{action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'pay'], [$package->uid])}}" 
 						class="btn btn-block btn-success">
 		    				@if($package->price != 0)
 		    					@lang('superadmin::lang.pay_and_subscribe')

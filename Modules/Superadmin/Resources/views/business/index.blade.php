@@ -19,8 +19,8 @@
     @component('components.filters', ['title' => __('report.filters')])
         <div class="col-md-3">
             <div class="form-group">
-                {!! Form::label('package_id',  __('superadmin::lang.packages') . ':') !!}
-                {!! Form::select('package_id', $packages, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
+                {!! Form::label('package_uid',  __('superadmin::lang.packages') . ':') !!}
+                {!! Form::select('package_uid', $packages, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -101,7 +101,7 @@
             ajax: {
                 url: "{{action([\Modules\Superadmin\Http\Controllers\BusinessController::class, 'index'])}}",
                 data: function(d) {
-                    d.package_id = $('#package_id').val();
+                    d.package_uid = $('#package_id').val();
                     d.subscription_status = $('#subscription_status').val();
                     d.is_active = $('#is_active').val();
                     d.last_transaction_date = $('#last_transaction_date').val();
